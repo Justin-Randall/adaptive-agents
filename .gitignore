@@ -11,5 +11,9 @@ Thumbs.db
 # Generated VS Code integration files
 vscode/
 
+# Local-only retrospective scratch material
+retrospectives/private/
+retrospectives/**/*.local.md
+
 # Node / npm (if any scripts use it)
 node_modules/

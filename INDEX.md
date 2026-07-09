@@ -18,7 +18,13 @@ When working inside another project, treat Adaptive Agents content as reusable g
 | Default user-wide engineering preferences for non-trivial coding work | [instructions/global.instructions.md](instructions/global.instructions.md) |
 | Promoting retrospectives or updating Adaptive Agents guidance | [skills/update-adaptive-agents/SKILL.md](skills/update-adaptive-agents/SKILL.md) |
 | Running the adaptation lifecycle | [playbooks/adaptation-cycle.md](playbooks/adaptation-cycle.md) |
+| Planning adaptive automation layers | [playbooks/adaptive-automation-roadmap.md](playbooks/adaptive-automation-roadmap.md) |
 | Capturing raw session learning | [retrospectives/inbox/README.md](retrospectives/inbox/README.md) |
+| Capturing a retrospective from a session observation | [prompts/capture-retrospective.prompt.md](prompts/capture-retrospective.prompt.md) |
+| Reviewing a session for capture-worthy learning | [prompts/end-of-session-capture.prompt.md](prompts/end-of-session-capture.prompt.md) |
+| Triage a captured retrospective without applying changes | [prompts/triage-retrospective.prompt.md](prompts/triage-retrospective.prompt.md) |
+| Apply an approved retrospective promotion patch | [prompts/apply-approved-promotion.patch.prompt.md](prompts/apply-approved-promotion.patch.prompt.md) |
+| Review the retrospective inbox queue | [prompts/review-retrospective-inbox.prompt.md](prompts/review-retrospective-inbox.prompt.md) |
 
 ## Guidance Areas
 
@@ -63,10 +69,23 @@ This skill covers promoting retrospectives, choosing durable guidance targets, u
 For the end-to-end learning loop, use:
 
 - [playbooks/adaptation-cycle.md](playbooks/adaptation-cycle.md)
+- [playbooks/adaptive-automation-roadmap.md](playbooks/adaptive-automation-roadmap.md)
 - [retrospectives/inbox/README.md](retrospectives/inbox/README.md)
 - [retrospectives/inbox/template.md](retrospectives/inbox/template.md)
 
 The lifecycle is capture first, triage second, and promote only when a lesson is durable, evidence-backed, and routed to the narrowest appropriate guidance area.
+
+## Prompts
+
+For assisted retrospective capture, use:
+
+- [prompts/capture-retrospective.prompt.md](prompts/capture-retrospective.prompt.md)
+- [prompts/end-of-session-capture.prompt.md](prompts/end-of-session-capture.prompt.md)
+- [prompts/triage-retrospective.prompt.md](prompts/triage-retrospective.prompt.md)
+- [prompts/apply-approved-promotion.patch.prompt.md](prompts/apply-approved-promotion.patch.prompt.md)
+- [prompts/review-retrospective-inbox.prompt.md](prompts/review-retrospective-inbox.prompt.md)
+
+These prompts capture one session observation into `retrospectives/inbox/`, review a session for capture-worthy learning, triage captured retrospectives without promoting them automatically, apply only user-approved promotion patches, and review the inbox queue without editing files.
 
 ## Current State
 

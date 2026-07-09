@@ -42,6 +42,8 @@ If the lesson is not clearly durable, add or propose a retrospective instead of 
 - Keep generated files, especially `vscode/user-wide.instructions.md`, minimal and disposable.
 - Do not duplicate the same rule across many files unless repeated intentionally for discovery.
 - Use Markdown links when referencing other checked-in guidance files.
+- Keep checked-in retrospectives and durable guidance sanitized: do not include private project names, repository names, people, clients, paths, proprietary outputs, secrets, or raw copied logs unless the user explicitly says they are safe to include.
+- When promoting a retrospective, generalize from private session evidence into reusable behavior and leave private specifics out of durable guidance.
 - Update `INDEX.md` whenever a new durable guidance file or skill needs to be discoverable.
 - Keep frontmatter valid YAML and quote descriptions that contain colons.
 - Use `applyTo: "**"` only for instructions that truly must be always-on.

@@ -20,7 +20,9 @@ session observation
 
 Create a retrospective note when a session reveals a reusable lesson, failure mode, preference, or workflow improvement.
 
-Use [retrospectives/inbox/template.md](../retrospectives/inbox/template.md) for new notes. Keep the note factual and evidence-based; do not treat it as durable guidance yet.
+Use [retrospectives/inbox/template.md](../retrospectives/inbox/template.md) for new notes. Keep the note factual, sanitized, and evidence-based; do not treat it as durable guidance yet.
+
+Do not include private project names, repository names, people, clients, paths, proprietary outputs, secrets, or raw copied logs in checked-in retrospectives. Generalize private details unless the user explicitly says they are safe to include.
 
 Good retrospective candidates include:
 
@@ -67,6 +69,7 @@ Promotion should be a small, focused change.
 - Prefer editing the owning file over duplicating guidance elsewhere.
 - Prefer creating a narrow new file over expanding broad entrypoints.
 - Use Markdown links when referencing other checked-in guidance files.
+- Generalize the durable lesson; do not promote private project specifics, names, paths, or proprietary session details into reusable guidance.
 - Update `INDEX.md` when discovery changes.
 - Keep generated files, especially `vscode/user-wide.instructions.md`, as disposable bootstrap wiring.
 

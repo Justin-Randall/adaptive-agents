@@ -1,7 +1,7 @@
 # Retrospective: Repeated validation loops after completion
 
 - Date: 2026-07-09
-- Status: Captured
+- Status: Promoted
 - Session or task: Adaptive Agents guidance and maintenance workflow review
 
 ## Observation
@@ -23,12 +23,13 @@ This matters because validation should increase confidence, not prevent task clo
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Not promoted yet.
-- Rationale: The lesson appears durable, but it should be triaged before changing permanent guidance. It may belong in default coding completion discipline, Adaptive Agents maintenance validation guidance, or both.
+- Status: Promoted
+- Decision: Promoted to existing durable guidance.
+- Rationale: The lesson is durable because it applies across coding and guidance-maintenance tasks. Existing instructions already cover the desired behavior: stop after the requested scope is complete and a focused validation has succeeded, and avoid rerunning equivalent checks unless new work, new evidence, or a user request justifies it.
 
 ## Promotion Links
 
 Add Markdown links to changed durable guidance files if promoted.
 
-- None yet.
+- [Coding instructions](../../instructions/coding.instructions.md)
+- [Update Adaptive Agents skill](../../skills/update-adaptive-agents/SKILL.md)

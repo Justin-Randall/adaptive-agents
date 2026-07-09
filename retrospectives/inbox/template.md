@@ -10,7 +10,9 @@ What happened?
 
 ## Evidence
 
-What concrete behavior, command output, file change, user feedback, or repeated pattern supports this observation?
+What sanitized behavior, command output summary, file change category, user feedback, or repeated pattern supports this observation?
+
+Do not include private project names, repository names, people, clients, paths, proprietary output, secrets, or raw copied logs. Generalize details unless they are necessary and safe to share.
 
 ## Impact
 
