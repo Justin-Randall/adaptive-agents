@@ -1,0 +1,68 @@
+---
+name: update-adaptive-agents
+description: "Use when: updating the Adaptive Agents repository, promoting retrospectives into durable guidance, creating or revising instructions, skills, memories, playbooks, prompts, agents, schemas, or INDEX.md routing."
+---
+
+# Update Adaptive Agents
+
+Use this skill when the user asks to update the Adaptive Agents repository itself or promote session learning into durable user-wide guidance.
+
+For the end-to-end adaptation lifecycle, follow [adaptation-cycle.md](../../playbooks/adaptation-cycle.md).
+
+## First Checks
+
+1. Confirm the current repository is the Adaptive Agents repository by checking for `AGENTS.md` and `INDEX.md` at the root.
+2. Read `AGENTS.md` for repository boundary rules.
+3. Read `INDEX.md` for current routing and existing guidance areas.
+4. Read any existing target file before editing it.
+5. Preserve project-local instructions and user edits unless the user explicitly asks to change them.
+
+## Choose the Target
+
+Use the narrowest durable location that fits the lesson:
+
+| Need | Target |
+| --- | --- |
+| Raw observation, uncertain lesson, or session note | `retrospectives/inbox/` |
+| Durable cross-project preference or recurring lesson | `memory/` |
+| Default or broadly applicable agent behavior | `instructions/` |
+| Task-specific workflow or domain process | `skills/` |
+| Repeatable operational or engineering procedure | `playbooks/` |
+| Reusable task starter or prompt template | `prompts/` |
+| Specialized role or subagent definition | `agents/` |
+| Structured metadata or validation contract | `schemas/` |
+| Discovery, routing, or entrypoint change | `INDEX.md` |
+
+If the lesson is not clearly durable, add or propose a retrospective instead of changing permanent guidance.
+
+## Promotion Rules
+
+- Prefer small, focused files over expanding broad entrypoints.
+- Keep `instructions/global.instructions.md` short; it should route to more specific instruction files rather than contain all guidance.
+- Keep generated files, especially `vscode/user-wide.instructions.md`, minimal and disposable.
+- Do not duplicate the same rule across many files unless repeated intentionally for discovery.
+- Use Markdown links when referencing other checked-in guidance files.
+- Update `INDEX.md` whenever a new durable guidance file or skill needs to be discoverable.
+- Keep frontmatter valid YAML and quote descriptions that contain colons.
+- Use `applyTo: "**"` only for instructions that truly must be always-on.
+
+## Retrospective Promotion Flow
+
+When promoting a retrospective:
+
+1. Identify the durable lesson in one sentence.
+2. Decide whether it belongs in `memory/`, `instructions/`, `skills/`, or `playbooks/`.
+3. Check for existing guidance that already covers it.
+4. Add the smallest update to the owning file or create a focused new file.
+5. Add Markdown links from entrypoints or routing tables only where discovery improves.
+6. Leave the original retrospective intact unless the user asks to archive, move, or delete it.
+
+## Validation
+
+After edits:
+
+- Read each changed guidance file to check wording, links, and frontmatter.
+- Confirm new files are reachable from `INDEX.md` or an appropriate entrypoint.
+- Confirm generated/bootstrap files do not become the source of truth for durable guidance.
+- Run lightweight repository checks when available, such as listing new files or checking git status.
+- Run each validation category once for the current completed edit slice. If diagnostics are clean, routing is confirmed, and no requested work remains, stop and report the result. Do not rerun equivalent `get_errors`, `git status`, readback, or listing checks unless a new issue appears, the next unfinished step needs its own validation, or the user asks for more detail.
