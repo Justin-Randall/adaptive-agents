@@ -35,6 +35,8 @@ Use the narrowest durable location that fits the lesson:
 
 If the lesson is not clearly durable, add or propose a retrospective instead of changing permanent guidance.
 
+Use the autonomous capture triggers in [adaptation-cycle.md](../../playbooks/adaptation-cycle.md) when a session reveals a recurring lesson, failure mode, user preference, workflow improvement, guidance drift, or validation/checker failure. Autonomous action stops at creating or proposing a sanitized `Captured` retrospective; triage and promotion still require user approval.
+
 ## Promotion Rules
 
 - Prefer small, focused files over expanding broad entrypoints.
@@ -66,5 +68,6 @@ After edits:
 - Read each changed guidance file to check wording, links, and frontmatter.
 - Confirm new files are reachable from `INDEX.md` or an appropriate entrypoint.
 - Confirm generated/bootstrap files do not become the source of truth for durable guidance.
+- After applying a user-approved promotion patch, run `bash scripts/check-adaptive-agents.sh` when available and use any failures as the next user approval point.
 - Run lightweight repository checks when available, such as listing new files or checking git status.
 - Run each validation category once for the current completed edit slice. If diagnostics are clean, routing is confirmed, and no requested work remains, stop and report the result. Do not rerun equivalent `get_errors`, `git status`, readback, or listing checks unless a new issue appears, the next unfinished step needs its own validation, or the user asks for more detail.

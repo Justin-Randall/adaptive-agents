@@ -12,6 +12,7 @@ Default coding standards:
 - Read existing code before introducing new patterns.
 - Do not invent APIs, paths, project structure, or tool behavior.
 - Verify claims against source code, local files, documentation, compiler output, test output, MCP output, or command output where practical.
+- When changes affect project structure, setup commands, public workflows, prompt invocation, user-facing behavior, or discoverability, check whether `README.md` or other user-facing documentation needs to be updated. Do not describe aspirational files or workflows as implemented.
 - Prefer small, reversible changes.
 - Preserve project-local style unless explicitly asked to refactor.
 

@@ -20,6 +20,11 @@ Automation should start with reversible capture and reviewable proposals. Durabl
 
 Create a prompt or skill that turns a session observation into a retrospective note.
 
+Autonomous trigger policy:
+
+- Agents should create or propose sanitized `Captured` retrospectives when concrete session evidence shows a recurring lesson, repeated correction, reusable workaround, preference, guidance drift, successful workflow, or validation/checker failure.
+- Autonomous capture stops at `Captured`; triage, promotion, and durable guidance edits remain user-approved.
+
 Candidate artifacts:
 
 - `prompts/capture-retrospective.prompt.md`
@@ -79,6 +84,8 @@ Expected behavior:
 - edit the narrowest owning file
 - update [INDEX.md](../INDEX.md) when discovery changes
 - update the retrospective status and promotion links
+- run [check-adaptive-agents.sh](../scripts/check-adaptive-agents.sh) after applying the approved patch when available
+- if the checker fails, return failures to the user for approval, adjustment, or denial instead of auto-fixing
 - validate the completed edit slice once
 - stop and report when no requested work remains
 
@@ -87,6 +94,7 @@ Dogfood check:
 - Use a triage response that proposes a small patch.
 - Approve the patch and run [apply-approved-promotion.patch.prompt.md](../prompts/apply-approved-promotion.patch.prompt.md).
 - Confirm it applies only the approved files and stops after one validation pass.
+- Confirm it runs the checker after applying the approved patch and surfaces any failures as the next user decision point.
 - Confirm it refuses or asks for clarification when a patch hunk omits an explicit repository-relative `*** Update File:` path.
 
 ### 4. End-of-Session Capture Prompt
@@ -143,18 +151,85 @@ Dogfood result:
 
 Generate periodic review reports for captured and deferred notes.
 
+Candidate artifact:
+
+- `prompts/review-promotion-candidates.prompt.md`
+
 Expected behavior:
 
 - summarize candidate lessons
 - suggest likely durable targets
 - identify already-covered lessons
 - propose next actions for user approval
+- avoid patches or file edits
+- keep reports sanitized for source-controlled retrospectives
 
 Dogfood check:
 
 - Generate a report from the inbox.
+- Confirm [2026-07-09-stale-project-readme.md](../retrospectives/inbox/2026-07-09-stale-project-readme.md) is evaluated as a candidate without editing `README.md` or durable guidance.
 - Use it to choose the next manual promotion.
+
+Dogfood result:
+
+- Successful: the promotion-candidates flow identified the stale README retrospective as a useful manual triage target.
+- Boundary check: the first approved patch was reverted after discussion, then a revised approved patch promoted the lesson to [coding.instructions.md](../instructions/coding.instructions.md) instead of applying the initial target blindly.
+- Follow-up: because the promotion-candidates prompt is now user-facing, [README.md](../README.md) should list it with the other prompt workflows.
+
+### 6.5. Guided Review Session
+
+Combine inbox review, candidate selection, triage recommendation, and optional patch proposal into one prompt that stops at the user decision boundary.
+
+Candidate artifact:
+
+- `prompts/review-retrospective-session.prompt.md`
+
+Expected behavior:
+
+- select one `Captured` or `Deferred` retrospective, unless the user provides a path
+- check existing durable guidance before recommending changes
+- recommend exactly one decision: `Deferred`, `Rejected`, `Promoted to existing guidance`, or `Promote with proposed patch`
+- include a proposed patch only when promotion or retrospective status updates are recommended
+- stop by asking the user to approve, adjust, deny, or defer
+- do not edit files or apply patches
+
+Dogfood check:
+
+- Run [review-retrospective-session.prompt.md](../prompts/review-retrospective-session.prompt.md) against the current inbox.
+- Confirm it selects a concrete candidate and stops before applying changes.
+- If the user approves a patch, hand off to [apply-approved-promotion.patch.prompt.md](../prompts/apply-approved-promotion.patch.prompt.md), then confirm the checker runs after application.
+
+Dogfood result:
+
+- Successful boundary: the prompt selected [2026-07-09-submodule-push-order-and-recursion.md](../retrospectives/inbox/2026-07-09-submodule-push-order-and-recursion.md), proposed a patch, and stopped for the user's decision instead of applying changes.
+- User decision: the recommendation was deferred, and the retrospective status update was denied because the lesson needs more detailed treatment later.
+- Prompt hardening: the prompt now surfaces explicit retrospective rationale that calls for more validation before promotion, avoids treating a deferred user decision as approval to change retrospective status, and uses apply-patch style patch headers for new and existing files.
+
+### 7. Deterministic Repository Checks
+
+Add a read-only script for structural repository health checks.
+
+Candidate artifact:
+
+- `scripts/check-adaptive-agents.sh`
+
+Expected behavior:
+
+- validate required root files and guidance directories
+- validate prompt frontmatter and routing from [INDEX.md](../INDEX.md) and [README.md](../README.md)
+- validate retrospective status values and promotion links
+- flag blocked private/raw link patterns in checked-in retrospectives
+- validate local Markdown links resolve
+- detect guidance Markdown files that are not reachable from [INDEX.md](../INDEX.md) through local Markdown links
+
+Dogfood result:
+
+- Successful: [check-adaptive-agents.sh](../scripts/check-adaptive-agents.sh) ran against the current repository with `0 failure(s), 0 warning(s)`.
+- Repair made during dogfood: the Python heredoc invocation was changed to an argv-array resolver so `python3`, `python`, and `py -3` work without shell parsing errors.
+- Output hardening: concise default mode now reports only the final summary, while `--verbose` preserves detailed `PASS` output for debugging.
+- Graph hardening: the checker now detects disconnected guidance Markdown nodes that are not reachable from [INDEX.md](../INDEX.md).
+- Boundary check: the checker is read-only and made no repository edits during validation.
 
 ## Next Step
 
-Build the promotion report slice, then dogfood it against the current retrospective inbox.
+Dogfood [review-retrospective-session.prompt.md](../prompts/review-retrospective-session.prompt.md) again against a note that explicitly asks for more evidence and confirm it recommends `Deferred` rather than promotion.

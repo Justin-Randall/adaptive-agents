@@ -32,6 +32,21 @@ Good retrospective candidates include:
 - a user preference that is likely to recur
 - a missing skill, instruction, playbook, prompt, memory, or schema
 
+### Autonomous Capture Triggers
+
+Agents should not wait for the user to propose every retrospective. During normal work, create or propose a sanitized `Captured` retrospective when there is concrete evidence of:
+
+- repeated agent correction, rollback, or patch revision after user feedback
+- a tool, shell, editor, model, or workflow behavior that blocked progress or required a reusable workaround
+- a user preference or collaboration pattern that is likely to recur
+- durable guidance, README content, routing, or checker behavior drifting from repository reality
+- a successful workflow that should be reused in future sessions
+- a validation, checker, or prompt failure that revealed missing guidance
+
+When already working in the Adaptive Agents repository, the agent may create the `Captured` retrospective directly if it can keep the note sanitized and evidence-backed. When working in another repository, the agent should propose creating the retrospective in Adaptive Agents unless the user has already asked to dogfood or update Adaptive Agents.
+
+Autonomous capture stops at `Captured`. Do not triage, promote, apply patches, or update durable guidance without an explicit user approval step.
+
 ## 2. Triage
 
 Before promotion, decide whether the observation is durable.

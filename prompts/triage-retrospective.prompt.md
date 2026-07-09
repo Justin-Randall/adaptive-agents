@@ -28,6 +28,7 @@ If the user does not provide a path, ask one concise clarifying question for the
 - Do not edit the retrospective unless the user explicitly asks you to apply the proposed update.
 - Check whether existing guidance already covers the lesson before proposing durable changes.
 - Prefer `Deferred` when evidence is plausible but not yet durable.
+- When the retrospective itself says more validation, dogfood, or evidence is needed before promotion, call that out as a decision factor before recommending promotion.
 - Prefer `Promoted to existing guidance` when the lesson is already covered by durable guidance.
 - Prefer `Promote with proposed patch` only when a focused durable update is justified.
 - Check whether the retrospective contains private project names, repository names, people, clients, paths, proprietary outputs, secrets, or raw logs; if so, recommend sanitizing the retrospective before promotion.
@@ -35,6 +36,7 @@ If the user does not provide a path, ask one concise clarifying question for the
 - Use repository-relative Markdown links only, such as `[INDEX.md](../INDEX.md)` or `[coding.instructions.md](../instructions/coding.instructions.md)`.
 - Do not use `vscode-file://`, `file://`, or VS Code internal workbench URLs.
 - If section 5 says any file should be updated, section 6 must include a patch for that update.
+- Do not treat the user's decision to defer the recommendation as approval to change the retrospective's status to `Deferred`. Only propose or apply status changes when the user explicitly approves that status change.
 - If proposing a patch, return it in a fenced `diff` block using plain repository-relative file paths.
 - Write `No patch recommended.` only when section 5 says no file should be updated.
 
@@ -64,6 +66,8 @@ When a patch is recommended, section 6 must use this shape:
 
 ```diff
 *** Begin Patch
+*** Add File: playbooks/example-new-playbook.md
++# Example New Playbook
 *** Update File: retrospectives/inbox/YYYY-MM-DD-short-title.md
 @@
 - old text
@@ -71,6 +75,6 @@ When a patch is recommended, section 6 must use this shape:
 *** End Patch
 ```
 
-Use plain repository-relative file paths in patch headers. Do not put Markdown links in patch headers.
+Use `*** Add File:` for new files and `*** Update File:` for existing files. Use plain repository-relative file paths in patch headers. Do not put Markdown links in patch headers. Do not use `/dev/null`, `--- a/path`, `+++ b/path`, or line-number hunk headers.
 
 If no patch is recommended, write `No patch recommended.` for section 6.

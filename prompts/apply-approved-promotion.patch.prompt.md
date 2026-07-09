@@ -37,6 +37,8 @@ If approval is ambiguous, ask one concise clarifying question before editing.
 - If a patch appears to promote private specifics into durable guidance, stop and ask one concise clarification question instead of applying it.
 - If the patch no longer matches current file contents, stop and explain the mismatch instead of improvising.
 - If the approved patch updates durable guidance, also update the retrospective status and promotion links only when that update is included in the approved patch or explicitly approved by the user.
+- After applying the approved patch, run `bash scripts/check-adaptive-agents.sh` when the script exists.
+- If the checker fails, report the failures and ask the user whether to approve a corrective patch, adjust the promotion, or leave the repository as-is for now. Do not auto-fix checker failures without user approval.
 - Validate the completed edit slice once, then stop and report.
 
 ## Validation
@@ -45,7 +47,9 @@ After applying the patch:
 
 - read each changed file once
 - run diagnostics for changed Markdown files when available
+- run `bash scripts/check-adaptive-agents.sh` when available
 - report whether validation passed
+- if the checker reports failures, surface them as the next user decision point instead of applying unapproved fixes
 - do not rerun equivalent readback, diagnostics, listing, or status checks unless a new issue appears
 
 ## Output

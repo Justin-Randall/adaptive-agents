@@ -13,6 +13,7 @@ Before making changes:
 3. Prefer test-driven development when changing production behavior.
 4. Load task-specific skills from `skills/` only when relevant.
 5. When modifying Adaptive Agents guidance, load [Update Adaptive Agents](../skills/update-adaptive-agents/SKILL.md).
+6. When a session reveals a recurring lesson, failure mode, preference, or guidance drift, follow the autonomous capture triggers in [adaptation-cycle.md](../playbooks/adaptation-cycle.md); capture or propose only a sanitized `Captured` retrospective unless the user explicitly approves promotion.
 
 Read:
 

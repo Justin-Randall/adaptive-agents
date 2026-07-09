@@ -23,8 +23,11 @@ When working inside another project, treat Adaptive Agents content as reusable g
 | Capturing a retrospective from a session observation | [prompts/capture-retrospective.prompt.md](prompts/capture-retrospective.prompt.md) |
 | Reviewing a session for capture-worthy learning | [prompts/end-of-session-capture.prompt.md](prompts/end-of-session-capture.prompt.md) |
 | Triage a captured retrospective without applying changes | [prompts/triage-retrospective.prompt.md](prompts/triage-retrospective.prompt.md) |
+| Run a guided retrospective review session before user approval | [prompts/review-retrospective-session.prompt.md](prompts/review-retrospective-session.prompt.md) |
 | Apply an approved retrospective promotion patch | [prompts/apply-approved-promotion.patch.prompt.md](prompts/apply-approved-promotion.patch.prompt.md) |
 | Review the retrospective inbox queue | [prompts/review-retrospective-inbox.prompt.md](prompts/review-retrospective-inbox.prompt.md) |
+| Review captured and deferred promotion candidates | [prompts/review-promotion-candidates.prompt.md](prompts/review-promotion-candidates.prompt.md) |
+| Run deterministic repository health checks | [scripts/check-adaptive-agents.sh](scripts/check-adaptive-agents.sh) |
 
 ## Guidance Areas
 
@@ -82,10 +85,20 @@ For assisted retrospective capture, use:
 - [prompts/capture-retrospective.prompt.md](prompts/capture-retrospective.prompt.md)
 - [prompts/end-of-session-capture.prompt.md](prompts/end-of-session-capture.prompt.md)
 - [prompts/triage-retrospective.prompt.md](prompts/triage-retrospective.prompt.md)
+- [prompts/review-retrospective-session.prompt.md](prompts/review-retrospective-session.prompt.md)
 - [prompts/apply-approved-promotion.patch.prompt.md](prompts/apply-approved-promotion.patch.prompt.md)
 - [prompts/review-retrospective-inbox.prompt.md](prompts/review-retrospective-inbox.prompt.md)
+- [prompts/review-promotion-candidates.prompt.md](prompts/review-promotion-candidates.prompt.md)
 
-These prompts capture one session observation into `retrospectives/inbox/`, review a session for capture-worthy learning, triage captured retrospectives without promoting them automatically, apply only user-approved promotion patches, and review the inbox queue without editing files.
+These prompts capture one session observation into `retrospectives/inbox/`, review a session for capture-worthy learning, triage captured retrospectives without promoting them automatically, run a guided review session up to the user's approve/adjust/deny decision, apply only user-approved promotion patches, review the inbox queue, and recommend promotion candidates without editing files.
+
+## Scripts
+
+For deterministic repository health checks, run:
+
+- [scripts/check-adaptive-agents.sh](scripts/check-adaptive-agents.sh)
+
+The checker is read-only and validates prompt routing, retrospective statuses, promotion links, blocked private/raw link patterns, local Markdown links, and whether guidance Markdown files are reachable from `INDEX.md`.
 
 ## Current State
 

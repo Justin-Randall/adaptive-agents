@@ -1,158 +1,207 @@
 # Adaptive Agents
 
-`adaptive-agents` is a user-wide knowledgebase for agentic coding tools.
+Adaptive Agents is a versioned, user-wide guidance repository for coding agents.
 
-It stores reusable preferences, instructions, skills, agents, prompts, playbooks, memories, and retrospectives so coding agents can become more effective over time without duplicating project-specific setup in every repository.
+It is designed to keep reusable guidance in one place (instead of duplicating setup and rules in every project repository), while preserving a clear boundary between:
 
-## Goals
+- Adaptive Agents repository (this repository)
+- Current project repository (the codebase currently being modified)
 
-This repository is intended to help coding agents:
+## What Is In Place
 
-* apply user-wide engineering preferences
-* discover relevant task-specific skills
-* avoid repeating known mistakes
-* run repeatable development workflows
-* record lightweight retrospectives
-* promote useful lessons into durable memories or skills
-* stay out of project repositories unless explicitly instructed
+The current repository includes:
 
-## Important Terminology
+- Core entrypoints:
+  - `AGENTS.md` for operating model and boundary rules
+  - `INDEX.md` as the discovery and routing map
+  - `README.md` (this file) as the user-facing overview
+- Durable guidance areas:
+  - `instructions/` for default cross-project behavior
+  - `skills/` for task-specific workflows (currently includes `update-adaptive-agents`)
+  - `playbooks/` for repeatable lifecycle workflows
+  - `prompts/` for guided, reusable task flows
+  - `memory/` for durable promoted lessons
+  - `retrospectives/inbox/` for captured observations pending triage/promotion
+  - `schemas/` for structured metadata/validation contracts
+  - `agents/` for specialized role definitions
+- VS Code bootstrap wiring:
+  - `scripts/install-vscode.sh`
+  - generated pointer file: `vscode/user-wide.instructions.md`
 
-This repository uses these terms consistently:
+## How It Works
 
-* **Adaptive Agents repository**: this repository.
-* **Current project repository**: the codebase currently being modified.
-* **User-wide guidance**: reusable guidance that applies across many projects.
-* **Project-local guidance**: instructions that belong to a specific project.
+Adaptive Agents uses a routed, layered model:
 
-When an agent is working inside another project, it should treat the Adaptive Agents repository as read-only guidance unless explicitly asked to update adaptive-agents.
+1. Entry and routing
+   - Start from `AGENTS.md`, then `INDEX.md`.
+   - Load only relevant guidance for the current task.
 
-## Current Tool Support
+2. Default instruction split
+   - `instructions/global.instructions.md` routes to:
+     - `instructions/repository-boundaries.instructions.md`
+     - `instructions/coding.instructions.md`
+     - `instructions/tdd.instructions.md`
 
-Initial focus:
+3. Adaptation lifecycle
+   - Capture observations in `retrospectives/inbox/`.
+   - Triage and promote only durable lessons.
+   - Promote to the narrowest target (`memory/`, `instructions/`, `skills/`, `playbooks/`, etc.).
+   - Update routing in `INDEX.md` when discoverability changes.
 
-* VS Code Chat / GitHub Copilot
+4. Boundary protection
+   - When working in other repositories, Adaptive Agents is user-wide guidance, not project-local content.
+   - Agents should not copy Adaptive Agents directories into project repositories unless explicitly instructed.
 
-Planned future integrations:
+Reference workflow:
 
-* OpenCode
-* Claude Code
-* GitHub Copilot CLI
-* GitHub Copilot coding agent
-* MCP-backed diagnostic agents
-* other editor or terminal coding agents
+- `playbooks/adaptation-cycle.md`
+- `playbooks/adaptive-automation-roadmap.md`
 
----
+## How To Use It
 
-# VS Code Chat / GitHub Copilot Setup
+### 1) Install VS Code Integration
 
-VS Code integration should be installed through a setup script rather than by manually copying instructions and editing settings.
-
-The setup script should make VS Code aware of the Adaptive Agents repository as user-wide guidance while keeping ordinary project repositories clean.
-
-## Install
-
-From the Adaptive Agents repository root, run:
+From this repository root:
 
 ```bash
 ./scripts/install-vscode.sh
 ```
 
-On Windows PowerShell, run:
+Useful options:
 
-```powershell
-.\scripts\Install-VSCode.ps1
+```bash
+./scripts/install-vscode.sh --dry-run
+./scripts/install-vscode.sh --code-flavor insiders
+./scripts/install-vscode.sh --settings "$APPDATA/Code/User/settings.json"
 ```
 
-The exact scripts may vary by platform, but they should perform the same logical setup.
+What the installer does:
 
-## What the VS Code Setup Does
+- detects repository root path
+- writes or refreshes `vscode/user-wide.instructions.md`
+- updates VS Code user `settings.json` additively
+- registers the repository guidance location for chat instructions
+- enables instruction loading/apply settings
+- creates a timestamped backup before editing settings
 
-The VS Code setup script should:
+What it does not do:
 
-1. Detect the absolute path of the Adaptive Agents repository.
-2. Create the VS Code-facing directory structure if needed.
-3. Generate or update a VS Code user-wide instruction file.
-4. Register the Adaptive Agents VS Code instruction directory with VS Code.
-5. Preserve existing VS Code user settings where possible.
-6. Avoid modifying unrelated settings.
-7. Avoid copying Adaptive Agents files into ordinary project repositories.
-8. Print a summary of what changed.
+- modify unrelated project repositories
+- copy Adaptive Agents structure into other repositories
+- store secrets
 
-## Expected Generated Files
+Note: the current checked-in installer is Bash (`scripts/install-vscode.sh`).
 
-The script may generate files under:
+### 2) Verify Guidance Is Loaded
 
-```text
-vscode/
-```
-
-For example:
-
-```text
-vscode/user-wide.instructions.md
-```
-
-This file is generated from the current local repository path and should not need to be edited manually.
-
-## Expected VS Code Settings
-
-The script should update VS Code user settings so Copilot Chat can discover Adaptive Agents instruction files.
-
-At minimum, it should ensure the Adaptive Agents VS Code directory is included in the relevant VS Code instruction file locations setting.
-
-The setup should be additive: if the user already has other instruction directories configured, they should remain configured.
-
-## What the Setup Must Not Do
-
-The VS Code setup script must not:
-
-* copy Adaptive Agents directories into unrelated project repositories
-* overwrite unrelated VS Code user settings
-* store secrets or credentials
-* require project-local changes
-* assume a specific username or home directory layout
-* require the repository to live at a specific path
-
-## Verification
-
-After running the setup script, open any project in VS Code and ask Copilot Chat something like:
+In VS Code Chat, ask:
 
 ```text
 Use my Adaptive Agents guidance. What user-wide instructions are available for this task?
 ```
 
-The expected result is that Copilot recognizes the Adaptive Agents repository as user-wide guidance and does not try to create Adaptive Agents files inside the current project.
-
-## Project-Local Pointers
-
-Most projects should not need any Adaptive Agents files copied into them.
-
-If a particular project needs an explicit pointer, add a short project-local `AGENTS.md` or `.github/copilot-instructions.md` manually.
-
-That project-local file should only point to the Adaptive Agents repository. It should not duplicate the Adaptive Agents structure.
-
-## First Milestone
-
-The initial working milestone is:
+You can also verify the global instruction sentinel response:
 
 ```text
-AGENTS.md
-README.md
-INDEX.md
-scripts/install-vscode.sh
-scripts/Install-VSCode.ps1
-vscode/user-wide.instructions.md
-instructions/
-skills/
-memory/
-retrospectives/inbox/
+ADAPTIVE_AGENTS_GLOBAL_LOADED
 ```
 
-At that point, VS Code Chat / GitHub Copilot should have enough structure to:
+### 3) Invoke Prompts via Natural Language or Slash Commands
 
-1. discover user-wide preferences
-2. avoid polluting project repositories
-3. selectively load relevant guidance
-4. support manual retrospectives
-5. evolve toward skills and custom agents
+The prompt files under `prompts/` are designed to be invoked from VS Code Chat. You can trigger them with a natural language request or a slash command, depending on how the prompt is configured.
+
+**Natural language examples:**
+
+```text
+Capture a retrospective about the repeated validation loop issue we hit today.
+```
+
+```text
+Review the retrospective inbox and tell me what needs attention.
+```
+
+```text
+Triage the latest retrospective note and recommend next steps.
+```
+
+**Slash command examples** (for prompts that define an `agent` frontmatter field):
+
+```text
+/capture-retrospective Repeated validation loops when editing instructions
+```
+
+```text
+/review-retrospective-inbox
+```
+
+```text
+/review-promotion-candidates
+```
+
+```text
+/review-retrospective-session
+```
+
+```text
+/triage-retrospective
+```
+
+```text
+/apply-approved-promotion
+```
+
+If a prompt has an `argument-hint` in its frontmatter, you can pass a short argument after the slash command to focus the invocation.
+
+### 4) Run the Adaptation Loop
+
+Common flow:
+
+1. Capture one observation in `retrospectives/inbox/YYYY-MM-DD-short-title.md`.
+2. Triage with prompts and playbooks.
+3. Promote only when durable.
+4. Keep generated bootstrap files disposable and durable guidance checked in.
+
+Helpful prompt files:
+
+- `prompts/capture-retrospective.prompt.md`
+- `prompts/end-of-session-capture.prompt.md`
+- `prompts/triage-retrospective.prompt.md`
+- `prompts/review-retrospective-session.prompt.md`
+- `prompts/apply-approved-promotion.patch.prompt.md`
+- `prompts/review-retrospective-inbox.prompt.md`
+- `prompts/review-promotion-candidates.prompt.md`
+
+### 5) Check Repository Health
+
+Run the deterministic checker before or after guidance changes:
+
+```bash
+bash scripts/check-adaptive-agents.sh
+```
+
+Use verbose output when you need to see every passing check:
+
+```bash
+bash scripts/check-adaptive-agents.sh --verbose
+```
+
+The checker is read-only. It validates prompt routing, retrospective statuses, promotion links, blocked private/raw link patterns, local Markdown links, and whether guidance Markdown files are reachable from `INDEX.md`. By default it prints only warnings, failures, and the final summary.
+
+## Current Status
+
+This repository is in an actively used bootstrap-plus-hardening phase:
+
+- routing is in place (`INDEX.md`)
+- default instruction split is in place (`instructions/*.instructions.md`)
+- adaptation playbooks and prompt workflows are present
+- retrospective inbox includes active dogfooded examples
+
+## Design Intent
+
+Adaptive Agents guidance should remain:
+
+- reusable across projects
+- evidence-backed before promotion
+- easy to discover through routing
+- explicit and reviewable in source control
+- separate from project-local source repositories unless explicitly requested
