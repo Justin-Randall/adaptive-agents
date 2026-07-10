@@ -23,6 +23,15 @@ When pivoting, choose one of these instead of another equivalent retry:
 - Redirect intentional intermediate output to the active workspace's approved scratch or temporary-output location, then inspect that file.
 - Switch shells only when the failure class is shell-specific; account for differences between Bash, PowerShell, and Windows path syntax.
 
+## Windows Shell Selection
+
+When running Bash-oriented scripts on Windows, prefer a full Git Bash implementation over wrapper shells.
+
+- If `git` is available, probe for Git Bash first and use it by default for `.sh` workflows.
+- Keep PowerShell as the default for Windows-native command and tooling workflows.
+- Treat `invalid option` failures from strict shell flags (for example `set -euo pipefail`) as shell-environment failures; pivot shells before retrying equivalent command variants.
+- If Git Bash is unavailable, report the fallback shell and continue with the most compatible option.
+
 ## Tool Examples
 
 The rule is general, but common examples include:

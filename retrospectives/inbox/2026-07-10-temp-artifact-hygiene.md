@@ -1,7 +1,7 @@
 # Retrospective: Temporary artifact hygiene against workspace policy
 
 - Date: 2026-07-10
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Non-trivial Go replication fix with coverage gate
 

@@ -1,7 +1,7 @@
 # Retrospective: Command failure loop control
 
 - Date: 2026-07-10
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Non-trivial Go replication fix with coverage gate
 
@@ -26,3 +26,9 @@ Repeated equivalent failures after the first meaningful failure waste session ti
 - Status: Promoted
 - Decision: Promote the general retry-budget and pivot behavior to default instructions. Defer a broader command-line tool-pattern skill until there is more repeated evidence for specific tools.
 - Rationale: The durable lesson is the cross-tool failure loop: after meaningful command failures, inspect the failure class and pivot diagnostics instead of running equivalent variants. Tool-specific examples for `git`, `go`, `task`, Bash, and PowerShell are useful as examples, but a broad skill would be under-evidenced from this session alone.
+
+## Promotion Links
+
+- [instructions/command-failure-pivot.instructions.md](../../instructions/command-failure-pivot.instructions.md)
+- [instructions/global.instructions.md](../../instructions/global.instructions.md)
+- [INDEX.md](../../INDEX.md)
