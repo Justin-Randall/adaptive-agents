@@ -29,6 +29,7 @@ Approval must be specific to the patch being applied in the current context. If 
 ## Rules
 
 - Apply only the user-approved patch.
+- Confirm the approved patch's scope before editing. Project Layer patches must stay under `.adaptive-agents/`; user-wide patches target the canonical Adaptive Agents repository.
 - Re-read each target file before editing.
 - Do not expand the scope beyond the approved patch.
 - Use repository-relative paths only.
@@ -39,7 +40,9 @@ Approval must be specific to the patch being applied in the current context. If 
 - If a patch appears to promote private specifics into durable guidance, stop and ask one concise clarification question instead of applying it.
 - If the patch no longer matches current file contents, stop and explain the mismatch instead of improvising.
 - If the approved patch updates durable guidance, also update the retrospective status and promotion links only when that update is included in the approved patch or explicitly approved by the user.
-- After applying the approved patch, run `bash scripts/check-adaptive-agents.sh` when the script exists.
+- After a Project Layer patch, run `bash .adaptive-agents/scripts/check-project-layer.sh`.
+- After a user-wide patch, run `bash scripts/check-adaptive-agents.sh` when the script exists.
+- If an explicitly approved escalation changes both scopes, run both validators.
 - If the checker fails, report the failures and ask the user whether to approve a corrective patch, adjust the promotion, or leave the repository as-is for now. Do not auto-fix checker failures without user approval.
 - Validate the completed edit slice once, then stop and report.
 - Treat these as explicit apply approvals: `approved`, `apply this patch`, `apply section 6 patch`, `ship this exact patch`, or equivalent unambiguous phrasing.
@@ -52,7 +55,7 @@ After applying the patch:
 
 - read each changed file once
 - run diagnostics for changed Markdown files when available
-- run `bash scripts/check-adaptive-agents.sh` when available
+- run the validator for every modified scope
 - report whether validation passed
 - if the checker reports failures, surface them as the next user decision point instead of applying unapproved fixes
 - do not rerun equivalent readback, diagnostics, listing, or status checks unless a new issue appears

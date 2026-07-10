@@ -2,6 +2,7 @@
 
 - Date: 2026-07-10
 - Status: Promoted
+- Scope: User-wide
 - Session or task: Hierarchical character transform replication for spherical multiplayer
 
 ## Observation

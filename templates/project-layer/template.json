@@ -1,0 +1,22 @@
+{
+	"templateVersion": "0.2.0",
+	"layerDirectory": ".adaptive-agents",
+	"placeholders": {
+		"TEMPLATE_VERSION": "Project Layer template version",
+		"PROJECT_NAME": "Project name",
+		"ACTIVE_PLAN_ID": "Initial plan ID in PL-#### format",
+		"ACTIVE_PLAN_TITLE": "Initial active plan title"
+	},
+	"planIdPattern": "^PL-[0-9]{4}$",
+	"backlogReadiness": [
+		"Ready",
+		"Needs refinement",
+		"Blocked"
+	],
+	"closedDispositions": [
+		"Completed",
+		"Deferred",
+		"Cancelled",
+		"Superseded"
+	]
+}

@@ -6,7 +6,7 @@ argument-hint: "Optional focus, such as status, stale notes, or promotion links"
 
 # Review Retrospective Inbox
 
-Review `retrospectives/inbox/` as a queue. Report status and issues without editing files.
+Review one scoped retrospective inbox as a queue. Report status and issues without editing files.
 
 Use these references:
 
@@ -18,7 +18,10 @@ Use these references:
 ## Rules
 
 - Do not edit files.
+- Select either the current Project Layer's `.adaptive-agents/retrospectives/inbox/` or the canonical user-wide `retrospectives/inbox/` from the user's path or stated intent.
+- If both inboxes exist and scope is not clear, ask one concise scope question instead of combining them.
 - Read the retrospective inbox files needed for the report.
+- Confirm each note's declared scope matches its inbox.
 - Group notes by status: `Captured`, `Deferred`, `Promoted`, `Rejected`, and `Unknown`.
 - Flag filenames that do not match `YYYY-MM-DD-short-title.md`, except `README.md` and `template.md`.
 - Flag promoted notes that do not include at least one promotion link.

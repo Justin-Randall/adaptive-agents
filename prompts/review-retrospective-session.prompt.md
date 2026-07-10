@@ -31,11 +31,15 @@ The user may provide:
 
 - Do not edit files.
 - Do not apply patches.
-- Review `retrospectives/inbox/` and select exactly one candidate unless the user provided a specific retrospective path.
+- Determine whether the review concerns the current Project Layer, user-wide Adaptive Agents, or both.
+- Review the scoped inbox selected by the user's path or intent. If no scope is provided and a Project Layer exists, ask which inbox to review rather than silently mixing queues.
+- Select exactly one candidate unless the user provided a specific retrospective path.
 - Prefer `Captured` or `Deferred` notes with concrete evidence, reusable lessons, and a plausible durable target.
 - Mention other candidates only briefly when explaining why the selected note is first.
 - Respect the retrospective's own promotion decision, rationale, and dogfood check. If the note explicitly says more validation or evidence is needed before promotion, call that out as a decision factor; do not silently override it.
 - Check whether existing guidance already covers the lesson before recommending durable changes.
+- Re-evaluate scope before target type and search existing guidance in that scope first.
+- Keep project-scoped promotion under `.adaptive-agents/` unless a separate sanitized user-wide escalation is justified and approved.
 - Check whether the note is sanitized enough for source-controlled durable guidance.
 - Do not repeat private project names, repository names, people, clients, private paths, proprietary outputs, secrets, or raw logs in the report.
 - Use repository-relative Markdown links for file references.
@@ -64,16 +68,17 @@ Choose exactly one recommendation:
 Return these sections:
 
 1. Selected retrospective
-2. Why this one is next
-3. Recommendation
-4. Existing guidance checked
-5. Proposed durable target
-6. Proposed patch, or `No patch recommended.`
-7. User decision needed
+2. Scope decision and rationale
+3. Why this one is next
+4. Recommendation
+5. Existing guidance checked in that scope
+6. Proposed durable target
+7. Proposed patch, or `No patch recommended.`
+8. User decision needed
 
-For section 7, ask: `Approve, adjust, deny, or defer this recommendation?`
+For section 8, ask: `Approve, adjust, deny, or defer this recommendation?`
 
-If the user approves a patch later, use [apply-approved-promotion.patch.prompt.md](apply-approved-promotion.patch.prompt.md) or the same approved-patch rules, then run `bash scripts/check-adaptive-agents.sh`.
+If the user approves a patch later, use [apply-approved-promotion.patch.prompt.md](apply-approved-promotion.patch.prompt.md) or the same approved-patch rules, then run the validator for the modified scope.
 
 ## Patch Format
 

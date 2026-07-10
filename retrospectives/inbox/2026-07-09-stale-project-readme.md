@@ -2,6 +2,7 @@
 
 - Date: 2026-07-09
 - Status: Promoted
+- Scope: User-wide
 - Session or task: Updating the Adaptive Agents root README.md to reflect current repository state
 
 ## Observation

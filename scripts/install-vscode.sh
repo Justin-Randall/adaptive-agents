@@ -218,11 +218,12 @@ Before doing non-trivial coding work:
 1. Treat the Adaptive Agents repository as user-wide guidance.
 2. Follow the routing in the Adaptive Agents index to load only relevant checked-in instructions, skills, memories, prompts, agents, or playbooks.
 3. Also read the Current project repository's own local instructions if they exist.
-4. Project-local instructions override Adaptive Agents guidance when they are more specific.
-5. Do not create Adaptive Agents directories or files inside the Current project repository unless explicitly instructed.
-6. Do not copy \`skills/\`, \`memory/\`, \`retrospectives/\`, \`agents/\`, \`playbooks/\`, or \`schemas/\` into the Current project repository unless explicitly instructed.
-7. If a durable user-wide lesson should be captured, propose or write it in the Adaptive Agents repository, not in the Current project repository.
-8. If unsure whether a lesson is durable, create or propose a retrospective note rather than modifying permanent instructions.
+4. Check for \`.adaptive-agents/INDEX.md\`; when present, read its routed project instructions and active planning context after user-wide guidance.
+5. Project-local instructions override Adaptive Agents guidance when they are more specific.
+6. Do not create Adaptive Agents directories or files inside the Current project repository unless explicitly instructed or applying the user-approved Project Layer bootstrap workflow.
+7. Do not copy \`skills/\`, \`memory/\`, \`retrospectives/\`, \`agents/\`, \`playbooks/\`, or \`schemas/\` into the Current project repository unless explicitly instructed.
+8. If a durable user-wide lesson should be captured, propose or write it in the Adaptive Agents repository, not in the Current project repository.
+9. If unsure whether a lesson is durable, create or propose a retrospective note rather than modifying permanent instructions.
 
 The generated file is only a local bootstrap. Durable guidance belongs in checked-in Adaptive Agents repository files.
 EOF

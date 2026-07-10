@@ -14,10 +14,12 @@ Before making changes:
 4. Load task-specific skills from `skills/` only when relevant.
 5. When modifying Adaptive Agents guidance, load [Update Adaptive Agents](../skills/update-adaptive-agents/SKILL.md).
 6. When a session reveals a recurring lesson, failure mode, preference, or guidance drift, follow the autonomous capture triggers in [adaptation-cycle.md](../playbooks/adaptation-cycle.md); capture or propose only a sanitized `Captured` retrospective unless the user explicitly approves promotion.
+7. In a Current project repository or directory, check for `.adaptive-agents/INDEX.md`. When present, read its routed project instructions and active planning context after this user-wide guidance.
 
 Before the final response for non-trivial work, run a brief retrospective checkpoint:
 
 - Treat a failed implementation or diagnostic approach, a meaningful retry after failure, a discarded hypothesis that consumed work, a rollback, a user correction, or a reusable workaround as process-friction evidence even when the final result succeeds.
+- Before capturing, decide whether the lesson belongs to the current Project Layer or user-wide Adaptive Agents. If a Project Layer exists and broader applicability is uncertain, prefer project-local capture; user-wide capture requires cross-project intent or evidence.
 - If process-friction evidence exists, include a concise retrospective prompt in the completion response: name the evidence in one sentence and ask whether the user wants it captured as a sanitized `Captured` retrospective. Do not silently classify it as no action merely because the task ultimately succeeded.
 - If another high-confidence capture trigger fired without process friction, propose or create a sanitized `Captured` retrospective according to repository boundary rules.
 - If the evidence is medium-confidence, ask one concise clarifying question before capture.
@@ -34,7 +36,7 @@ Read:
 
 Project-local instructions override these user-wide instructions when they are more specific.
 
-Do not copy Adaptive Agents files or directories into the Current project repository unless explicitly instructed.
+Do not copy Adaptive Agents files or directories into the Current project repository unless explicitly instructed. A user-approved Project Layer bootstrap may create the sanctioned `.adaptive-agents/` project-owned structure through [Bootstrap Project Layer](../skills/bootstrap-project-layer/SKILL.md).
 
 ## Installation Sentinel
 

@@ -2,6 +2,7 @@
 
 - Date: 2026-07-09
 - Status: Deferred
+- Scope: User-wide
 - Session or task: `/capture-retrospective` prompt usability and discovery behavior in VS Code
 
 ## Observation

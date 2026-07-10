@@ -2,6 +2,7 @@
 
 - Date: YYYY-MM-DD
 - Status: Captured
+- Scope: User-wide
 - Session or task: Brief context
 
 ## Observation
@@ -18,9 +19,15 @@ Do not include private project names, repository names, people, clients, paths, 
 
 Why does this matter for future agent behavior?
 
-## Proposed Durable Target
+## Scope Decision
 
-Where might this belong if promoted?
+- Candidate: User-wide
+- Rationale: What evidence shows this should affect unrelated projects?
+- Project Layer considered: Why is project-local guidance insufficient or inapplicable?
+
+## Proposed User-Wide Target
+
+Where in the canonical Adaptive Agents repository might this belong if promoted?
 
 - `memory/`
 - `instructions/`

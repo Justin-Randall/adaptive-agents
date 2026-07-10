@@ -17,6 +17,9 @@ When working inside another project, treat Adaptive Agents content as reusable g
 | Top-level routing for future guidance areas | [INDEX.md](INDEX.md) |
 | Default user-wide engineering preferences for non-trivial coding work | [instructions/global.instructions.md](instructions/global.instructions.md) |
 | Promoting retrospectives or updating Adaptive Agents guidance | [skills/update-adaptive-agents/SKILL.md](skills/update-adaptive-agents/SKILL.md) |
+| Bootstrapping project-specific guidance and indexed planning | [skills/bootstrap-project-layer/SKILL.md](skills/bootstrap-project-layer/SKILL.md) |
+| Reviewing structural upgrades for an existing Project Layer | [skills/upgrade-project-layer/SKILL.md](skills/upgrade-project-layer/SKILL.md) |
+| Reusable Project Layer source | [templates/project-layer/template.json](templates/project-layer/template.json) and [template routing root](templates/project-layer/.adaptive-agents/INDEX.md) |
 | Running the adaptation lifecycle | [playbooks/adaptation-cycle.md](playbooks/adaptation-cycle.md) |
 | Using temporary diagnostics with searchable IDs and cleanup gates | [playbooks/temporary-diagnostic-logging.md](playbooks/temporary-diagnostic-logging.md) |
 | Planning adaptive automation layers | [playbooks/adaptive-automation-roadmap.md](playbooks/adaptive-automation-roadmap.md) |
@@ -29,6 +32,7 @@ When working inside another project, treat Adaptive Agents content as reusable g
 | Review the retrospective inbox queue | [prompts/review-retrospective-inbox.prompt.md](prompts/review-retrospective-inbox.prompt.md) |
 | Review captured and deferred promotion candidates | [prompts/review-promotion-candidates.prompt.md](prompts/review-promotion-candidates.prompt.md) |
 | Run deterministic repository health checks | [scripts/check-adaptive-agents.sh](scripts/check-adaptive-agents.sh) |
+| Run Project Layer validator regression tests | [scripts/test-project-layer.sh](scripts/test-project-layer.sh) |
 
 ## Guidance Areas
 
@@ -44,6 +48,7 @@ These areas are expected to grow over time. Some directories may not exist yet w
 | `playbooks/` | Repeatable engineering workflows and operational procedures. |
 | `retrospectives/` | Raw observations and session learnings before promotion into durable guidance. |
 | `schemas/` | Shared schemas for structured guidance, metadata, or validation. |
+| `templates/` | Canonical reusable source trees for explicitly bootstrapped project-owned features. |
 | `vscode/` | Generated or VS Code-facing integration files when setup scripts create them. |
 
 ## Default Instructions
@@ -67,6 +72,14 @@ More specific instruction files may be added later for coding style, testing, Un
 For Adaptive Agents repository maintenance, promotion, or routing changes, load:
 
 - [skills/update-adaptive-agents/SKILL.md](skills/update-adaptive-agents/SKILL.md)
+
+For creating a project-owned `.adaptive-agents/` Project Layer, load:
+
+- [skills/bootstrap-project-layer/SKILL.md](skills/bootstrap-project-layer/SKILL.md)
+
+For comparing an existing Project Layer with a newer canonical template, load:
+
+- [skills/upgrade-project-layer/SKILL.md](skills/upgrade-project-layer/SKILL.md)
 
 This skill covers promoting retrospectives, choosing durable guidance targets, using Markdown links between checked-in documents, and keeping generated bootstrap files disposable.
 

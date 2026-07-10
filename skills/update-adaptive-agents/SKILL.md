@@ -7,6 +7,8 @@ description: "Use when: updating the Adaptive Agents repository, promoting retro
 
 Use this skill when the user asks to update the Adaptive Agents repository itself or promote session learning into durable user-wide guidance.
 
+Before selecting a target type, confirm that the lesson is user-wide. Project-specific lessons belong in the current `.adaptive-agents/` Project Layer and should use its `manage-retrospectives` skill. If scope is uncertain and a Project Layer exists, keep the capture local until broader evidence supports a separately approved escalation.
+
 For the end-to-end adaptation lifecycle, follow [adaptation-cycle.md](../../playbooks/adaptation-cycle.md).
 
 ## First Checks
@@ -18,6 +20,12 @@ For the end-to-end adaptation lifecycle, follow [adaptation-cycle.md](../../play
 5. Preserve project-local instructions and user edits unless the user explicitly asks to change them.
 
 ## Choose the Target
+
+First choose scope:
+
+- `Project Layer`: stop using this user-wide maintenance skill and route to `.adaptive-agents/skills/manage-retrospectives/SKILL.md`.
+- `User-wide`: continue below only with cross-project evidence or explicit user intent.
+- `Undetermined`: do not update canonical guidance; prefer project-local capture when available.
 
 Use the narrowest durable location that fits the lesson:
 
@@ -31,6 +39,7 @@ Use the narrowest durable location that fits the lesson:
 | Reusable task starter or prompt template | `prompts/` |
 | Specialized role or subagent definition | `agents/` |
 | Structured metadata or validation contract | `schemas/` |
+| Reusable bootstrap source tree | `templates/` |
 | Discovery, routing, or entrypoint change | `INDEX.md` |
 
 If the lesson is not clearly durable, add or propose a retrospective instead of changing permanent guidance.

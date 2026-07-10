@@ -32,10 +32,17 @@ When operating inside the Adaptive Agents repository:
 When operating inside a different Current project repository:
 
 * Treat the Adaptive Agents repository as read-only user-wide guidance.
-* Do not create Adaptive Agents files or directories in the Current project repository unless explicitly instructed.
+* Do not create Adaptive Agents files or directories in the Current project repository unless explicitly instructed or applying the user-approved Project Layer bootstrap workflow.
 * Do not create `skills/`, `memory/`, `retrospectives/`, `agents/`, `playbooks/`, or `schemas/` in the Current project repository merely because this file mentions them.
 * Only modify files that belong to the Current project repository and are relevant to the user’s task.
 * If a retrospective or memory should be captured, write it to the Adaptive Agents repository, not the Current project repository, unless the user explicitly asks for project-local notes.
+
+An Adaptive Agents Project Layer is an explicit exception:
+
+* It lives at `.adaptive-agents/` in the Current project repository or directory.
+* It is project-owned guidance and planning, not a copy of this canonical user-wide repository.
+* Bootstrap requires explicit user approval and must follow the routed bootstrap skill.
+* Its own instructions override user-wide guidance when they are more specific.
 
 ## Discovery Protocol
 
@@ -46,9 +53,10 @@ Before doing non-trivial work:
 3. Read `INDEX.md` in the Adaptive Agents repository if it exists.
 4. Load only the instructions, skills, memories, agents, and playbooks relevant to the current task.
 5. Prefer narrow, task-specific context over loading the entire Adaptive Agents repository.
-6. If working inside another project, read that project’s local instructions after reading the Adaptive Agents user-wide guidance.
-7. Project-local instructions override Adaptive Agents guidance when they are more specific.
-8. Do not treat raw retrospectives as durable rules until they have been promoted.
+6. If working inside another project, check for `.adaptive-agents/INDEX.md` and read its routed instructions and current planning context after the user-wide guidance.
+7. Also read other project-local instructions that exist outside the Project Layer.
+8. Project-local instructions override Adaptive Agents guidance when they are more specific.
+9. Do not treat raw retrospectives as durable rules until they have been promoted.
 
 ## Operating Principles
 

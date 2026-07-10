@@ -23,6 +23,8 @@ Checks:
   - checked-in retrospectives avoid blocked private/raw link patterns
   - local Markdown links resolve
   - guidance Markdown files are reachable from INDEX.md through local links
+  - canonical and dogfood Project Layers pass their bundled validators
+  - Project Layer validator regression tests reject known defects
 EOF
 }
 
@@ -125,6 +127,15 @@ check_required_paths() {
     schemas
     agents
     scripts
+    scripts/bootstrap-project-layer.sh
+    scripts/inspect-project-layer-upgrade.sh
+    scripts/test-project-layer.sh
+    .adaptive-agents/INDEX.md
+    .adaptive-agents/project-layer.json
+    .adaptive-agents/scripts/check-project-layer.sh
+    templates/project-layer/template.json
+    templates/project-layer/.adaptive-agents/INDEX.md
+    templates/project-layer/.adaptive-agents/scripts/check-project-layer.sh
   )
 
   for path in "${required_paths[@]}"; do
@@ -199,6 +210,11 @@ extract_top_status() {
   grep -Em1 '^- Status: ' "$file" | sed 's/^- Status: *//'
 }
 
+extract_top_scope() {
+  local file="$1"
+  grep -Em1 '^- Scope: ' "$file" | sed 's/^- Scope: *//'
+}
+
 has_promotion_link() {
   local file="$1"
   awk '
@@ -212,6 +228,7 @@ has_promotion_link() {
 check_retrospectives() {
   local retro_file
   local status
+  local scope
   shopt -s nullglob
   local retro_files=(retrospectives/inbox/*.md)
   shopt -u nullglob
@@ -241,6 +258,15 @@ check_retrospectives() {
         fail "$retro_file uses unknown status: $status"
         ;;
     esac
+
+    scope="$(extract_top_scope "$retro_file" || true)"
+    if [[ "$scope" == "User-wide" ]]; then
+      pass "$retro_file uses canonical scope: User-wide"
+    elif [[ -z "$scope" ]]; then
+      fail "$retro_file is missing top-level scope"
+    else
+      fail "$retro_file uses invalid canonical scope: $scope"
+    fi
 
     if [[ "$status" == "Promoted" ]]; then
       if has_promotion_link "$retro_file"; then
@@ -364,7 +390,40 @@ PY
   fi
 }
 
+check_project_layer_template() {
+  local output
+  if output="$(bash templates/project-layer/.adaptive-agents/scripts/check-project-layer.sh 2>&1)"; then
+    pass "Canonical Project Layer template passes its validator"
+  else
+    fail "Canonical Project Layer template fails its validator"
+    printf '%s\n' "$output"
+  fi
+}
+
+check_project_layer_tests() {
+  local output
+  if output="$(bash scripts/test-project-layer.sh 2>&1)"; then
+    pass "Project Layer validator regression tests pass"
+  else
+    fail "Project Layer validator regression tests fail"
+    printf '%s\n' "$output"
+  fi
+}
+
+check_dogfood_project_layer() {
+  local output
+  if output="$(bash .adaptive-agents/scripts/check-project-layer.sh 2>&1)"; then
+    pass "Dogfood Project Layer passes its validator"
+  else
+    fail "Dogfood Project Layer fails its validator"
+    printf '%s\n' "$output"
+  fi
+}
+
 check_required_paths
+check_project_layer_template
+check_project_layer_tests
+check_dogfood_project_layer
 check_prompts
 check_retrospectives
 check_retrospective_private_patterns

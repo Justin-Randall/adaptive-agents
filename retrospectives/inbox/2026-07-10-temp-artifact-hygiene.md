@@ -2,6 +2,7 @@
 
 - Date: 2026-07-10
 - Status: Captured
+- Scope: User-wide
 - Session or task: Non-trivial Go replication fix with coverage gate
 
 ## Observation

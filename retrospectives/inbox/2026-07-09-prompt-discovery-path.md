@@ -2,6 +2,7 @@
 
 - Date: 2026-07-09
 - Status: Promoted
+- Scope: User-wide
 - Session or task: Building the first assisted retrospective capture prompt
 
 ## Observation

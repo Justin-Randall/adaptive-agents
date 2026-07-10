@@ -17,13 +17,17 @@ Use these references:
 
 ## Input
 
-The user should provide the path to one retrospective note in `retrospectives/inbox/`.
+The user should provide the path to one retrospective note in either the canonical `retrospectives/inbox/` or a Project Layer's `.adaptive-agents/retrospectives/inbox/`.
 
 If the user does not provide a path, ask one concise clarifying question for the retrospective path.
 
 ## Rules
 
 - Triage exactly one retrospective note.
+- Re-evaluate scope before selecting a target type.
+- Check Project Layer guidance for project-scoped notes and canonical Adaptive Agents guidance for user-wide notes.
+- Keep promotion in the retrospective's scope by default.
+- Recommend Project Layer to user-wide escalation only as a separate sanitized proposal supported by cross-project evidence or explicit user intent.
 - Do not edit durable guidance.
 - Do not edit the retrospective unless the user explicitly asks you to apply the proposed update.
 - Check whether existing guidance already covers the lesson before proposing durable changes.
@@ -57,14 +61,15 @@ Choose exactly one:
 Return these sections:
 
 1. Triage decision
-2. Rationale
-3. Existing guidance that already covers it, if any
-4. Proposed durable target, if any
-5. Whether the retrospective itself should be updated
-6. Exact patch you would apply, but do not apply it
-7. User approval needed
+2. Scope decision and rationale
+3. Rationale
+4. Existing guidance in that scope that already covers it, if any
+5. Proposed durable target within that scope, if any
+6. Whether the retrospective itself should be updated
+7. Exact patch you would apply, but do not apply it
+8. User approval needed
 
-For section 7, ask: `Approve, adjust, deny, or defer this recommendation?`
+For section 8, ask: `Approve, adjust, deny, or defer this recommendation?`
 
 ## Patch Format
 

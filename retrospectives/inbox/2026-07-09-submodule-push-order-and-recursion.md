@@ -2,6 +2,7 @@
 
 - Date: 2026-07-09
 - Status: Captured
+- Scope: User-wide
 - Session or task: Publishing a parent repository and nested submodules after local implementation and testability commits
 
 ## Observation

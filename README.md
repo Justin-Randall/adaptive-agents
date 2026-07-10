@@ -17,7 +17,7 @@ The current repository includes:
   - `README.md` (this file) as the user-facing overview
 - Durable guidance areas:
   - `instructions/` for default cross-project behavior
-  - `skills/` for task-specific workflows (currently includes `update-adaptive-agents`)
+  - `skills/` for task-specific workflows, including repository maintenance and Project Layer bootstrap/upgrade
   - `playbooks/` for repeatable lifecycle workflows
   - `prompts/` for guided, reusable task flows
   - `memory/` for durable promoted lessons
@@ -27,6 +27,11 @@ The current repository includes:
 - VS Code bootstrap wiring:
   - `scripts/install-vscode.sh`
   - generated pointer file: `vscode/user-wide.instructions.md`
+- Project Layer bootstrap:
+  - canonical source under `templates/project-layer/`
+  - model-led workflow in `skills/bootstrap-project-layer/SKILL.md`
+  - deterministic mechanics in `scripts/bootstrap-project-layer.sh`
+  - review-first upgrades through `skills/upgrade-project-layer/SKILL.md`
 
 ## How It Works
 
@@ -43,14 +48,24 @@ Adaptive Agents uses a routed, layered model:
      - `instructions/tdd.instructions.md`
 
 3. Adaptation lifecycle
-   - Capture observations in `retrospectives/inbox/`.
-   - Triage and promote only durable lessons.
-   - Promote to the narrowest target (`memory/`, `instructions/`, `skills/`, `playbooks/`, etc.).
-   - Update routing in `INDEX.md` when discoverability changes.
 
-4. Boundary protection
+- Choose `Project Layer`, `User-wide`, or `Undetermined` scope before target type.
+- Capture project-specific observations in `.adaptive-agents/retrospectives/inbox/`.
+- Capture established cross-project observations in `retrospectives/inbox/`.
+- Triage and promote only durable lessons.
+- Promote to the narrowest target within the selected scope (`memory/`, `instructions/`, `skills/`, `playbooks/`, etc.).
+- Update routing in `INDEX.md` when discoverability changes.
+
+1. Boundary protection
    - When working in other repositories, Adaptive Agents is user-wide guidance, not project-local content.
    - Agents should not copy Adaptive Agents directories into project repositories unless explicitly instructed.
+
+2. Project Layer
+
+- An installed Adaptive Agents system can bootstrap a project-owned `.adaptive-agents/` directory after interviewing the user.
+- The layer contains routed project instructions, skills, memory, retrospectives, indexed planning, lifecycle playbooks, and a read-only validator.
+- The user chooses whether the layer is tracked, clone-locally excluded through `.git/info/exclude`, or repository-wide ignored through `.gitignore`.
+- Installed user-wide guidance discovers `.adaptive-agents/INDEX.md`; bootstrap does not add root agent files or editor settings to the project.
 
 Reference workflow:
 
@@ -187,6 +202,31 @@ bash scripts/check-adaptive-agents.sh --verbose
 
 The checker is read-only. It validates prompt routing, retrospective statuses, promotion links, blocked private/raw link patterns, local Markdown links, and whether guidance Markdown files are reachable from `INDEX.md`. By default it prints only warnings, failures, and the final summary.
 
+### 6) Bootstrap A Project Layer
+
+Ask Adaptive Agents to bootstrap a Project Layer in the current project. The bootstrap skill inspects existing guidance and Git state, then asks for project-specific instructions, initial active work, and one persistence mode before previewing any changes.
+
+The deterministic command used after approval is:
+
+```bash
+bash scripts/bootstrap-project-layer.sh \
+  --target "/path/to/project" \
+  --project-name "Example Project" \
+  --active-plan-id "PL-0001" \
+  --active-title "Initial project work" \
+  --persistence tracked
+```
+
+Use `--dry-run` to preview mechanics. Bash and Python 3 are required; on Windows, run through Git Bash or WSL.
+
+Existing layers are project-owned and are never recopied from the template. Use `scripts/inspect-project-layer-upgrade.sh` with the Project Layer upgrade skill to compare versions and prepare an approval-gated merge.
+
+Run the focused Project Layer regression suite with:
+
+```bash
+bash scripts/test-project-layer.sh
+```
+
 ## Current Status
 
 This repository is in an actively used bootstrap-plus-hardening phase:
@@ -195,6 +235,7 @@ This repository is in an actively used bootstrap-plus-hardening phase:
 - default instruction split is in place (`instructions/*.instructions.md`)
 - adaptation playbooks and prompt workflows are present
 - retrospective inbox includes active dogfooded examples
+- the canonical Project Layer template, bootstrap/upgrade workflows, regression tests, and tracked dogfood layer are present
 
 ## Design Intent
 

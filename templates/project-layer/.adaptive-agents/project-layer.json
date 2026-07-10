@@ -1,0 +1,4 @@
+{
+	"templateVersion": "{{TEMPLATE_VERSION}}",
+	"projectName": "{{PROJECT_NAME}}"
+}

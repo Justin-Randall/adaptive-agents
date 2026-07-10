@@ -6,7 +6,7 @@ argument-hint: "Optional focus, such as docs, prompts, validation, or stale note
 
 # Review Promotion Candidates
 
-Review `retrospectives/inbox/` for captured and deferred lessons that may be ready for promotion into durable Adaptive Agents guidance. Report candidates and next actions without editing files or proposing patches.
+Review one scoped retrospective inbox for captured and deferred lessons that may be ready for promotion. Report candidates and next actions without editing files or proposing patches.
 
 Use these references:
 
@@ -21,12 +21,14 @@ Use these references:
 
 - Do not edit files.
 - Do not propose or include patches.
+- Select the Project Layer or user-wide inbox from the user's path or intent. If both exist and scope is unclear, ask one concise scope question.
 - Read the inbox index and the retrospective notes needed for the report.
 - Focus on notes with status `Captured` or `Deferred`.
 - Mention `Promoted` notes only when they show existing coverage or prevent duplicate promotion.
 - Check whether each candidate is sanitized enough for source-controlled durable guidance.
 - Do not repeat private project names, repository names, people, clients, private paths, proprietary outputs, secrets, or raw logs in the report.
-- Prefer the narrowest likely durable target: `memory/`, `instructions/`, `skills/`, `playbooks/`, `prompts/`, `README.md`, or `INDEX.md`.
+- Re-evaluate scope before target type and prefer the narrowest supported target within that scope.
+- Do not classify a project-specific lesson as `Defer` merely because it is unsuitable user-wide; recommend project-local triage when a Project Layer is its proper scope.
 - Distinguish candidate review from triage: recommend which note to triage next, but leave the final decision and patch proposal to [triage-retrospective.prompt.md](triage-retrospective.prompt.md).
 - Use repository-relative Markdown links for file references.
 - Do not use `vscode-file://`, `file://`, `vscode://`, or `workbench.html` links in the report.
@@ -46,7 +48,7 @@ Classify each reviewed note as one of:
 Return these sections:
 
 1. Top recommendation
-2. Candidate table with note, readiness, likely durable target, and reason
+2. Candidate table with note, scope, readiness, likely durable target, and reason
 3. Already-covered or duplicate lessons
 4. Privacy or sanitization concerns
 5. Suggested next command or prompt to run

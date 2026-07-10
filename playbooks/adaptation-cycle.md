@@ -8,9 +8,10 @@ The goal is controlled adaptation: capture useful observations quickly, promote 
 
 ```text
 session observation
-  -> retrospectives/inbox note
-  -> triage
-  -> durable target decision
+  -> scope decision: Project Layer | User-wide | Undetermined
+  -> scoped retrospectives/inbox note
+  -> scoped triage
+  -> target-type decision within that scope
   -> focused update
   -> routing update if needed
   -> validation
@@ -19,6 +20,12 @@ session observation
 ## 1. Capture
 
 Create a retrospective note when a session reveals a reusable lesson, failure mode, preference, or workflow improvement.
+
+Choose scope before choosing a target type:
+
+- `Project Layer`: use `.adaptive-agents/retrospectives/inbox/` when behavior is intended only for the current project or closely related work.
+- `User-wide`: use this repository's `retrospectives/inbox/` only when evidence or explicit user intent supports behavior across unrelated projects.
+- `Undetermined`: when a Project Layer exists, capture there by default and record what evidence would justify user-wide escalation. Without a Project Layer, ask the user where the uncertain note should live.
 
 Use [retrospectives/inbox/template.md](../retrospectives/inbox/template.md) for new notes. Keep the note factual, sanitized, and evidence-based; do not treat it as durable guidance yet.
 
@@ -45,7 +52,7 @@ Agents should not wait for the user to propose every retrospective. During norma
 - a successful workflow that should be reused in future sessions
 - a validation, checker, or prompt failure that revealed missing guidance
 
-When already working in the Adaptive Agents repository, the agent may create the `Captured` retrospective directly if it can keep the note sanitized and evidence-backed. When working in another repository, the agent should propose creating the retrospective in Adaptive Agents unless the user has already asked to dogfood or update Adaptive Agents.
+When already working in the Adaptive Agents repository, distinguish this repository's tracked Project Layer from its canonical user-wide guidance. Project-specific lessons go to `.adaptive-agents/retrospectives/inbox/`; cross-project lessons go to `retrospectives/inbox/`. In another repository with a Project Layer, prefer its local inbox unless user-wide scope is established.
 
 Autonomous capture stops at `Captured`. Do not triage, promote, apply patches, or update durable guidance without an explicit user approval step.
 
@@ -70,6 +77,8 @@ High-confidence trigger examples include:
 
 Before promotion, decide whether the observation is durable.
 
+Re-evaluate scope before selecting the target type. Promotion remains within the capture scope by default. Moving a project lesson to user-wide guidance is a separate escalation decision requiring cross-project evidence, sanitization, a proposed patch, and explicit approval.
+
 Promote only when the lesson is:
 
 - reusable across future sessions or projects
@@ -91,7 +100,7 @@ Use this decision rule:
 
 ## 3. Choose the Target
 
-Use the narrowest durable destination:
+After scope is established, use the narrowest durable destination within that scope:
 
 | Lesson type | Target |
 | --- | --- |
@@ -104,6 +113,8 @@ Use the narrowest durable destination:
 | Structured metadata or validation contract | `schemas/` |
 | Discovery or routing change | `INDEX.md` |
 
+For `Project Layer`, these paths are relative to `.adaptive-agents/`. For `User-wide`, they are relative to this canonical repository.
+
 When modifying Adaptive Agents guidance, load [Update Adaptive Agents](../skills/update-adaptive-agents/SKILL.md).
 
 ## 4. Promote
@@ -114,6 +125,8 @@ Promotion should be a small, focused change.
 - Prefer creating a narrow new file over expanding broad entrypoints.
 - Use Markdown links when referencing other checked-in guidance files.
 - Generalize the durable lesson; do not promote private project specifics, names, paths, or proprietary session details into reusable guidance.
+- Do not make the user-wide repository the target merely because it has more artifact types. Project-owned behavior belongs in the Project Layer.
+- Treat Project Layer to user-wide escalation as a new, separately approved promotion proposal.
 - Update `INDEX.md` when discovery changes.
 - Keep generated files, especially `vscode/user-wide.instructions.md`, as disposable bootstrap wiring.
 

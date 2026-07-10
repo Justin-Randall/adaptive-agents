@@ -2,6 +2,7 @@
 
 - Date: 2026-07-09
 - Status: Promoted
+- Scope: User-wide
 - Session or task: Adaptive Agents guidance and maintenance workflow review
 
 ## Observation
