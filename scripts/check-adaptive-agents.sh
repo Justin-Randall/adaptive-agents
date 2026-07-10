@@ -130,6 +130,11 @@ check_required_paths() {
     scripts/bootstrap-project-layer.sh
     scripts/inspect-project-layer-upgrade.sh
     scripts/test-project-layer.sh
+    scripts/install-opencode.sh
+    scripts/test-opencode.sh
+    opencode
+    opencode/opencode.jsonc
+    opencode/commands
     .adaptive-agents/INDEX.md
     .adaptive-agents/project-layer.json
     .adaptive-agents/scripts/check-project-layer.sh
@@ -201,6 +206,37 @@ check_prompts() {
       pass "$prompt_file is listed in README.md"
     else
       fail "$prompt_file is not listed in README.md"
+    fi
+  done
+}
+
+check_opencode_commands() {
+  local cmd_file
+  shopt -s nullglob
+  local cmd_files=(opencode/commands/*.md)
+  shopt -u nullglob
+
+  if [[ "${#cmd_files[@]}" -eq 0 ]]; then
+    fail "No OpenCode command files found under opencode/commands/"
+    return
+  fi
+
+  for cmd_file in "${cmd_files[@]}"; do
+    local basename_cmd
+    basename_cmd="$(basename "$cmd_file")"
+
+    if [[ "$(sed -n '1p' "$cmd_file")" != "---" ]]; then
+      fail "$basename_cmd is missing opening frontmatter delimiter"
+      continue
+    fi
+
+    local frontmatter
+    frontmatter="$(awk 'NR == 1 { next } /^---$/ { exit } { print }' "$cmd_file")"
+
+    if grep -Eq '^description: .+' <<<"$frontmatter"; then
+      pass "$basename_cmd has description frontmatter"
+    else
+      fail "$basename_cmd is missing description frontmatter"
     fi
   done
 }
@@ -314,7 +350,7 @@ guidance_roots = {"instructions", "skills", "playbooks", "prompts", "memory", "a
 
 def should_skip(path: Path) -> bool:
     rel_path = path.relative_to(root).as_posix()
-    return ".git" in path.parts or rel_path.startswith("vscode/")
+    return ".git" in path.parts or rel_path.startswith("vscode/") or rel_path.startswith("opencode/")
 
 
 def normalize_target(source: Path, target: str):
@@ -425,6 +461,7 @@ check_project_layer_template
 check_project_layer_tests
 check_dogfood_project_layer
 check_prompts
+check_opencode_commands
 check_retrospectives
 check_retrospective_private_patterns
 check_markdown_links

@@ -2,7 +2,7 @@
 
 - Date: 2026-07-11
 - Status: Captured
-- Scope: Agent-wide
+- Scope: User-wide
 - Session or task: Adding OpenCode to backlog (PL-20260710)
 
 ## Observation

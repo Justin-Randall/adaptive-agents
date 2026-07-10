@@ -11,6 +11,9 @@ Thumbs.db
 # Generated VS Code integration files
 vscode/
 
+# Generated OpenCode integration files (when installed to project-level)
+.opencode/
+
 # Local-only retrospective scratch material
 retrospectives/private/
 retrospectives/**/*.local.md

@@ -107,7 +107,39 @@ What it does not do:
 
 Note: the current checked-in installer is Bash (`scripts/install-vscode.sh`).
 
-### 2) Verify Guidance Is Loaded
+### 2) Install OpenCode Integration
+
+From this repository root:
+
+```bash
+./scripts/install-opencode.sh
+```
+
+Useful options:
+
+```bash
+./scripts/install-opencode.sh --dry-run
+./scripts/install-opencode.sh --opencode-config PATH
+./scripts/install-opencode.sh --skip-commands
+```
+
+What the installer does:
+
+- detects repository root path
+- creates or updates the OpenCode global config (`opencode.json` or `opencode.jsonc`) with `instructions` referencing Adaptive Agents files
+- installs a global `~/.config/opencode/AGENTS.md` so OpenCode always knows about Adaptive Agents
+- installs custom slash commands (`/capture-retrospective`, `/triage-retrospective`, `/review-retrospective-inbox`, `/review-promotion-candidates`, `/apply-approved-promotion`, `/check-adaptive-agents`) to OpenCode's global commands directory
+- detects whether the OpenCode CLI is installed
+- creates a timestamped backup before modifying any config
+
+What it does not do:
+
+- modify VS Code settings
+- modify project repositories
+- copy Adaptive Agents structure into other repositories
+- store secrets
+
+### 3) Verify Guidance Is Loaded
 
 In VS Code Chat or any OpenCode-compatible editor (Cursor, Windsurf, continue.dev), ask:
 
@@ -125,7 +157,7 @@ If you get `ADAPTIVE_AGENTS_GLOBAL_LOADED`, Adaptive Agents is active and your A
 
 **OpenCode users**: After running the OpenCode installer, the same verification prompts work in any OpenCode-compatible editor without requiring VS Code or GitHub Copilot.
 
-### 3) Invoke Prompts via Natural Language or Slash Commands
+### 4) Invoke Prompts via Natural Language or Slash Commands
 
 The prompt files under `prompts/` are designed to be invoked from VS Code Chat. You can trigger them with a natural language request or a slash command, depending on how the prompt is configured.
 
@@ -171,7 +203,7 @@ Triage the latest retrospective note and recommend next steps.
 
 If a prompt has an `argument-hint` in its frontmatter, you can pass a short argument after the slash command to focus the invocation.
 
-### 4) Run the Adaptation Loop
+### 5) Run the Adaptation Loop
 
 Common flow:
 
@@ -190,7 +222,7 @@ Helpful prompt files:
 - `prompts/review-retrospective-inbox.prompt.md`
 - `prompts/review-promotion-candidates.prompt.md`
 
-### 5) Check Repository Health
+### 6) Check Repository Health
 
 Run the deterministic checker before or after guidance changes:
 

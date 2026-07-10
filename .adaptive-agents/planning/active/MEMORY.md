@@ -4,8 +4,7 @@ Curate this file for cross-session handoff. Replace stale details rather than ke
 
 ## Current State
 
-- PL-20260710 (OpenCode Installer Support) is active.
-- Implementing: OpenCode installer script, command files, global config template, umbrella installer, README updates.
+- No active plan. The active slot is empty pending selection of next work.
 
 ## Decisions
 
@@ -14,12 +13,10 @@ Curate this file for cross-session handoff. Replace stale details rather than ke
 - Acceptance criteria trace to spec items.
 - Plans capture relevant project rules in a `## Applicable Guidance` section.
 - Plan IDs use `PL-YYYYMMDD` (date-only) format; legacy `PL-YYYYMMDDTHHMMSSZ` and `PL-####` accepted for backward compatibility.
-- OpenCode installer uses same Python JSON merge pattern as `install-vscode.sh`.
-- Idempotency marker: `"_adaptive_agents_installed": true` in OpenCode config.
 
 ## Blockers
 
-- Need to determine correct OpenCode global config path at runtime (OS-dependent).
+- None.
 
 ## Deferred Discoveries
 
