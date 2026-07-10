@@ -46,6 +46,9 @@ The user may provide:
 - The patch must use apply-patch style headers with explicit repository-relative paths: `*** Add File:` for new files and `*** Update File:` for existing files.
 - Do not use `/dev/null`, `--- a/path`, `+++ b/path`, or line-number hunk headers in proposed patches.
 - End by asking the user to choose one of: approve, adjust, deny, or defer.
+- Hard stop: this review step is proposal-only and must not edit files under any wording.
+- Treat requests like "do a full retrospective" as review/triage scope unless the user explicitly approves applying a specific proposed patch.
+- If the user wants immediate changes, respond with the proposed patch and request explicit apply approval first.
 
 ## Decision Set
 

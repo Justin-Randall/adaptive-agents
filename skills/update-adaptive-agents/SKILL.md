@@ -37,6 +37,14 @@ If the lesson is not clearly durable, add or propose a retrospective instead of 
 
 Use the autonomous capture triggers in [adaptation-cycle.md](../../playbooks/adaptation-cycle.md) when a session reveals a recurring lesson, failure mode, user preference, workflow improvement, guidance drift, or validation/checker failure. Autonomous action stops at creating or proposing a sanitized `Captured` retrospective; triage and promotion still require user approval.
 
+Use the adaptation-cycle confidence tiers consistently:
+
+- High confidence: create or propose a sanitized `Captured` retrospective.
+- Medium confidence: ask one concise clarifying question before capture.
+- Low confidence: do not capture; briefly state the no-capture reason when reporting completion.
+
+For non-trivial Adaptive Agents maintenance work, include a completion-time retrospective checkpoint in the final report so capture decisions are visible rather than implicit.
+
 ## Promotion Rules
 
 - Prefer small, focused files over expanding broad entrypoints.
@@ -60,6 +68,15 @@ When promoting a retrospective:
 4. Add the smallest update to the owning file or create a focused new file.
 5. Add Markdown links from entrypoints or routing tables only where discovery improves.
 6. Leave the original retrospective intact unless the user asks to archive, move, or delete it.
+
+### Retrospective Approval Gate Checklist
+
+Before editing any file for retrospective promotion:
+
+1. Confirm triage/review output exists with a proposed patch.
+2. Confirm explicit user approval to apply that patch.
+3. If approval is ambiguous, ask one concise clarifying question and stop.
+4. Apply only through the approved-patch flow.
 
 ## Validation
 

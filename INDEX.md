@@ -56,8 +56,10 @@ This is the current checked-in entrypoint for default user-wide engineering guid
 - [instructions/repository-boundaries.instructions.md](instructions/repository-boundaries.instructions.md)
 - [instructions/coding.instructions.md](instructions/coding.instructions.md)
 - [instructions/tdd.instructions.md](instructions/tdd.instructions.md)
+- [instructions/command-failure-pivot.instructions.md](instructions/command-failure-pivot.instructions.md)
+- [instructions/temp-artifact-hygiene.instructions.md](instructions/temp-artifact-hygiene.instructions.md)
 
-More specific instruction files may be added later for coding style, testing, Unreal Engine, Go, diagnostics, or other recurring work.
+More specific instruction files may be added later for coding style, testing, Unreal Engine, Go, diagnostics, command-line tool behavior, or other recurring work.
 
 ## Skills
 
@@ -73,6 +75,7 @@ For the end-to-end learning loop, use:
 
 - [playbooks/adaptation-cycle.md](playbooks/adaptation-cycle.md)
 - [playbooks/adaptive-automation-roadmap.md](playbooks/adaptive-automation-roadmap.md)
+- [playbooks/temp-artifact-hygiene.md](playbooks/temp-artifact-hygiene.md)
 - [retrospectives/inbox/README.md](retrospectives/inbox/README.md)
 - [retrospectives/inbox/template.md](retrospectives/inbox/template.md)
 

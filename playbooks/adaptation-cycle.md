@@ -47,6 +47,20 @@ When already working in the Adaptive Agents repository, the agent may create the
 
 Autonomous capture stops at `Captured`. Do not triage, promote, apply patches, or update durable guidance without an explicit user approval step.
 
+Use these confidence tiers when deciding what to do:
+
+- **High confidence**: concrete evidence shows a repeated or consequential failure mode, workflow workaround, preference, or guidance drift. Propose or create a sanitized `Captured` retrospective, respecting repository boundary rules.
+- **Medium confidence**: evidence suggests a reusable lesson, but the impact or recurrence is uncertain. Ask one concise clarifying question before capture.
+- **Low confidence**: there is no concrete reusable evidence. Do not create a retrospective; briefly state why no capture is warranted if reporting completion.
+
+High-confidence trigger examples include:
+
+- repeated equivalent command, tool, or patch attempts after the first meaningful failure indicates a different diagnostic path is needed
+- repeated user correction about the same agent behavior or workflow assumption
+- violation of the active workspace's temp-artifact, scratch, or cleanup policy after local instructions have been loaded
+- a validation, checker, or prompt failure that exposes missing or misleading guidance
+- explicit user feedback that agent process quality should be improved for future sessions
+
 ## 2. Triage
 
 Before promotion, decide whether the observation is durable.
@@ -59,6 +73,16 @@ Promote only when the lesson is:
 - not already covered by existing guidance
 
 If uncertain, leave it in `retrospectives/inbox/` and record what evidence would make it promotable.
+
+### Triage-to-Apply Handoff (Mandatory)
+
+Triage and review are proposal-only steps. They must stop at recommendation + proposed patch and wait for explicit user approval.
+
+Use this decision rule:
+
+- No explicit apply approval: do not edit files.
+- Explicit apply approval for a specific proposed patch: apply only that patch.
+- Ambiguous approval: ask one concise clarifying question before any edits.
 
 ## 3. Choose the Target
 

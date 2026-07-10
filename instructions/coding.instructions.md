@@ -18,6 +18,6 @@ Default coding standards:
 
 ## Completion Discipline
 
-After the requested scope is complete and at least one focused validation has succeeded, stop and summarize. Do not repeat equivalent validation, readback, or status checks unless the latest result reveals a new issue, the task still has an unfinished requested step, the user asks for more detail, or a concrete blocker remains.
+After the requested scope is complete and at least one focused validation has succeeded, run the completion-time retrospective checkpoint from [global.instructions.md](global.instructions.md), then stop and summarize. Do not repeat equivalent validation, readback, or status checks unless the latest result reveals a new issue, the task still has an unfinished requested step, the user asks for more detail, or a concrete blocker remains.
 
 For multi-step tasks, validate each meaningful completed slice once, then continue to the next unfinished step. Do not rerun equivalent checks just to regain confidence.

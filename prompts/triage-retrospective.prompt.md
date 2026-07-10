@@ -39,6 +39,9 @@ If the user does not provide a path, ask one concise clarifying question for the
 - Do not treat the user's decision to defer the recommendation as approval to change the retrospective's status to `Deferred`. Only propose or apply status changes when the user explicitly approves that status change.
 - If proposing a patch, return it in a fenced `diff` block using plain repository-relative file paths.
 - Write `No patch recommended.` only when section 5 says no file should be updated.
+- Hard stop: this prompt is proposal-only. Never edit files in this step, even if the user asks for a "full retrospective" or "fix it now."
+- Treat broad retrospective intent as triage authorization only, not apply authorization.
+- Only proceed to edits through [apply-approved-promotion.patch.prompt.md](apply-approved-promotion.patch.prompt.md) after explicit user approval.
 
 ## Decision Set
 
@@ -59,6 +62,9 @@ Return these sections:
 4. Proposed durable target, if any
 5. Whether the retrospective itself should be updated
 6. Exact patch you would apply, but do not apply it
+7. User approval needed
+
+For section 7, ask: `Approve, adjust, deny, or defer this recommendation?`
 
 ## Patch Format
 

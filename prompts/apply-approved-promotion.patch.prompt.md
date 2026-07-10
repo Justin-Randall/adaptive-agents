@@ -24,6 +24,8 @@ The user should provide either:
 
 If approval is ambiguous, ask one concise clarifying question before editing.
 
+Approval must be specific to the patch being applied in the current context. If approval references an older or different patch, stop and ask for reconfirmation.
+
 ## Rules
 
 - Apply only the user-approved patch.
@@ -40,6 +42,9 @@ If approval is ambiguous, ask one concise clarifying question before editing.
 - After applying the approved patch, run `bash scripts/check-adaptive-agents.sh` when the script exists.
 - If the checker fails, report the failures and ask the user whether to approve a corrective patch, adjust the promotion, or leave the repository as-is for now. Do not auto-fix checker failures without user approval.
 - Validate the completed edit slice once, then stop and report.
+- Treat these as explicit apply approvals: `approved`, `apply this patch`, `apply section 6 patch`, `ship this exact patch`, or equivalent unambiguous phrasing.
+- Treat these as not sufficient by themselves: `do a full retrospective`, `continue`, `sounds good`, `go ahead` without clear apply intent tied to a patch.
+- If apply approval is missing or ambiguous, ask one concise question and do not edit files.
 
 ## Validation
 

@@ -22,6 +22,7 @@ Use these references:
 - Do not promote a retrospective.
 - Create at most one retrospective note.
 - Create a note only for a concrete, reusable lesson, failure mode, workflow improvement, or user preference with evidence from the session.
+- Use the confidence tiers from [Adaptation cycle](../playbooks/adaptation-cycle.md): high confidence creates or proposes capture, medium confidence asks one concise clarifying question, and low confidence reports no capture.
 - If there is no concrete reusable lesson, report that no retrospective was captured and explain why in one sentence.
 - If the evidence is promising but incomplete, ask one concise clarifying question instead of creating a vague note.
 - If creating a note, use `retrospectives/inbox/YYYY-MM-DD-short-title.md`.
@@ -46,3 +47,9 @@ If no retrospective is created, report:
 1. No retrospective captured
 2. Reason
 3. What evidence would justify capture later
+
+For lightweight wrap-up use, prefer this compact form:
+
+- Retrospective Check: Triggered/Not triggered
+- Evidence or reason: one sentence
+- Next action: captured, proposed, clarifying question, or no action

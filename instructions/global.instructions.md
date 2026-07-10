@@ -15,11 +15,20 @@ Before making changes:
 5. When modifying Adaptive Agents guidance, load [Update Adaptive Agents](../skills/update-adaptive-agents/SKILL.md).
 6. When a session reveals a recurring lesson, failure mode, preference, or guidance drift, follow the autonomous capture triggers in [adaptation-cycle.md](../playbooks/adaptation-cycle.md); capture or propose only a sanitized `Captured` retrospective unless the user explicitly approves promotion.
 
+Before the final response for non-trivial work, run a brief retrospective checkpoint:
+
+- If a high-confidence capture trigger fired, propose or create a sanitized `Captured` retrospective according to repository boundary rules.
+- If the evidence is medium-confidence, ask one concise clarifying question before capture.
+- If no concrete trigger fired, state the no-capture reason briefly when summarizing completion.
+- Never promote a retrospective or edit durable guidance without explicit user approval.
+
 Read:
 
 - [Repository boundary instructions](repository-boundaries.instructions.md)
 - [Coding instructions](coding.instructions.md)
 - [TDD instructions](tdd.instructions.md)
+- [Command failure pivot instructions](command-failure-pivot.instructions.md)
+- [Temporary artifact hygiene instructions](temp-artifact-hygiene.instructions.md)
 
 Project-local instructions override these user-wide instructions when they are more specific.
 
