@@ -92,12 +92,14 @@ for markdown in sorted(root.rglob("*.md")):
 
 active_text = (root / "planning/active/ACTIVE.md").read_text(encoding="utf-8") if (root / "planning/active/ACTIVE.md").exists() else ""
 active_match = re.search(r"^# ((?:PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4})|\{\{ACTIVE_PLAN_ID\}\}): (.+)$", active_text, re.MULTILINE)
-if not active_match:
+if not active_match and "No Active Plan" not in active_text:
     failures.append("planning/active/ACTIVE.md must start with '# PL-YYYYMMDDTHHMMSSZ: descriptive title' (or legacy '# PL-####: ...')")
 
 for support_file in sorted((root / "planning/active").glob("*.md")):
     if support_file.name == "ACTIVE.md":
         continue
+    if "No Active Plan" in active_text:
+        break
     if support_file.resolve() not in graph.get((root / "planning/active/ACTIVE.md").resolve(), set()):
         failures.append(f"active supporting document is not linked from ACTIVE.md: {support_file.name}")
 
@@ -135,7 +137,7 @@ for plan_id, locations in sorted(plan_locations.items()):
         failures.append(f"plan ID appears in multiple lifecycle locations: {plan_id}: {', '.join(locations)}")
 
 retrospective_statuses = {"Captured", "Deferred", "Promoted", "Rejected"}
-retrospective_scopes = {"Project Layer", "Undetermined"}
+retrospective_scopes = {"Project Layer", "Undetermined", "User-wide"}
 retrospective_name = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
 for retrospective in sorted((root / "retrospectives/inbox").glob("*.md")):
     if retrospective.name in {"README.md", "template.md"}:

@@ -107,11 +107,11 @@ cat > "$invalid_scope/retrospectives/inbox/2026-07-10-wrong-scope.md" <<'EOF'
 
 - Date: 2026-07-10
 - Status: Captured
-- Scope: User-wide
+- Scope: Invalid
 - Session or task: Validator fixture
 EOF
 printf '\n- [Wrong scope](2026-07-10-wrong-scope.md)\n' >> "$invalid_scope/retrospectives/inbox/README.md"
-expect_failure "$invalid_scope" "invalid project retrospective scope in 2026-07-10-wrong-scope.md: User-wide"
+expect_failure "$invalid_scope" "invalid project retrospective scope in 2026-07-10-wrong-scope.md: Invalid"
 
 invalid_status="$(new_fixture invalid-retrospective-status)"
 cat > "$invalid_status/retrospectives/inbox/2026-07-10-wrong-status.md" <<'EOF'
