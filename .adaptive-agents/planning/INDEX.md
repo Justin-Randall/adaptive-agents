@@ -2,7 +2,7 @@
 
 ## Current Work
 
-No active plan — [ACTIVE.md](active/ACTIVE.md) shows the placeholder. Select a backlog item or propose new work to begin.
+Active plan: [PL-20260710: OpenCode Installer Support](active/ACTIVE.md).
 
 - Working memory: [Active memory](active/MEMORY.md)
 

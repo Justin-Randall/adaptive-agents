@@ -6,12 +6,256 @@
 
 ## Objective
 
-Update the Adaptive Agents VS Code installer (scripts and vscode/) to detect, generate, and manage OpenCode configuration files alongside or instead of the current GitHub Copilot-specific integration.
+Add an OpenCode installer that generates OpenCode-standard configuration pointing to the Adaptive Agents repository, so users of OpenCode-compatible editors (Cursor, Windsurf, continue.dev CLI/TUI, etc.) can discover and use Adaptive Agents — checking retrospectives, querying active work, and confirming Adaptive Agents is active — without requiring GitHub Copilot or VS Code.
 
 ## Problem Spec
 
-The current installer produces VS Code settings and GitHub Copilot-specific instructions for discovering the Adaptive Agents repository. OpenCode is an emerging open standard for AI coding tool interop that provides a model-agnostic configuration layer. Without OpenCode support, users who prefer OpenCode-compatible editors or want editor-agnostic agent discovery are left out, and the installer produces Copilot-locked output.
+The current installer (`scripts/install-vscode.sh`) produces VS Code settings and GitHub Copilot-specific instructions for discovering the Adaptive Agents repository. OpenCode is an emerging open standard for AI coding tool interop that provides a model-agnostic configuration layer (see [opencode.ai/docs/config](https://opencode.ai/docs/config/)). Without OpenCode support, users who prefer OpenCode-compatible editors or want editor-agnostic agent discovery are left out, and the installer produces Copilot-locked output.
 
-## Scope
+## Implementation Plan
 
-Detect whether the target environment supports OpenCode; generate appropriate OpenCode configuration (e.g. `.opencode.json` or equivalent) that points to the Adaptive Agents repository; optionally maintain Copilot support as a fallback. Exact configuration format and installation mechanism to be determined during activation. Full SDD specification will be written during activation.
+### Overview
+
+The OpenCode ecosystem (CLI at `opencode.ai`, project `anomalyco/opencode`) supports multiple discovery mechanisms that we can leverage:
+
+1. **`instructions` field in `opencode.json`** — array of file/glob paths to instruction files (the closest parallel to VS Code's `chat.instructionsFilesLocations`)
+2. **Global `~/.config/opencode/AGENTS.md`** — user-wide agent instructions loaded in every OpenCode session
+3. **`.opencode/commands/*.md` (project) / `~/.config/opencode/commands/*.md` (global)** — custom slash commands
+4. **`.opencode/skills/*/SKILL.md`** — reusable skill definitions (OpenCode natively supports this; also reads `.claude/skills/` as fallback)
+5. **Claude Code compatibility** — OpenCode reads `~/.claude/CLAUDE.md` and `.claude/skills/` natively
+
+The plan uses **approaches 1 + 3 + 4** for maximum coverage: install a global `opencode.json` with instructions, plus commands and skills directories that map directly to Adaptive Agents prompts and skills. The existing `.claude/skills/` compatibility layer provides a zero-effort path for users who already have it.
+
+---
+
+### Files to Create
+
+> **⚠️ Paths in this section are illustrative, not prescriptive.**
+> The exact config directory, commands directory, and AGENTS.md location depend on the user's OS and OpenCode version.
+> The installer must detect the correct standard OpenCode config location at runtime (OpenCode's config precedence: global config, project `./.opencode/`, env var `OPENCODE_CONFIG`, etc.).
+> Models implementing this plan should discover the correct path rather than hardcoding it.
+
+#### `opencode/opencode.jsonc`
+
+**Purpose**: Template for the global OpenCode configuration file.
+
+This is the OpenCode equivalent of `vscode/user-wide.instructions.md`. It uses the `instructions` field to tell OpenCode to load Adaptive Agents files as instruction sources.
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    // Core Adaptive Agent entrypoints — absolute paths, parameterized at install time
+    "<REPO_ROOT>/AGENTS.md",
+    "<REPO_ROOT>/INDEX.md",
+    "<REPO_ROOT>/instructions/global.instructions.md",
+    // Load all instruction files
+    "<REPO_ROOT>/instructions/*.instructions.md"
+  ],
+  "command": {
+    // Adaptive Agents custom commands — populated during install
+  }
+}
+```
+
+The installer script parameterizes the repo path at install time (same pattern as `install-vscode.sh` writing `$repo_setting_path` into the instructions markdown).
+
+**Idempotency**: The installer writes to OpenCode's standard global config location, merging the `instructions` array (deduplicating by path) and the `command` entries. Uses a sentinel marker key (e.g., `"_adaptive_agents_installed": true`) to detect prior installation.
+
+#### `opencode/commands/`
+
+**Purpose**: Custom OpenCode slash commands that map to Adaptive Agents prompts. Each is a Markdown file with YAML frontmatter placed in the global commands directory.
+
+##### `opencode/commands/capture-retrospective.md`
+
+Maps to `prompts/capture-retrospective.prompt.md`.
+
+```markdown
+---
+description: Capture a retrospective observation about the current session
+---
+
+Capture a retrospective about what we just did. Include:
+- What happened (observation)
+- What the impact was
+- What root cause or lesson applies
+- Use the template at `retrospectives/inbox/template.md`
+```
+
+##### `opencode/commands/triage-retrospective.md`
+
+Maps to `prompts/triage-retrospective.prompt.md`.
+
+##### `opencode/commands/review-retrospective-inbox.md`
+
+Maps to `prompts/review-retrospective-inbox.prompt.md`.
+
+##### `opencode/commands/review-promotion-candidates.md`
+
+Maps to `prompts/review-promotion-candidates.prompt.md`.
+
+##### `opencode/commands/apply-approved-promotion.md`
+
+Maps to `prompts/apply-approved-promotion.patch.prompt.md`.
+
+##### `opencode/commands/check-adaptive-agents.md`
+
+Verification command that asks the agent to confirm Adaptive Agents is loaded.
+
+**Idempotency**: Commands are installed into OpenCode's global commands directory. Re-running the installer overwrites with the same content — no duplication risk.
+
+#### `opencode/AGENTS.md`
+
+**Purpose**: A global agent instructions file template (installed to OpenCode's standard global AGENTS.md location) that tells OpenCode about the Adaptive Agents repository. This is an alternative/complement to the `instructions` field approach.
+
+```markdown
+# Adaptive Agents — OpenCode Global Rules
+
+The user's canonical Adaptive Agents knowledgebase is located at:
+`<repo_root>`
+
+Before doing non-trivial coding work:
+1. Read AGENTS.md and INDEX.md from the Adaptive Agents repository.
+2. Load the global instructions from instructions/global.instructions.md.
+3. Follow the routing in INDEX.md to find relevant instructions, skills, and prompts.
+4. Check for `.adaptive-agents/INDEX.md` in the current project.
+5. Project-local instructions override user-wide guidance.
+
+When asked whether Adaptive Agents is loaded, reply with:
+ADAPTIVE_AGENTS_GLOBAL_LOADED
+```
+
+#### `scripts/install-opencode.sh`
+
+**Purpose**: The OpenCode installer script, analogous to `install-vscode.sh`.
+
+**What it does**:
+
+1. Detects the Adaptive Agents repository root (same logic as `install-vscode.sh`)
+2. Creates the OpenCode global config by merging:
+   - Reads existing config if present (preserving all keys)
+   - Sets/updates `instructions` array with Adaptive Agents file paths (deduplicating)
+   - Adds custom commands under `command` key
+   - Writes a sentinel marker for idempotency detection
+3. Copies `opencode/commands/*.md` → OpenCode's global commands directory (overwriting existing)
+4. Optionally (with `--global-rules` flag) installs `opencode/AGENTS.md` → OpenCode's standard global AGENTS.md location
+5. Detects whether OpenCode CLI is installed (`command -v opencode`) and reports status
+6. Creates a backup of any existing OpenCode config before modifying
+
+**Flags**:
+
+- `--dry-run` — preview changes
+- `--global-rules` — also install global AGENTS.md
+- `--opencode-config PATH` — explicit config path
+- `--skip-commands` — skip command installation
+
+**Idempotency guarantee**: JSON merge with deduplication for arrays; file copy with overwrite for commands; marker-based detection of prior run.
+
+#### `scripts/install.sh`
+
+**Purpose**: Umbrella installer that detects the environment and runs appropriate sub-installers.
+
+**What it does**:
+
+1. Detects the Adaptive Agents repository root
+2. If VS Code is detected (`code` command or VS Code settings path exists), runs `install-vscode.sh`
+3. If OpenCode compatibility is detected (any of: OpenCode config directory exists, `opencode` CLI found, Cursor/Windsurf config exists), runs `install-opencode.sh`
+4. If neither is detected, shows a message suggesting both installation paths
+5. All flags are passed through to sub-installers
+
+**Idempotency**: Sub-installers handle their own idempotency. The umbrella script is purely routing.
+
+---
+
+### Files to Modify
+
+#### `README.md`
+
+Already partially updated. Needs a new OpenCode installation section:
+
+```markdown
+### 3) Install OpenCode Integration
+
+From this repository root:
+
+```bash
+./scripts/install-opencode.sh
+```
+
+Or install both VS Code and OpenCode at once:
+
+```bash
+./scripts/install.sh
+```
+
+Useful options:
+
+```bash
+./scripts/install-opencode.sh --dry-run
+./scripts/install-opencode.sh --global-rules
+```
+
+```
+
+#### `vscode/user-wide.instructions.md`
+Add a note that this file is also loaded by OpenCode when configured via the `instructions` field in `opencode.json`.
+
+#### `.gitignore` (at repo root)
+Add `.opencode/` to ensure project-level OpenCode config generated during testing is not accidentally committed.
+
+---
+
+### OpenCode ↔ Adaptive Agents Mapping Table
+
+| OpenCode Mechanism | Adaptive Agents Equivalent | How It Works |
+|---|---|---|
+| `instructions` in `opencode.json` | `vscode/user-wide.instructions.md` | Array of file paths to instruction files — the OpenCode-native way to load external guidance |
+| Global `AGENTS.md` (in OpenCode's config directory) | (no VS Code parallel) | Global agent instructions loaded in every OpenCode session — a second discovery path |
+| `.opencode/commands/*.md` | `prompts/*.prompt.md` | Custom slash commands map directly to Adaptive Agents prompts for retrospective capture, triage, review, etc. |
+| `.opencode/skills/*/SKILL.md` | `skills/*/SKILL.md` | OpenCode natively reads the same SKILL.md format — skills work without modification |
+| `~/.claude/CLAUDE.md` (compat) | `AGENTS.md` | OpenCode reads Claude Code files as fallback — existing Claude Code users get Adaptive Agents for free |
+| `.claude/skills/` (compat) | `skills/` | OpenCode reads Claude Code skills directory — zero-config reuse |
+
+---
+
+### Verification Strategy
+
+After install, the user should be able to verify in any OpenCode-compatible editor:
+
+1. **Sentinel test**: Ask "Are Adaptive Agents active?" → expects `ADAPTIVE_AGENTS_GLOBAL_LOADED`
+2. **Retrospective test**: Ask "What's in the retrospective backlog?" → agent reads `retrospectives/inbox/` and summarizes
+3. **Planning test**: Ask "What is the active plan?" → agent reads `planning/active/ACTIVE.md`
+4. **Skills test**: Ask to use a skill → agent discovers `skills/` via OpenCode's native skill mechanism
+
+The `scripts/check-adaptive-agents.sh` repository health checker should also be updated to validate OpenCode configuration when present.
+
+---
+
+## Out of Scope (v0)
+
+- Full OpenCode SDK/validator development — consume the standard, don't implement it.
+- Migrating or removing existing Copilot-specific configuration — both formats coexist.
+- Supporting non-OpenCode AI coding tools beyond Copilot and OpenCode.
+- A GUI installer.
+- Supporting the OpenCode IDE extension's `AGENTS.md` per-project `opencode.json` — the global config approach covers all projects.
+
+## Acceptance Criteria
+
+- [ ] `scripts/install-opencode.sh` idempotently creates/updates the OpenCode global config with `instructions` pointing to Adaptive Agents files.
+- [ ] After install, asking "Are Adaptive Agents active?" in any OpenCode-compatible editor returns `ADAPTIVE_AGENTS_GLOBAL_LOADED`.
+- [ ] After install, the user can run `/capture-retrospective`, `/triage-retrospective`, `/review-retrospective-inbox`, `/review-promotion-candidates`, `/apply-approved-promotion`, and `/check-adaptive-agents` as OpenCode slash commands.
+- [ ] Custom command files are installed to OpenCode's global commands directory without overwriting non-Adaptive-Agents commands.
+- [ ] VS Code settings are never modified by any OpenCode installer.
+- [ ] Re-running any installer produces the same result — no duplicate entries, no config bloat.
+- [ ] `scripts/install.sh` detects the environment and routes to the appropriate sub-installer(s).
+- [ ] `scripts/check-adaptive-agents.sh` validates OpenCode config when present.
+- [ ] `README.md` documents both installation paths (VS Code and OpenCode).
+
+## Decisions
+
+- **Global config** over per-project config: Installing to OpenCode's global config directory makes Adaptive Agents available in every project without each project needing its own `opencode.json`. The installer detects the correct location at runtime. This mirrors the VS Code approach of using global `settings.json`.
+- **Both `instructions` + `AGENTS.md`**: The `instructions` field is the primary mechanism (exact file path references). The `AGENTS.md` is optional (requires `--global-rules` flag) and serves as a secondary discovery path.
+- **Commands are installed, not symlinked**: Copy command files so they survive repo moves. The installer is re-runnable if the repo path changes.
+- **No MCP server**: Adaptive Agents is a guidance repository, not a service. MCP is out of scope unless a future need for live tool access arises.
+- **JSON merge strategy**: Use the same Python-based JSON merge approach as `install-vscode.sh` — read existing config, merge new keys, deduplicate arrays, write back with backup.
+- **Idempotency marker**: Write `"// __adaptive_agents": true` comment in the installed config (or a `_adaptive_agents: true` key for strict JSON) to detect prior installation.

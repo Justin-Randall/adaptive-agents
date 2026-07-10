@@ -109,7 +109,7 @@ Note: the current checked-in installer is Bash (`scripts/install-vscode.sh`).
 
 ### 2) Verify Guidance Is Loaded
 
-In VS Code Chat, ask:
+In VS Code Chat or any OpenCode-compatible editor (Cursor, Windsurf, continue.dev), ask:
 
 ```text
 Use my Adaptive Agents guidance. What user-wide instructions are available for this task?
@@ -120,6 +120,10 @@ You can also verify the global instruction sentinel response:
 ```text
 ADAPTIVE_AGENTS_GLOBAL_LOADED
 ```
+
+If you get `ADAPTIVE_AGENTS_GLOBAL_LOADED`, Adaptive Agents is active and your AI coding tool is reading the user-wide guidance from this repository.
+
+**OpenCode users**: After running the OpenCode installer, the same verification prompts work in any OpenCode-compatible editor without requiring VS Code or GitHub Copilot.
 
 ### 3) Invoke Prompts via Natural Language or Slash Commands
 

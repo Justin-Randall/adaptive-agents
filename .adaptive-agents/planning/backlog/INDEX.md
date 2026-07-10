@@ -4,7 +4,7 @@ Read this index before opening detailed plans or proposing a new item. Keep entr
 
 | ID | Plan | Outcome | Readiness |
 | --- | --- | --- | --- |
-| PL-20260710 | [OpenCode Installer Support](PL-20260710-opencode-installer-support.md) | The Adaptive Agents installer detects OpenCode-compatible editors and generates appropriate configuration alongside or instead of the current Copilot-specific integration. | Ready |
+| PL-20260710 | [OpenCode Installer Support](PL-20260710-opencode-installer-support.md) | OpenCode-compatible editors (Cursor, Windsurf, continue.dev) can discover and use Adaptive Agents — checking retrospectives, active work, and confirming activation — via an idempotent installer that generates OpenCode-standard configuration alongside existing VS Code support. | Ready |
 | PL-20260710 | [Project Layer Web UI](PL-20260710-project-layer-web-ui.md) | A browsable, editable web interface that surfaces all Project Layer artifacts without requiring directory-tree navigation. | Ready |
 
 Detailed plans use `PL-YYYYMMDD-descriptive-slug.md` (or legacy `PL-YYYYMMDDTHHMMSSZ-...`, `PL-####-...`). Backlog items are lightweight — an Objective, Problem Spec, and one-line Scope suffice. The full SDD specification is written into `ACTIVE.md` during activation, not before. Updating an existing plan or creating a new one requires user approval.
