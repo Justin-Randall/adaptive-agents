@@ -18,6 +18,7 @@ When working inside another project, treat Adaptive Agents content as reusable g
 | Default user-wide engineering preferences for non-trivial coding work | [instructions/global.instructions.md](instructions/global.instructions.md) |
 | Promoting retrospectives or updating Adaptive Agents guidance | [skills/update-adaptive-agents/SKILL.md](skills/update-adaptive-agents/SKILL.md) |
 | Running the adaptation lifecycle | [playbooks/adaptation-cycle.md](playbooks/adaptation-cycle.md) |
+| Using temporary diagnostics with searchable IDs and cleanup gates | [playbooks/temporary-diagnostic-logging.md](playbooks/temporary-diagnostic-logging.md) |
 | Planning adaptive automation layers | [playbooks/adaptive-automation-roadmap.md](playbooks/adaptive-automation-roadmap.md) |
 | Capturing raw session learning | [retrospectives/inbox/README.md](retrospectives/inbox/README.md) |
 | Capturing a retrospective from a session observation | [prompts/capture-retrospective.prompt.md](prompts/capture-retrospective.prompt.md) |
@@ -74,6 +75,7 @@ This skill covers promoting retrospectives, choosing durable guidance targets, u
 For the end-to-end learning loop, use:
 
 - [playbooks/adaptation-cycle.md](playbooks/adaptation-cycle.md)
+- [playbooks/temporary-diagnostic-logging.md](playbooks/temporary-diagnostic-logging.md)
 - [playbooks/adaptive-automation-roadmap.md](playbooks/adaptive-automation-roadmap.md)
 - [playbooks/temp-artifact-hygiene.md](playbooks/temp-artifact-hygiene.md)
 - [retrospectives/inbox/README.md](retrospectives/inbox/README.md)

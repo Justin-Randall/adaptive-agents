@@ -37,6 +37,8 @@ Good retrospective candidates include:
 Agents should not wait for the user to propose every retrospective. During normal work, create or propose a sanitized `Captured` retrospective when there is concrete evidence of:
 
 - repeated agent correction, rollback, or patch revision after user feedback
+- a failed implementation or diagnostic approach that required a meaningful retry
+- a discarded hypothesis that consumed enough work to reveal a reusable process lesson
 - a tool, shell, editor, model, or workflow behavior that blocked progress or required a reusable workaround
 - a user preference or collaboration pattern that is likely to recur
 - durable guidance, README content, routing, or checker behavior drifting from repository reality
@@ -47,14 +49,17 @@ When already working in the Adaptive Agents repository, the agent may create the
 
 Autonomous capture stops at `Captured`. Do not triage, promote, apply patches, or update durable guidance without an explicit user approval step.
 
+At the completion-time checkpoint, process-friction evidence requires a user-visible prompt even if the task eventually succeeded. Summarize the failed approach, retry, discarded hypothesis, rollback, correction, or workaround in one sentence and ask whether the user wants it captured. Do not silently create the note or suppress the prompt because the final validation passed.
+
 Use these confidence tiers when deciding what to do:
 
-- **High confidence**: concrete evidence shows a repeated or consequential failure mode, workflow workaround, preference, or guidance drift. Propose or create a sanitized `Captured` retrospective, respecting repository boundary rules.
+- **High confidence**: concrete evidence shows a repeated or consequential failure mode, workflow workaround, preference, or guidance drift. For process-friction evidence, prompt the user to capture it; for other triggers, propose or create a sanitized `Captured` retrospective while respecting repository boundary rules.
 - **Medium confidence**: evidence suggests a reusable lesson, but the impact or recurrence is uncertain. Ask one concise clarifying question before capture.
 - **Low confidence**: there is no concrete reusable evidence. Do not create a retrospective; briefly state why no capture is warranted if reporting completion.
 
 High-confidence trigger examples include:
 
+- a failed solution or diagnostic hypothesis that required a meaningful change of approach
 - repeated equivalent command, tool, or patch attempts after the first meaningful failure indicates a different diagnostic path is needed
 - repeated user correction about the same agent behavior or workflow assumption
 - violation of the active workspace's temp-artifact, scratch, or cleanup policy after local instructions have been loaded

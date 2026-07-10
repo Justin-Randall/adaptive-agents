@@ -39,11 +39,12 @@ Use the autonomous capture triggers in [adaptation-cycle.md](../../playbooks/ada
 
 Use the adaptation-cycle confidence tiers consistently:
 
-- High confidence: create or propose a sanitized `Captured` retrospective.
+- High confidence process friction: name the evidence and ask the user whether to create a sanitized `Captured` retrospective, even if the task ultimately succeeded.
+- Other high confidence triggers: create or propose a sanitized `Captured` retrospective.
 - Medium confidence: ask one concise clarifying question before capture.
 - Low confidence: do not capture; briefly state the no-capture reason when reporting completion.
 
-For non-trivial Adaptive Agents maintenance work, include a completion-time retrospective checkpoint in the final report so capture decisions are visible rather than implicit.
+For non-trivial Adaptive Agents maintenance work, include a completion-time retrospective checkpoint in the final report so capture decisions are visible rather than implicit. Treat a failed approach, meaningful retry, discarded hypothesis, rollback, user correction, or reusable workaround as process-friction evidence that requires the user-facing capture question.
 
 ## Promotion Rules
 

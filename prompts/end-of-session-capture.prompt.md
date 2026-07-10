@@ -22,6 +22,8 @@ Use these references:
 - Do not promote a retrospective.
 - Create at most one retrospective note.
 - Create a note only for a concrete, reusable lesson, failure mode, workflow improvement, or user preference with evidence from the session.
+- Treat a failed implementation or diagnostic approach, meaningful retry, discarded hypothesis, rollback, user correction, or reusable workaround as process-friction evidence even when the task ultimately succeeded.
+- When process-friction evidence exists, summarize it in one sentence and ask whether the user wants it captured. Do not create the note until the user answers.
 - Use the confidence tiers from [Adaptation cycle](../playbooks/adaptation-cycle.md): high confidence creates or proposes capture, medium confidence asks one concise clarifying question, and low confidence reports no capture.
 - If there is no concrete reusable lesson, report that no retrospective was captured and explain why in one sentence.
 - If the evidence is promising but incomplete, ask one concise clarifying question instead of creating a vague note.
@@ -52,4 +54,4 @@ For lightweight wrap-up use, prefer this compact form:
 
 - Retrospective Check: Triggered/Not triggered
 - Evidence or reason: one sentence
-- Next action: captured, proposed, clarifying question, or no action
+- Next action: capture question, captured, proposed, clarifying question, or no action
