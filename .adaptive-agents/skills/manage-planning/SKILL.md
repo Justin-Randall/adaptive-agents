@@ -1,6 +1,6 @@
 ---
 name: manage-planning
-description: "Use when: reading or changing the Project Layer active plan, working memory, backlog, or closed-work history."
+description: "Use when: reading, executing, or changing the Project Layer active plan, working memory, backlog, or closed-work history."
 ---
 
 # Manage Planning
@@ -12,20 +12,64 @@ Use [Planning](../../planning/INDEX.md) as the authoritative planning router.
 1. Read `planning/active/ACTIVE.md` and its linked supporting documents.
 2. If the current request changes the active objective, explain the conflict and ask whether to close, replace, or retain the current plan.
 3. Work may originate from a backlog plan or begin directly as approved research, debugging, maintenance, or implementation.
-4. Never activate work silently.
+4. **When activating a backlog item**, create a new `ACTIVE.md` using the SDD template. Use the backlog item's content — Objective, Problem Spec, Scope, and any other details — as source material to populate `## Objective`, `## Specifications`, `## Applicable Guidance`, `## Acceptance Criteria`, and `## Progress`. If the backlog content doesn't cover a section the template requires, ask the user rather than inventing. The backlog item itself is never overwritten.
+5. Never activate work silently.
 
 ## Record Deferred Work
 
 1. Keep out-of-scope discoveries in `planning/active/MEMORY.md` while evaluating them.
 2. Scan `planning/backlog/INDEX.md` before opening detailed backlog plans.
-3. Propose updating a matching detailed plan or creating a new `PL-####-descriptive-slug.md` plan.
-4. Wait for approval before changing the backlog index or detailed plans.
+3. Propose updating a matching detailed plan or creating a new `PL-YYYYMMDDTHHMMSSZ-descriptive-slug.md` plan (or legacy `PL-####-...` for backward compatibility).
+4. **Keep backlog items lightweight.** A backlog entry needs only an Objective, a Problem Spec, and a one-line Scope. The full SDD specification is written into `ACTIVE.md` during activation, not before. This keeps the backlog easy to scan and reduces stale-spec risk.
+5. Wait for approval before changing the backlog index or detailed plans.
 
 ## Maintain Active Context
 
 - Keep progress, acceptance criteria, decisions, and verification in `ACTIVE.md`.
 - Curate `MEMORY.md` for handoff-critical state; replace stale details instead of appending a session transcript.
 - Link every active supporting Markdown document from `ACTIVE.md`.
+
+## Execute Work
+
+Before executing work, load the project's relevant rules and apply them.
+
+### Apply Project Rules
+
+- Read the active plan's `## Objective`, `## Specifications`, `## Acceptance Criteria`, and `## Scope`.
+- Load the rules defined in the project's instructions, skills, playbooks, and user-wide guidance. These encode the user's desired engineering standards, testing preferences, coding conventions, and process expectations.
+- **Capture the relevant rules into the plan.** Add or update a `## Applicable Guidance` section in `ACTIVE.md` with short descriptions of each rule and a reference (file path, instruction name, or skill name) to its authoritative source. This makes the rules visible to anyone executing the plan without requiring re-discovery.
+- The rules that apply depend on the project, not on this skill. Check what exists rather than assuming specific practices.
+- Satisfy the acceptance criteria by fulfilling the spec; do not over-scope.
+
+### Apply the Spec (SDD)
+
+- The `## Specifications` section defines *what* must be built. Let it drive implementation order.
+- When a spec item is ambiguous, stop and ask rather than inventing.
+
+### Verification Discipline
+
+- Verify claims against source code, local files, documentation, compiler output, test output, MCP output, or command output where practical.
+- Do not invent APIs, file paths, project structure, or tool behavior.
+- When changes affect project structure, setup commands, public workflows, or user-facing behavior, check whether `README.md` or related documentation needs updating.
+
+### Repository Boundary Awareness
+
+- Know which repository you are operating in. Adaptive Agents rules about repository boundaries apply during plan execution.
+- In the Adaptive Agents repository: modifying planning artifacts, instructions, skills, and templates is in scope.
+- In a Current project repository: treat the Adaptive Agents repository as read-only guidance; do not create Adaptive Agents structure unless performing a user-approved bootstrap.
+
+### Change Discipline
+
+- Prefer small, reversible changes.
+- Preserve existing project style unless explicitly asked to refactor.
+- Do not fix unrelated bugs or broken tests unless explicitly asked.
+- Make changes that serve the spec and nothing more. Out-of-scope discoveries belong in `MEMORY.md` deferred discoveries.
+
+### Completion Retrospective
+
+- When work appears complete, run the retrospective checkpoint from the global instructions before summarizing.
+- If process-friction evidence exists (failed approaches, retries, discarded hypotheses, user corrections, rollbacks), propose a sanitized `Captured` retrospective.
+- Never promote retrospective observations into durable instructions without user approval.
 
 ## End Work
 

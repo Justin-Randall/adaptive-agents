@@ -9,7 +9,7 @@ Usage:
 Options:
   --target PATH          Project directory. Default: current Git root or directory.
   --project-name NAME    Project display name. Required.
-  --active-plan-id ID    Initial ID in PL-#### format. Default: PL-0001.
+  --active-plan-id ID    Initial ID in PL-YYYYMMDDTHHMMSSZ format (or legacy PL-####). Default: auto-generated from current UTC time.
   --active-title TITLE   Initial active plan title. Required.
   --persistence MODE     tracked, local-exclude, or gitignore. Required.
   --dry-run              Preview changes without writing files.
@@ -22,7 +22,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TEMPLATE_ROOT="$REPO_ROOT/templates/project-layer"
 TARGET=""
 PROJECT_NAME=""
-ACTIVE_PLAN_ID="PL-0001"
+ACTIVE_PLAN_ID="$(date -u +PL-%Y%m%dT%H%M%SZ 2>/dev/null || echo 'PL-19700101T000000Z')"
 ACTIVE_TITLE=""
 PERSISTENCE=""
 DRY_RUN=0
@@ -75,8 +75,8 @@ if [[ -z "$PROJECT_NAME" || -z "$ACTIVE_TITLE" || -z "$PERSISTENCE" ]]; then
   exit 1
 fi
 
-if [[ ! "$ACTIVE_PLAN_ID" =~ ^PL-[0-9]{4}$ ]]; then
-  echo "ERROR: --active-plan-id must match PL-####." >&2
+if [[ ! "$ACTIVE_PLAN_ID" =~ ^PL-[0-9]{8}T[0-9]{6}Z$ && ! "$ACTIVE_PLAN_ID" =~ ^PL-[0-9]{4}$ ]]; then
+  echo "ERROR: --active-plan-id must match PL-YYYYMMDDTHHMMSSZ (or legacy PL-####)." >&2
   exit 1
 fi
 

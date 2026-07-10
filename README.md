@@ -212,7 +212,7 @@ The deterministic command used after approval is:
 bash scripts/bootstrap-project-layer.sh \
   --target "/path/to/project" \
   --project-name "Example Project" \
-  --active-plan-id "PL-0001" \
+  --active-plan-id "PL-20260710T120000Z" \
   --active-title "Initial project work" \
   --persistence tracked
 ```

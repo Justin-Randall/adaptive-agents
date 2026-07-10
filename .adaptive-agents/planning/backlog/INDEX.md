@@ -4,5 +4,6 @@ Read this index before opening detailed plans or proposing a new item. Keep entr
 
 | ID | Plan | Outcome | Readiness |
 | --- | --- | --- | --- |
+| PL-20260710T100000Z | [Project Layer Web UI](PL-20260710T100000Z-project-layer-web-ui.md) | A browsable, editable web interface that surfaces all Project Layer artifacts without requiring directory-tree navigation. | Ready |
 
-Detailed plans use `PL-####-descriptive-slug.md`. Updating an existing plan or creating a new one requires user approval.
+Detailed plans use `PL-YYYYMMDDTHHMMSSZ-descriptive-slug.md` (or legacy `PL-####-...`). Backlog items are lightweight — an Objective, Problem Spec, and one-line Scope suffice. The full SDD specification is written into `ACTIVE.md` during activation, not before. Updating an existing plan or creating a new one requires user approval.

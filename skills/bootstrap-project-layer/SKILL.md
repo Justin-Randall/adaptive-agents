@@ -19,7 +19,7 @@ Use this skill only when Adaptive Agents is already installed and the user asks 
 1. Identify the target project root or directory and inspect existing project instructions, planning documents, and Git state.
 2. Explain that installed user-wide Adaptive Agents guidance discovers `.adaptive-agents/INDEX.md` automatically.
 3. Propose a project name, project-specific instructions, and any clearly warranted project-specific skills supported by inspected project evidence. Ask the user to approve or adjust them; do not copy existing authoritative guidance merely to centralize it.
-4. Ask for the initial active work. It may be backlog-derived or direct exploratory, debugging, maintenance, or implementation work. Propose a `PL-####` ID, title, objective, scope, and acceptance criteria.
+4. Ask for the initial active work. It may be backlog-derived or direct exploratory, debugging, maintenance, or implementation work. Propose a `PL-YYYYMMDDTHHMMSSZ` ID (or legacy `PL-####` for backward compatibility), title, objective, scope, and acceptance criteria.
 5. Ask the user to choose one persistence mode:
    - `tracked`: available to commit and share with the repository;
    - `local-exclude`: add `/.adaptive-agents/` to `.git/info/exclude` for this clone only;
@@ -34,7 +34,7 @@ After approval, run:
 bash scripts/bootstrap-project-layer.sh \
   --target "<project-root>" \
   --project-name "<project-name>" \
-  --active-plan-id "PL-0001" \
+  --active-plan-id "PL-$(date -u +%Y%m%dT%H%M%SZ)" \
   --active-title "<active-plan-title>" \
   --persistence "<tracked|local-exclude|gitignore>"
 ```

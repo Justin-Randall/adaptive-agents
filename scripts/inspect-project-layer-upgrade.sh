@@ -71,7 +71,7 @@ layer_root = Path(sys.argv[2]).resolve()
 manifest = json.loads((template_root / "template.json").read_text(encoding="utf-8"))
 metadata = json.loads((layer_root / "project-layer.json").read_text(encoding="utf-8"))
 active_text = (layer_root / "planning/active/ACTIVE.md").read_text(encoding="utf-8")
-active_match = re.search(r"^# (PL-[0-9]{4}): (.+)$", active_text, re.MULTILINE)
+active_match = re.search(r"^# ((?:PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4})): (.+)$", active_text, re.MULTILINE)
 if not active_match:
     print("ERROR: Cannot read the active plan ID and title.", file=sys.stderr)
     sys.exit(1)
