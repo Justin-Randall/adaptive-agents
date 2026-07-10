@@ -19,7 +19,7 @@ Use [Planning](../../planning/INDEX.md) as the authoritative planning router.
 
 1. Keep out-of-scope discoveries in `planning/active/MEMORY.md` while evaluating them.
 2. Scan `planning/backlog/INDEX.md` before opening detailed backlog plans.
-3. Propose updating a matching detailed plan or creating a new `PL-YYYYMMDDTHHMMSSZ-descriptive-slug.md` plan (or legacy `PL-####-...` for backward compatibility).
+3. Propose updating a matching detailed plan or creating a new `PL-YYYYMMDD-descriptive-slug.md` plan (or legacy `PL-YYYYMMDDTHHMMSSZ-...`, `PL-####-...`).
 4. **Keep backlog items lightweight.** A backlog entry needs only an Objective, a Problem Spec, and a one-line Scope. The full SDD specification is written into `ACTIVE.md` during activation, not before. This keeps the backlog easy to scan and reduces stale-spec risk.
 5. Wait for approval before changing the backlog index or detailed plans.
 

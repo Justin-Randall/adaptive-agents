@@ -1,4 +1,4 @@
-# PL-20260710T100000Z: Project Layer Web UI
+# PL-20260710: Project Layer Web UI
 
 - Status: Backlog
 - Readiness: Ready

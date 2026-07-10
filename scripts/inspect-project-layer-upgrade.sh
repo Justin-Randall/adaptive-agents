@@ -71,17 +71,29 @@ layer_root = Path(sys.argv[2]).resolve()
 manifest = json.loads((template_root / "template.json").read_text(encoding="utf-8"))
 metadata = json.loads((layer_root / "project-layer.json").read_text(encoding="utf-8"))
 active_text = (layer_root / "planning/active/ACTIVE.md").read_text(encoding="utf-8")
-active_match = re.search(r"^# ((?:PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4})): (.+)$", active_text, re.MULTILINE)
-if not active_match:
-    print("ERROR: Cannot read the active plan ID and title.", file=sys.stderr)
-    sys.exit(1)
+if "No Active Plan" in active_text:
+    print("Active plan is empty (no active work). Upgrade will proceed without active plan content.")
+    active_match = None
+else:
+    active_match = re.search(r"^# ((?:PL-[0-9]{8}|PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4})): (.+)$", active_text, re.MULTILINE)
+    if not active_match:
+        print("ERROR: Cannot read the active plan ID and title.", file=sys.stderr)
+        sys.exit(1)
 
-replacements = {
-    "{{TEMPLATE_VERSION}}": manifest["templateVersion"],
-    "{{PROJECT_NAME}}": metadata["projectName"],
-    "{{ACTIVE_PLAN_ID}}": active_match.group(1),
-    "{{ACTIVE_PLAN_TITLE}}": active_match.group(2),
-}
+if active_match:
+    replacements = {
+        "{{TEMPLATE_VERSION}}": manifest["templateVersion"],
+        "{{PROJECT_NAME}}": metadata["projectName"],
+        "{{ACTIVE_PLAN_ID}}": active_match.group(1),
+        "{{ACTIVE_PLAN_TITLE}}": active_match.group(2),
+    }
+else:
+    replacements = {
+        "{{TEMPLATE_VERSION}}": manifest["templateVersion"],
+        "{{PROJECT_NAME}}": metadata["projectName"],
+        "{{ACTIVE_PLAN_ID}}": "PL-19700101",
+        "{{ACTIVE_PLAN_TITLE}}": "No active work",
+    }
 source_root = template_root / manifest["layerDirectory"]
 missing = []
 changed = []

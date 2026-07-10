@@ -4,7 +4,7 @@ Curate this file for cross-session handoff. Replace stale details rather than ke
 
 ## Current State
 
-- PL-20260710T110000Z (SDD Output for Planning Artifacts) is closed as Completed.
+- PL-20260710 (SDD Output for Planning Artifacts) is closed as Completed.
 - No active plan. The active slot is empty pending selection of next work.
 
 ## Decisions
@@ -13,7 +13,7 @@ Curate this file for cross-session handoff. Replace stale details rather than ke
 - Standard SDD sub-sections: Problem Spec, Feature Specs, Interface/Contract Specs, Data Model Specs, Behavioral Specs.
 - Acceptance criteria trace to spec items.
 - Plans capture relevant project rules in a `## Applicable Guidance` section.
-- Plan IDs use ISO 8601 UTC timestamp format (`PL-YYYYMMDDTHHMMSSZ`); legacy `PL-####` accepted for backward compatibility.
+- Plan IDs use `PL-YYYYMMDD` (date-only) format; legacy `PL-YYYYMMDDTHHMMSSZ` and `PL-####` accepted for backward compatibility.
 
 ## Blockers
 

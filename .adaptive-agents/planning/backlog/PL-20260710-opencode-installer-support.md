@@ -1,4 +1,4 @@
-# PL-20260710T152450Z: OpenCode Installer Support
+# PL-20260710: OpenCode Installer Support
 
 - Status: Backlog
 - Readiness: Ready

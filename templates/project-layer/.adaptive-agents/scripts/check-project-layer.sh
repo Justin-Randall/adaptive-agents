@@ -91,9 +91,9 @@ for markdown in sorted(root.rglob("*.md")):
         failures.append(f"orphan Markdown file: {markdown.relative_to(root).as_posix()}")
 
 active_text = (root / "planning/active/ACTIVE.md").read_text(encoding="utf-8") if (root / "planning/active/ACTIVE.md").exists() else ""
-active_match = re.search(r"^# ((?:PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4})|\{\{ACTIVE_PLAN_ID\}\}): (.+)$", active_text, re.MULTILINE)
+active_match = re.search(r"^# ((?:PL-[0-9]{8}|PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4})|\{\{ACTIVE_PLAN_ID\}\}): (.+)$", active_text, re.MULTILINE)
 if not active_match and "No Active Plan" not in active_text:
-    failures.append("planning/active/ACTIVE.md must start with '# PL-YYYYMMDDTHHMMSSZ: descriptive title' (or legacy '# PL-####: ...')")
+    failures.append("planning/active/ACTIVE.md must start with '# PL-YYYYMMDD: descriptive title' (or legacy PL-YYYYMMDDTHHMMSSZ, PL-####)")
 
 for support_file in sorted((root / "planning/active").glob("*.md")):
     if support_file.name == "ACTIVE.md":
@@ -103,8 +103,8 @@ for support_file in sorted((root / "planning/active").glob("*.md")):
     if support_file.resolve() not in graph.get((root / "planning/active/ACTIVE.md").resolve(), set()):
         failures.append(f"active supporting document is not linked from ACTIVE.md: {support_file.name}")
 
-backlog_pattern = re.compile(r"^((?:PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4}))-[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
-closed_pattern = re.compile(r"^((?:PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4}))-[a-z0-9]+(?:-[a-z0-9]+)*$")
+backlog_pattern = re.compile(r"^((?:PL-[0-9]{8}|PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4}))-[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
+closed_pattern = re.compile(r"^((?:PL-[0-9]{8}|PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4}))-[a-z0-9]+(?:-[a-z0-9]+)*$")
 plan_locations = {}
 
 for plan in sorted((root / "planning/backlog").glob("PL-*.md")):
@@ -113,7 +113,7 @@ for plan in sorted((root / "planning/backlog").glob("PL-*.md")):
         failures.append(f"invalid backlog plan filename: {plan.name}")
         plan_id = plan.name
     else:
-        plan_id = m.group(1)
+        plan_id = plan.stem  # full slug-based identity, e.g. PL-20260710-descriptive-slug
     plan_locations.setdefault(plan_id, []).append(plan.relative_to(root).as_posix())
 
 for packet in sorted((root / "planning/closed").glob("PL-*")):
@@ -124,10 +124,11 @@ for packet in sorted((root / "planning/closed").glob("PL-*")):
         failures.append(f"invalid closed packet directory: {packet.name}")
         plan_id = packet.name
     else:
-        plan_id = m.group(1)
+        plan_id = packet.name  # full slug-based identity, e.g. PL-20260710-descriptive-slug
     plan_locations.setdefault(plan_id, []).append(packet.relative_to(root).as_posix())
-    if not (packet / f"{plan_id}.sdd.md").exists() and not (packet / "ACTIVE.md").exists():
-        failures.append(f"closed packet is missing {plan_id}.sdd.md (or ACTIVE.md): {packet.name}")
+    id_prefix = m.group(1) if m else ""
+    if not (packet / f"{id_prefix}.sdd.md").exists() and not (packet / "ACTIVE.md").exists():
+        failures.append(f"closed packet is missing {id_prefix}.sdd.md (or ACTIVE.md): {packet.name}")
 
 if active_match and not active_match.group(1).startswith("{{"):
     plan_locations.setdefault(active_match.group(1), []).append("planning/active/ACTIVE.md")

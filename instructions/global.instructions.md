@@ -15,7 +15,7 @@ Before making changes:
 5. When modifying Adaptive Agents guidance, load [Update Adaptive Agents](../skills/update-adaptive-agents/SKILL.md).
 6. When a session reveals a recurring lesson, failure mode, preference, or guidance drift, follow the autonomous capture triggers in [adaptation-cycle.md](../playbooks/adaptation-cycle.md); capture or propose only a sanitized `Captured` retrospective unless the user explicitly approves promotion.
 7. In a Current project repository or directory, check for `.adaptive-agents/INDEX.md`. When present, read its routed project instructions and active planning context after this user-wide guidance.
-8. When you need a value that can be retrieved via a terminal command (e.g., the current date or time), run the command rather than fabricating the value.
+8. When you need a value that can be retrieved via a terminal command (e.g., the current date via `date -u +%Y%m%d`), run the command rather than fabricating the value.
 
 Before the final response for non-trivial work, run a brief retrospective checkpoint:
 

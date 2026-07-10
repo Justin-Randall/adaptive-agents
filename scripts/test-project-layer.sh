@@ -25,7 +25,7 @@ new_fixture() {
   bash "$REPO_ROOT/scripts/bootstrap-project-layer.sh" \
     --target "$target" \
     --project-name "Validator fixture" \
-    --active-plan-id "${2:-PL-20260710T120000Z}" \
+    --active-plan-id "${2:-PL-20260710}" \
     --active-title "Validate project layer" \
     --persistence tracked >/dev/null
   printf '%s\n' "$target/.adaptive-agents"
@@ -62,24 +62,29 @@ printf '\n- [Missing](missing.md)\n' >> "$broken_link/INDEX.md"
 expect_failure "$broken_link" "INDEX.md: missing link target: missing.md"
 
 duplicate_id="$(new_fixture duplicate-id)"
-cat > "$duplicate_id/planning/backlog/PL-20260710T120000Z-duplicate-plan.md" <<'EOF'
-# PL-20260710T120000Z: Duplicate Plan
-
-This fixture duplicates the active plan identity.
+mkdir -p "$duplicate_id/planning/closed/PL-20260710-duplicate-work"
+cat > "$duplicate_id/planning/closed/PL-20260710-duplicate-work/PL-20260710.sdd.md" <<'EOF'
+# PL-20260710: Duplicate Work (closed)
 EOF
-printf '| PL-20260710T120000Z | [Duplicate plan](PL-20260710T120000Z-duplicate-plan.md) | Test duplicate detection. | Ready |\n' >> "$duplicate_id/planning/backlog/INDEX.md"
-expect_failure "$duplicate_id" "plan ID appears in multiple lifecycle locations: PL-20260710T120000Z"
+cat > "$duplicate_id/planning/backlog/PL-20260710-duplicate-work.md" <<'EOF'
+# PL-20260710: Duplicate Work (backlog)
+
+This fixture duplicates a closed plan's slug.
+EOF
+printf '| PL-20260710 | [Duplicate work](PL-20260710-duplicate-work.md) | Test duplicate detection. | Ready |\n' >> "$duplicate_id/planning/backlog/INDEX.md"
+printf '| PL-20260710 | [Duplicate Work](PL-20260710-duplicate-work/PL-20260710.sdd.md) | Completed | Test duplicate. |\n' >> "$duplicate_id/planning/closed/INDEX.md"
+expect_failure "$duplicate_id" "plan ID appears in multiple lifecycle locations: PL-20260710-duplicate-work"
 
 unlinked_support="$(new_fixture unlinked-support)"
 printf '# Notes\n' > "$unlinked_support/planning/active/NOTES.md"
 expect_failure "$unlinked_support" "active supporting document is not linked from ACTIVE.md: NOTES.md"
 
 invalid_name="$(new_fixture invalid-name)"
-cat > "$invalid_name/planning/backlog/PL-20260710T120001Z-Bad-Name.md" <<'EOF'
-# PL-20260710T120001Z: Invalid Filename
+cat > "$invalid_name/planning/backlog/PL-20260710-Bad-Name.md" <<'EOF'
+# PL-20260710: Invalid Filename
 EOF
-printf '| PL-20260710T120001Z | [Invalid filename](PL-20260710T120001Z-Bad-Name.md) | Test naming. | Ready |\n' >> "$invalid_name/planning/backlog/INDEX.md"
-expect_failure "$invalid_name" "invalid backlog plan filename: PL-20260710T120001Z-Bad-Name.md"
+printf '| PL-20260710 | [Invalid filename](PL-20260710-Bad-Name.md) | Test naming. | Ready |\n' >> "$invalid_name/planning/backlog/INDEX.md"
+expect_failure "$invalid_name" "invalid backlog plan filename: PL-20260710-Bad-Name.md"
 
 missing_required="$(new_fixture missing-required)"
 rm "$missing_required/planning/active/MEMORY.md"

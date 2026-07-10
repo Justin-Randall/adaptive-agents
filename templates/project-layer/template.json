@@ -1,15 +1,16 @@
 {
-	"templateVersion": "0.3.0",
+	"templateVersion": "0.4.0",
 	"layerDirectory": ".adaptive-agents",
 	"placeholders": {
 		"TEMPLATE_VERSION": "Project Layer template version",
 		"PROJECT_NAME": "Project name",
-		"ACTIVE_PLAN_ID": "Initial plan ID in PL-YYYYMMDDTHHMMSSZ format",
+		"ACTIVE_PLAN_ID": "Initial plan ID in PL-YYYYMMDD format",
 		"ACTIVE_PLAN_TITLE": "Initial active plan title"
 	},
-	"planIdPattern": "^PL-[0-9]{8}T[0-9]{6}Z$",
-	"planIdPatternLegacy": "^PL-[0-9]{4}$",
-	"planIdDescription": "Primary: PL-YYYYMMDDTHHMMSSZ. Legacy (validator-accepted): PL-####.",
+	"planIdPattern": "^PL-[0-9]{8}$",
+	"planIdPatternLegacy": "^PL-[0-9]{8}T[0-9]{6}Z$",
+	"planIdPatternLegacyLegacy": "^PL-[0-9]{4}$",
+	"planIdDescription": "Primary: PL-YYYYMMDD. Legacy (validator-accepted): PL-YYYYMMDDTHHMMSSZ, PL-####.",
 	"backlogReadiness": [
 		"Ready",
 		"Needs refinement",
