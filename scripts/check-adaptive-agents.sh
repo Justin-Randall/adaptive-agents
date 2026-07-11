@@ -625,7 +625,7 @@ check_instruction_load_budget() {
     if [[ "$VERBOSE" -eq 1 ]]; then
       local status_output
       status_output="$(bash scripts/check-instruction-load-budget.sh 2>&1)"
-      verbose_evidence "Instruction load baseline and startup high-water check" "$output"$'\n'"$status_output"
+      verbose_evidence "TOKEN THRESHOLD GATE (warning=26,215; hard limit=32,768; fails above limit)" "$status_output"$'\n'"STRICT BASELINE: $output"
     fi
     if [[ "$output" == *"WARN:"* ]]; then
       printf '%s\n' "$output"
@@ -638,7 +638,7 @@ check_instruction_load_budget() {
 
 check_instruction_load_budget_tests() {
   local output
-  if output="$("${PYTHON_CMD[@]}" scripts/test-instruction-load-budget.py 2>&1)"; then
+  if output="$("${PYTHON_CMD[@]}" scripts/test-instruction-load-budget.py --verbose 2>&1)"; then
     pass "Instruction load budget regression tests pass"
     verbose_evidence "Instruction load budget regression tests" "$output"
   else
