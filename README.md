@@ -262,7 +262,47 @@ Helpful prompt files:
 - `prompts/review-retrospective-inbox.prompt.md`
 - `prompts/review-promotion-candidates.prompt.md`
 
-### 7) Check Repository Health
+### 7) Inspect Instruction Load
+
+#### Why Limit Startup Context?
+
+A context window is an agent's working memory, not a budget reserved only for repository instructions. There is no universal minimum for tool-calling models, but practical windows commonly fall into a broad **64K-256K class**: Anthropic, for example, documents a 200K tier alongside newer 1M models. Frontier hosted models now reach roughly **1 million tokens**: [GPT-4.1 documents 1,047,576](https://developers.openai.com/api/docs/models/gpt-4.1), [Gemini 2.5 Pro documents 1,048,576](https://ai.google.dev/gemini-api/docs/models/gemini-2.5-pro), and [Claude documents 200K and 1M tiers](https://platform.claude.com/docs/en/docs/build-with-claude/context-windows).
+
+Those headline limits are not free space for Adaptive Agents. A tool session also carries the system prompt, conversation history, tool definitions, tool calls and results, retrieved files, reasoning, and generated output. Anthropic's context-window documentation explicitly notes that all of those components count, and also warns that recall can degrade as context grows. Google's [long-context guide](https://ai.google.dev/gemini-api/docs/long-context) likewise notes that longer requests increase latency and that unnecessary tokens should be avoided. Spending a large fixed prefix on startup guidance shortens useful sessions, causes compaction or dropped history earlier, increases repeated input cost, and leaves less room for the code and evidence needed to complete the task.
+
+Local models make the conservative limit more important. Representative open-weight, tool-capable families currently span **32K-128K** rather than universally offering frontier-scale windows: [Qwen3 lists 32K for its smaller models and 128K for larger variants](https://qwenlm.github.io/blog/qwen3/), while [Meta Llama 3.1 documents 128K](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct). A model's advertised maximum may also exceed a practical local configuration because the [KV cache can become a significant memory bottleneck](https://huggingface.co/docs/transformers/kv_cache); offloading or quantizing it trades memory savings against throughput or latency.
+
+Adaptive Agents therefore caps its **static startup cost** at **32,768 estimated tokens**. This is intentionally stricter than most hosted windows and equal to the full advertised window of some smaller local models. It preserves the majority of a 64K-256K session for the user's request, project code, tools, reasoning, and results. The gate counts only `AGENTS.md` and `INDEX.md`; the size of the repository, active plans, and task-conditional guidance does not consume this startup allowance unless later routing actually requires those files.
+
+Show the static Adaptive Agents startup cost from `AGENTS.md` and `INDEX.md`, excluding active plans and task-conditional guidance:
+
+```bash
+./scripts/check-instruction-load-budget.sh
+```
+
+Optionally inspect all reviewed route profiles, including active and task-conditional guidance. This detailed report is diagnostic and does not define the startup gate:
+
+```bash
+bash scripts/check-instruction-load-budget.sh --report
+```
+
+Run the read-only static-startup gate before committing entrypoint or startup-routing changes:
+
+```bash
+bash scripts/check-instruction-load-budget.sh --check
+```
+
+After intentionally reviewing a static startup route or counted-content change, regenerate the committed startup baseline explicitly:
+
+```bash
+bash scripts/check-instruction-load-budget.sh --update-baseline
+```
+
+The estimate is a deterministic compaction signal, not a model-specific tokenizer result. The startup profile warns at 26,215 estimated tokens and fails above 32,768. Repository size, active planning, and task-conditional Markdown do not affect this gate. Python 3.11 or newer is required; the shell wrapper selects an available compatible interpreter.
+
+The [static validation workflow](.github/workflows/static-validation.yml) runs the repository health checks on Ubuntu and Windows. Those checks include the instruction-load regression suite and the non-mutating startup high-water check. The workflow publishes one final status named `static-validation`; repository owners can require that stable status when they enable branch protection for `main`.
+
+### 8) Check Repository Health
 
 Run the deterministic checker before or after guidance changes:
 
@@ -276,9 +316,9 @@ Use verbose output when you need to see every passing check:
 bash scripts/check-adaptive-agents.sh --verbose
 ```
 
-The checker is read-only. It validates required repository structure, prompt routing, retrospective statuses and privacy patterns, local Markdown links and guidance reachability, canonical and dogfood Project Layers, Project Layer regression tests, and the installed Claude Code import and access grant when present. By default it prints only warnings, failures, and the final summary.
+The checker is read-only. It validates required repository structure, the instruction-load budget, prompt routing, retrospective statuses and privacy patterns, local Markdown links and guidance reachability, canonical and dogfood Project Layers, Project Layer regression tests, and the installed Claude Code import and access grant when present. By default it prints only warnings, failures, and the final summary.
 
-### 8) Bootstrap A Project Layer
+### 9) Bootstrap A Project Layer
 
 Ask Adaptive Agents to bootstrap a Project Layer in the current project. The bootstrap skill inspects existing guidance and Git state, then asks for project-specific instructions, initial active work, and one persistence mode before previewing any changes.
 

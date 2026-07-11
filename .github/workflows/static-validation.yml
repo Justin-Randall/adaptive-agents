@@ -1,0 +1,53 @@
+name: Static Validation
+
+on:
+    pull_request:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    validate-ubuntu:
+        name: Validate repository (Ubuntu)
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: "3.11"
+            - run: bash scripts/check-adaptive-agents.sh
+
+    validate-windows:
+        name: Validate repository (Windows)
+        runs-on: windows-latest
+        timeout-minutes: 10
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: "3.11"
+            - shell: bash
+              run: bash scripts/check-adaptive-agents.sh
+
+    static-validation:
+        name: static-validation
+        runs-on: ubuntu-latest
+        needs:
+            - validate-ubuntu
+            - validate-windows
+        if: always()
+        steps:
+            - name: Require platform validation
+              env:
+                  UBUNTU_RESULT: ${{ needs.validate-ubuntu.result }}
+                  WINDOWS_RESULT: ${{ needs.validate-windows.result }}
+              run: |
+                  if [[ "$UBUNTU_RESULT" != "success" || "$WINDOWS_RESULT" != "success" ]]; then
+                    printf 'Static validation failed: ubuntu=%s windows=%s\n' "$UBUNTU_RESULT" "$WINDOWS_RESULT" >&2
+                    exit 1
+                  fi

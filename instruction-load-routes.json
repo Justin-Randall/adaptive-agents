@@ -1,0 +1,211 @@
+{
+	"schemaVersion": 1,
+	"metricVersion": 1,
+	"highWaterEstimatedTokens": 32768,
+	"warningEstimatedTokens": 26215,
+	"profiles": [
+		{
+			"name": "startup",
+			"extends": [],
+			"maxEstimatedTokens": 32768,
+			"maxGrowthEstimatedTokens": null,
+			"files": [
+				{
+					"path": "AGENTS.md",
+					"classification": "always",
+					"reason": "Canonical native entrypoint and discovery protocol."
+				},
+				{
+					"path": "INDEX.md",
+					"classification": "always",
+					"reason": "AGENTS.md discovery protocol requires reading the repository routing index."
+				}
+			]
+		},
+		{
+			"name": "non_trivial_coding",
+			"extends": [
+				"startup"
+			],
+			"maxEstimatedTokens": 32768,
+			"maxGrowthEstimatedTokens": null,
+			"files": [
+				{
+					"path": "instructions/global.instructions.md",
+					"classification": "profile",
+					"reason": "INDEX.md requires the global instruction router for non-trivial coding."
+				},
+				{
+					"path": "instructions/repository-boundaries.instructions.md",
+					"classification": "profile",
+					"reason": "Global instructions require reading repository boundary instructions."
+				},
+				{
+					"path": "instructions/coding.instructions.md",
+					"classification": "profile",
+					"reason": "Global instructions require reading coding instructions."
+				},
+				{
+					"path": "instructions/tdd.instructions.md",
+					"classification": "profile",
+					"reason": "Global instructions require reading TDD instructions."
+				},
+				{
+					"path": "instructions/command-failure-pivot.instructions.md",
+					"classification": "profile",
+					"reason": "Global instructions require reading command-failure pivot instructions."
+				},
+				{
+					"path": "instructions/temp-artifact-hygiene.instructions.md",
+					"classification": "profile",
+					"reason": "Global instructions require reading temporary-artifact hygiene instructions."
+				}
+			]
+		},
+		{
+			"name": "adaptive_agents_planned_change",
+			"extends": [
+				"non_trivial_coding"
+			],
+			"maxEstimatedTokens": 32768,
+			"maxGrowthEstimatedTokens": null,
+			"files": [
+				{
+					"path": ".adaptive-agents/INDEX.md",
+					"classification": "profile",
+					"reason": "AGENTS.md and global instructions require checking the Project Layer routing root."
+				},
+				{
+					"path": ".adaptive-agents/instructions/INDEX.md",
+					"classification": "profile",
+					"reason": "Project Layer routing requires reading project instructions before changes."
+				},
+				{
+					"path": ".adaptive-agents/instructions/project.instructions.md",
+					"classification": "profile",
+					"reason": "Project instruction index requires this repository-specific instruction file."
+				},
+				{
+					"path": ".adaptive-agents/planning/INDEX.md",
+					"classification": "profile",
+					"reason": "Project Layer routing requires current planning context."
+				},
+				{
+					"path": ".adaptive-agents/planning/active/ACTIVE.md",
+					"classification": "profile",
+					"reason": "Planning router identifies this file as the current work specification."
+				},
+				{
+					"path": ".adaptive-agents/planning/active/PL-20260711-instruction-load-budget.memory.md",
+					"classification": "conditional",
+					"reason": "The active SDD links this exact work-unit memory for the current active plan."
+				}
+			]
+		},
+		{
+			"name": "consequential_repository_change",
+			"extends": [
+				"adaptive_agents_planned_change"
+			],
+			"maxEstimatedTokens": 32768,
+			"maxGrowthEstimatedTokens": null,
+			"files": [
+				{
+					"path": ".adaptive-agents/ARCHITECTURE.md",
+					"classification": "conditional",
+					"reason": "Project instructions require the architecture contract for structural, schema, validator, installer, and integration changes."
+				}
+			]
+		},
+		{
+			"name": "canonical_guidance_update",
+			"extends": [
+				"adaptive_agents_planned_change"
+			],
+			"maxEstimatedTokens": 32768,
+			"maxGrowthEstimatedTokens": null,
+			"files": [
+				{
+					"path": "skills/update-adaptive-agents/SKILL.md",
+					"classification": "conditional",
+					"reason": "Global instructions require this skill when modifying Adaptive Agents guidance."
+				}
+			]
+		},
+		{
+			"name": "planning_workflow",
+			"extends": [
+				"adaptive_agents_planned_change"
+			],
+			"maxEstimatedTokens": 32768,
+			"maxGrowthEstimatedTokens": null,
+			"files": [
+				{
+					"path": ".adaptive-agents/skills/manage-planning/SKILL.md",
+					"classification": "conditional",
+					"reason": "Planning router declares this skill authoritative for reading, executing, and changing planning artifacts."
+				}
+			]
+		},
+		{
+			"name": "planning_closure",
+			"extends": [
+				"planning_workflow"
+			],
+			"maxEstimatedTokens": 32768,
+			"maxGrowthEstimatedTokens": null,
+			"files": [
+				{
+					"path": ".adaptive-agents/playbooks/end-work.md",
+					"classification": "conditional",
+					"reason": "The planning skill requires following this playbook when ending work."
+				}
+			]
+		},
+		{
+			"name": "retrospective_capture",
+			"extends": [
+				"adaptive_agents_planned_change"
+			],
+			"maxEstimatedTokens": 32768,
+			"maxGrowthEstimatedTokens": null,
+			"files": [
+				{
+					"path": "prompts/capture-retrospective.prompt.md",
+					"classification": "conditional",
+					"reason": "A retrospective capture request invokes this task-specific prompt."
+				},
+				{
+					"path": "playbooks/adaptation-cycle.md",
+					"classification": "conditional",
+					"reason": "Global instructions and the capture prompt require the adaptation lifecycle for triggered capture."
+				},
+				{
+					"path": ".adaptive-agents/skills/manage-retrospectives/SKILL.md",
+					"classification": "conditional",
+					"reason": "The capture prompt requires the Project Layer retrospective skill when present."
+				}
+			]
+		},
+		{
+			"name": "opencode_installer_change",
+			"extends": [
+				"consequential_repository_change"
+			],
+			"maxEstimatedTokens": 32768,
+			"maxGrowthEstimatedTokens": null,
+			"files": [
+				{
+					"path": "scripts/install-opencode.sh",
+					"classification": "conditional",
+					"reason": "Coding instructions require reading the owning implementation before changing the OpenCode installer."
+				},
+				{
+					"path": "scripts/test-opencode.sh",
+					"classification": "conditional",
+					"reason": "TDD instructions require identifying the focused behavior check for an OpenCode installer change."
+				}
+			]
+		}
+	]
+}

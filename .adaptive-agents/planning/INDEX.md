@@ -2,7 +2,9 @@
 
 ## Current Work
 
-Active: [No Active Plan](active/ACTIVE.md). The next plan is activated from the [Backlog](backlog/INDEX.md) after user approval.
+Active: [Instruction Load Budget](active/ACTIVE.md).
+
+- Working memory: [PL-20260711-instruction-load-budget memory](active/PL-20260711-instruction-load-budget.memory.md)
 
 ## Queues
 

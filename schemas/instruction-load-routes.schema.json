@@ -1,0 +1,108 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://adaptive-agents.local/schemas/instruction-load-routes.schema.json",
+	"title": "Instruction Load Routes",
+	"type": "object",
+	"additionalProperties": false,
+	"required": [
+		"schemaVersion",
+		"metricVersion",
+		"highWaterEstimatedTokens",
+		"warningEstimatedTokens",
+		"profiles"
+	],
+	"properties": {
+		"schemaVersion": {
+			"const": 1
+		},
+		"metricVersion": {
+			"const": 1
+		},
+		"highWaterEstimatedTokens": {
+			"type": "integer",
+			"minimum": 1
+		},
+		"warningEstimatedTokens": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"profiles": {
+			"type": "array",
+			"minItems": 1,
+			"items": {
+				"$ref": "#/$defs/profile"
+			}
+		}
+	},
+	"$defs": {
+		"profile": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": [
+				"name",
+				"extends",
+				"maxEstimatedTokens",
+				"maxGrowthEstimatedTokens",
+				"files"
+			],
+			"properties": {
+				"name": {
+					"type": "string",
+					"pattern": "^[a-z][a-z0-9_]*$"
+				},
+				"extends": {
+					"type": "array",
+					"uniqueItems": true,
+					"items": {
+						"type": "string",
+						"pattern": "^[a-z][a-z0-9_]*$"
+					}
+				},
+				"maxEstimatedTokens": {
+					"type": "integer",
+					"minimum": 1
+				},
+				"maxGrowthEstimatedTokens": {
+					"type": [
+						"integer",
+						"null"
+					],
+					"minimum": 0
+				},
+				"files": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/file"
+					}
+				}
+			}
+		},
+		"file": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": [
+				"path",
+				"classification",
+				"reason"
+			],
+			"properties": {
+				"path": {
+					"type": "string",
+					"minLength": 1
+				},
+				"classification": {
+					"enum": [
+						"always",
+						"profile",
+						"conditional",
+						"optional"
+					]
+				},
+				"reason": {
+					"type": "string",
+					"minLength": 1
+				}
+			}
+		}
+	}
+}

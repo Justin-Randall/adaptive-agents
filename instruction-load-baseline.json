@@ -1,0 +1,48 @@
+{
+  "formula": {
+    "characterEstimate": "(characters + 3) // 4",
+    "estimatedTokens": "max(wordEstimate, characterEstimate)",
+    "wordEstimate": "(words * 3 + 1) // 2"
+  },
+  "highWaterEstimatedTokens": 32768,
+  "metricVersion": 1,
+  "profiles": [
+    {
+      "files": [
+        {
+          "characterEstimate": 1679,
+          "characters": 6713,
+          "estimatedTokens": 1679,
+          "normalizedBytes": 6717,
+          "path": "AGENTS.md",
+          "sha256": "238c5c6944e28be58c434b594a8f77d1bc6ac5056cd5d03ab7f8900e6b553c8b",
+          "wordEstimate": 1398,
+          "words": 932
+        },
+        {
+          "characterEstimate": 2432,
+          "characters": 9725,
+          "estimatedTokens": 2432,
+          "normalizedBytes": 9725,
+          "path": "INDEX.md",
+          "sha256": "00c64928f86f50fca6bfa316e6ad3b2acb3623dee3901cb80e5efdc5e541e98e",
+          "wordEstimate": 1365,
+          "words": 910
+        }
+      ],
+      "maxEstimatedTokens": 32768,
+      "maxGrowthEstimatedTokens": null,
+      "name": "startup",
+      "totals": {
+        "characterEstimate": 4111,
+        "characters": 16438,
+        "estimatedTokens": 4111,
+        "normalizedBytes": 16442,
+        "wordEstimate": 2763,
+        "words": 1842
+      }
+    }
+  ],
+  "schemaVersion": 1,
+  "warningEstimatedTokens": 26215
+}

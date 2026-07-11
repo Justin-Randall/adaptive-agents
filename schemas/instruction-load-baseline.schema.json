@@ -1,0 +1,164 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://adaptive-agents.local/schemas/instruction-load-baseline.schema.json",
+	"title": "Instruction Load Baseline",
+	"type": "object",
+	"additionalProperties": false,
+	"required": [
+		"schemaVersion",
+		"metricVersion",
+		"highWaterEstimatedTokens",
+		"warningEstimatedTokens",
+		"formula",
+		"profiles"
+	],
+	"properties": {
+		"schemaVersion": {
+			"const": 1
+		},
+		"metricVersion": {
+			"const": 1
+		},
+		"highWaterEstimatedTokens": {
+			"type": "integer",
+			"minimum": 1
+		},
+		"warningEstimatedTokens": {
+			"type": "integer",
+			"minimum": 0
+		},
+		"formula": {
+			"type": "object",
+			"additionalProperties": {
+				"type": "string"
+			}
+		},
+		"profiles": {
+			"type": "array",
+			"items": {
+				"$ref": "#/$defs/profile"
+			}
+		}
+	},
+	"$defs": {
+		"profile": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": [
+				"name",
+				"maxEstimatedTokens",
+				"maxGrowthEstimatedTokens",
+				"files",
+				"totals"
+			],
+			"properties": {
+				"name": {
+					"type": "string"
+				},
+				"maxEstimatedTokens": {
+					"type": "integer"
+				},
+				"maxGrowthEstimatedTokens": {
+					"type": [
+						"integer",
+						"null"
+					]
+				},
+				"files": {
+					"type": "array",
+					"items": {
+						"$ref": "#/$defs/fileMetrics"
+					}
+				},
+				"totals": {
+					"$ref": "#/$defs/metrics"
+				}
+			}
+		},
+		"metrics": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": [
+				"normalizedBytes",
+				"characters",
+				"words",
+				"wordEstimate",
+				"characterEstimate",
+				"estimatedTokens"
+			],
+			"properties": {
+				"normalizedBytes": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"characters": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"words": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"wordEstimate": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"characterEstimate": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"estimatedTokens": {
+					"type": "integer",
+					"minimum": 0
+				}
+			}
+		},
+		"fileMetrics": {
+			"type": "object",
+			"additionalProperties": false,
+			"required": [
+				"path",
+				"normalizedBytes",
+				"characters",
+				"words",
+				"wordEstimate",
+				"characterEstimate",
+				"estimatedTokens",
+				"sha256"
+			],
+			"properties": {
+				"path": {
+					"type": "string"
+				},
+				"normalizedBytes": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"characters": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"words": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"wordEstimate": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"characterEstimate": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"estimatedTokens": {
+					"type": "integer",
+					"minimum": 0
+				},
+				"sha256": {
+					"type": "string",
+					"pattern": "^[0-9a-f]{64}$"
+				}
+			}
+		}
+	}
+}

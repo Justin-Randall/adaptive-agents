@@ -25,6 +25,8 @@ Checks:
   - guidance Markdown files are reachable from INDEX.md through local links
   - canonical and dogfood Project Layers pass their bundled validators
   - Project Layer validator regression tests reject known defects
+  - instruction-load budget regression tests pass
+  - static startup instruction load remains within budget
 EOF
 }
 
@@ -127,6 +129,14 @@ check_required_paths() {
     schemas
     agents
     scripts
+    instruction-load-routes.json
+    instruction-load-baseline.json
+    schemas/instruction-load-routes.schema.json
+    schemas/instruction-load-baseline.schema.json
+    scripts/check-instruction-load-budget.sh
+    scripts/check-instruction-load-budget.py
+    scripts/test-instruction-load-budget.py
+    .github/workflows/static-validation.yml
     scripts/bootstrap-project-layer.sh
     scripts/inspect-project-layer-upgrade.sh
     scripts/test-project-layer.sh
@@ -597,10 +607,39 @@ check_dogfood_project_layer() {
   fi
 }
 
+check_instruction_load_budget() {
+  local output
+  if output="$(bash scripts/check-instruction-load-budget.sh --check 2>&1)"; then
+    pass "Instruction load budget passes"
+    if [[ "$output" == *"WARN:"* ]]; then
+      printf '%s\n' "$output"
+    fi
+  else
+    fail "Instruction load budget fails"
+    printf '%s\n' "$output"
+  fi
+}
+
+check_instruction_load_budget_tests() {
+  local output
+  if output="$("${PYTHON_CMD[@]}" scripts/test-instruction-load-budget.py 2>&1)"; then
+    pass "Instruction load budget regression tests pass"
+  else
+    fail "Instruction load budget regression tests fail"
+    printf '%s\n' "$output"
+  fi
+}
+
 check_required_paths
 check_project_layer_template
 check_project_layer_tests
 check_dogfood_project_layer
+if find_python; then
+  check_instruction_load_budget_tests
+else
+  fail "Python 3 not found; cannot run instruction load budget regression tests"
+fi
+check_instruction_load_budget
 check_prompts
 check_opencode
 check_claude_code

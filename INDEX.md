@@ -33,6 +33,8 @@ When working inside another project, treat Adaptive Agents content as reusable g
 | Review the retrospective inbox queue | [prompts/review-retrospective-inbox.prompt.md](prompts/review-retrospective-inbox.prompt.md) |
 | Review captured and deferred promotion candidates | [prompts/review-promotion-candidates.prompt.md](prompts/review-promotion-candidates.prompt.md) |
 | Run deterministic repository health checks | [scripts/check-adaptive-agents.sh](scripts/check-adaptive-agents.sh) |
+| Report or enforce required-read instruction budgets | [scripts/check-instruction-load-budget.sh](scripts/check-instruction-load-budget.sh) |
+| Run instruction-load budget regression tests | [scripts/test-instruction-load-budget.py](scripts/test-instruction-load-budget.py) |
 | Run Project Layer validator regression tests | [scripts/test-project-layer.sh](scripts/test-project-layer.sh) |
 
 ## Guidance Areas
@@ -117,8 +119,10 @@ These prompts capture one session observation into `retrospectives/inbox/`, revi
 For deterministic repository health checks, run:
 
 - [scripts/check-adaptive-agents.sh](scripts/check-adaptive-agents.sh)
+- [scripts/check-instruction-load-budget.sh](scripts/check-instruction-load-budget.sh)
+- [scripts/test-instruction-load-budget.py](scripts/test-instruction-load-budget.py)
 
-The checker is read-only and validates prompt routing, retrospective statuses, promotion links, blocked private/raw link patterns, local Markdown links, and whether guidance Markdown files are reachable from `INDEX.md`.
+The repository health checker is read-only and validates prompt routing, retrospective statuses, promotion links, blocked private/raw link patterns, local Markdown links, required-read instruction budgets, and whether guidance Markdown files are reachable from `INDEX.md`.
 
 ## Current State
 
