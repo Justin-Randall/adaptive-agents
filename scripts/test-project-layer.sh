@@ -53,6 +53,32 @@ else
   fail "Canonical template baseline should pass"
 fi
 
+expected_work_unit="PL-20260710-validate-project-layer"
+expected_memory="$baseline/planning/active/$expected_work_unit.memory.md"
+if [[ -f "$expected_memory" ]] \
+  && grep -Fq -- "- Work Unit: $expected_work_unit" "$baseline/planning/active/ACTIVE.md" \
+  && grep -Fq -- "[$expected_work_unit memory]($expected_work_unit.memory.md)" "$baseline/planning/active/ACTIVE.md" \
+  && [[ ! -e "$baseline/planning/active/MEMORY.md" ]]; then
+  pass
+else
+  fail "Bootstrap should create work-unit-first active memory"
+fi
+
+baseline_target="$(dirname "$baseline")"
+before_rerun="$(cksum "$baseline/planning/active/ACTIVE.md" "$expected_memory")"
+bash "$REPO_ROOT/scripts/bootstrap-project-layer.sh" \
+  --target "$baseline_target" \
+  --project-name "Validator fixture" \
+  --active-plan-id "PL-20260710" \
+  --active-title "Validate project layer" \
+  --persistence tracked >/dev/null
+after_rerun="$(cksum "$baseline/planning/active/ACTIVE.md" "$expected_memory")"
+if [[ "$before_rerun" == "$after_rerun" ]]; then
+  pass
+else
+  fail "Bootstrap rerun should preserve active work-unit files"
+fi
+
 orphan="$(new_fixture orphan)"
 printf '# Orphan\n' > "$orphan/orphan.md"
 expect_failure "$orphan" "orphan Markdown file: orphan.md"
@@ -87,8 +113,34 @@ printf '| PL-20260710 | [Invalid filename](PL-20260710-Bad-Name.md) | Test namin
 expect_failure "$invalid_name" "invalid backlog plan filename: PL-20260710-Bad-Name.md"
 
 missing_required="$(new_fixture missing-required)"
-rm "$missing_required/planning/active/MEMORY.md"
-expect_failure "$missing_required" "missing required path: planning/active/MEMORY.md"
+rm "$missing_required/planning/active/PL-20260710-validate-project-layer.memory.md"
+expect_failure "$missing_required" "missing active memory for work unit: PL-20260710-validate-project-layer.memory.md"
+
+canonical_closed="$(new_fixture canonical-closed)"
+canonical_packet="$canonical_closed/planning/closed/PL-20260712-preserved-context"
+mkdir -p "$canonical_packet"
+cat > "$canonical_packet/PL-20260712-preserved-context.sdd.md" <<'EOF'
+# PL-20260712: Preserved Context
+
+- [Work-unit memory](PL-20260712-preserved-context.memory.md)
+EOF
+cat > "$canonical_packet/PL-20260712-preserved-context.memory.md" <<'EOF'
+# PL-20260712-preserved-context Memory
+
+- Curated closure context.
+EOF
+printf '| PL-20260712 | [Preserved Context](PL-20260712-preserved-context/PL-20260712-preserved-context.sdd.md) | Completed | Context preserved. |\n' >> "$canonical_closed/planning/closed/INDEX.md"
+if bash "$canonical_closed/scripts/check-project-layer.sh" >/dev/null; then
+  pass
+else
+  fail "Validator should accept canonical closed work-unit artifacts"
+fi
+
+missing_architecture_route="$TEMP_ROOT/missing-architecture-route"
+mkdir -p "$missing_architecture_route"
+cp -R "$REPO_ROOT/.adaptive-agents/." "$missing_architecture_route/"
+sed -i '\|\[Architecture contract\](../ARCHITECTURE.md)|d' "$missing_architecture_route/instructions/project.instructions.md"
+expect_failure "$missing_architecture_route" "project.instructions.md must link to ../ARCHITECTURE.md"
 
 valid_retrospective="$(new_fixture valid-retrospective)"
 cat > "$valid_retrospective/retrospectives/inbox/2026-07-10-project-behavior.md" <<'EOF'

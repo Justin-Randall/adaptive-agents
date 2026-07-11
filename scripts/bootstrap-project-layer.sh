@@ -155,6 +155,7 @@ find_python
 
 "${PYTHON_CMD[@]}" - "$TEMPLATE_ROOT" "$TARGET" "$PROJECT_NAME" "$ACTIVE_PLAN_ID" "$ACTIVE_TITLE" <<'PY'
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -166,11 +167,18 @@ manifest = json.loads((template_root / "template.json").read_text(encoding="utf-
 source = template_root / manifest["layerDirectory"]
 destination = target / manifest["layerDirectory"]
 
+active_slug = re.sub(r"[^a-z0-9]+", "-", active_title.lower()).strip("-")
+if not active_slug:
+  print("ERROR: --active-title must contain at least one letter or number.", file=sys.stderr)
+  sys.exit(1)
+active_work_id = f"{active_plan_id}-{active_slug}"
+
 replacements = {
     "{{TEMPLATE_VERSION}}": manifest["templateVersion"],
     "{{PROJECT_NAME}}": project_name,
     "{{ACTIVE_PLAN_ID}}": active_plan_id,
     "{{ACTIVE_PLAN_TITLE}}": active_title,
+    "{{ACTIVE_WORK_ID}}": active_work_id,
 }
 
 shutil.copytree(source, destination)
@@ -181,6 +189,13 @@ for path in destination.rglob("*"):
     for placeholder, value in replacements.items():
         text = text.replace(placeholder, value)
     path.write_text(text, encoding="utf-8", newline="\n")
+
+for path in sorted(path for path in destination.rglob("*") if path.is_file()):
+    rendered_name = path.name
+    for placeholder, value in replacements.items():
+        rendered_name = rendered_name.replace(placeholder, value)
+    if rendered_name != path.name:
+        path.rename(path.with_name(rendered_name))
 
 (destination / "scripts/check-project-layer.sh").chmod(0o755)
 PY

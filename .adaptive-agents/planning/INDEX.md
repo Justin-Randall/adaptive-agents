@@ -4,7 +4,7 @@
 
 Active: [Claude Code Support](active/ACTIVE.md).
 
-- Working memory: [Active memory](active/MEMORY.md)
+- Working memory: [PL-20260711-claude-code-support memory](active/PL-20260711-claude-code-support.memory.md)
 
 ## Queues
 

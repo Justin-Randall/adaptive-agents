@@ -3,7 +3,7 @@
 ## Current Work
 
 - Plan: [{{ACTIVE_PLAN_ID}}: {{ACTIVE_PLAN_TITLE}}](active/ACTIVE.md)
-- Working memory: [Active memory](active/MEMORY.md)
+- Working memory: [{{ACTIVE_WORK_ID}} memory](active/{{ACTIVE_WORK_ID}}.memory.md)
 
 ## Queues
 

@@ -12,12 +12,15 @@ Use [Planning](../../planning/INDEX.md) as the authoritative planning router.
 1. Read `planning/active/ACTIVE.md` and its linked supporting documents.
 2. If the current request changes the active objective, explain the conflict and ask whether to close, replace, or retain the current plan.
 3. Work may originate from a backlog plan or begin directly as approved research, debugging, maintenance, or implementation.
-4. **When activating a backlog item**, create a new `ACTIVE.md` using the SDD template. Use the backlog item's content — Objective, Problem Spec, Scope, and any other details — as source material to populate `## Objective`, `## Specifications`, `## Applicable Guidance`, `## Acceptance Criteria`, and `## Progress`. If the backlog content doesn't cover a section the template requires, ask the user rather than inventing. The backlog item itself is never overwritten.
-5. Never activate work silently.
+4. Assign one canonical work-unit ID in `PL-YYYYMMDD-descriptive-slug` form. When activating a backlog item, reuse its filename stem; for direct work, derive the slug from the approved title.
+5. Create `ACTIVE.md` with `- Work Unit: <work-unit-id>` and create `<work-unit-id>.memory.md`. Link the memory from `ACTIVE.md` and `planning/INDEX.md`.
+6. **When activating a backlog item**, use its Objective, Problem Spec, Scope, and other details as source material for the SDD sections. If the backlog does not cover a required section, ask rather than inventing. Never overwrite the backlog item.
+7. **When reopening prior work**, assign a new work-unit ID. Link the prior closed SDD and memory from the new plan, then seed new memory with only still-valid facts, unresolved issues, and restart context. Never modify or restore the closed memory wholesale.
+8. Never activate work silently.
 
 ## Record Deferred Work
 
-1. Keep out-of-scope discoveries in `planning/active/MEMORY.md` while evaluating them.
+1. Keep out-of-scope discoveries in the active `<work-unit-id>.memory.md` while evaluating them.
 2. Scan `planning/backlog/INDEX.md` before opening detailed backlog plans.
 3. Propose updating a matching detailed plan or creating a new `PL-YYYYMMDD-descriptive-slug.md` plan (or legacy `PL-YYYYMMDDTHHMMSSZ-...`, `PL-####-...`).
 4. **Keep backlog items lightweight.** A backlog entry needs only an Objective, a Problem Spec, and a one-line Scope. The full SDD specification is written into `ACTIVE.md` during activation, not before. This keeps the backlog easy to scan and reduces stale-spec risk.
@@ -26,7 +29,7 @@ Use [Planning](../../planning/INDEX.md) as the authoritative planning router.
 ## Maintain Active Context
 
 - Keep progress, acceptance criteria, decisions, and verification in `ACTIVE.md`.
-- Curate `MEMORY.md` for handoff-critical state; replace stale details instead of appending a session transcript.
+- Curate the active `<work-unit-id>.memory.md` for handoff-critical state; replace stale details instead of appending a session transcript.
 - Link every active supporting Markdown document from `ACTIVE.md`.
 
 ## Execute Work
@@ -63,7 +66,7 @@ Before executing work, load the project's relevant rules and apply them.
 - Prefer small, reversible changes.
 - Preserve existing project style unless explicitly asked to refactor.
 - Do not fix unrelated bugs or broken tests unless explicitly asked.
-- Make changes that serve the spec and nothing more. Out-of-scope discoveries belong in `MEMORY.md` deferred discoveries.
+- Make changes that serve the spec and nothing more. Out-of-scope discoveries belong in the active work-unit memory's deferred discoveries.
 
 ### Completion Retrospective
 

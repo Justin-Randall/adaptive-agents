@@ -1,4 +1,4 @@
-# Session Memory — Claude Code Support
+# PL-20260711-claude-code-support Memory
 
 Cross-session learnings and decisions for the Claude Code Support plan.
 

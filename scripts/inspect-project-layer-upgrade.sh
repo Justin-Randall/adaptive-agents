@@ -81,11 +81,14 @@ else:
         sys.exit(1)
 
 if active_match:
+    work_unit_match = re.search(r"^- Work Unit: (PL-[a-zA-Z0-9-]+)$", active_text, re.MULTILINE)
+    active_work_id = work_unit_match.group(1) if work_unit_match else active_match.group(1)
     replacements = {
         "{{TEMPLATE_VERSION}}": manifest["templateVersion"],
         "{{PROJECT_NAME}}": metadata["projectName"],
         "{{ACTIVE_PLAN_ID}}": active_match.group(1),
         "{{ACTIVE_PLAN_TITLE}}": active_match.group(2),
+        "{{ACTIVE_WORK_ID}}": active_work_id,
     }
 else:
     replacements = {
@@ -93,6 +96,7 @@ else:
         "{{PROJECT_NAME}}": metadata["projectName"],
         "{{ACTIVE_PLAN_ID}}": "PL-19700101",
         "{{ACTIVE_PLAN_TITLE}}": "No active work",
+        "{{ACTIVE_WORK_ID}}": "PL-19700101-no-active-work",
     }
 source_root = template_root / manifest["layerDirectory"]
 missing = []
@@ -101,9 +105,12 @@ project_only = []
 
 for source in sorted(path for path in source_root.rglob("*") if path.is_file()):
     relative = source.relative_to(source_root)
-    target = layer_root / relative
+    rendered_relative = relative.as_posix()
+    for placeholder, value in replacements.items():
+        rendered_relative = rendered_relative.replace(placeholder, value)
+    target = layer_root / rendered_relative
     if not target.exists():
-        missing.append(relative.as_posix())
+      missing.append(rendered_relative)
         continue
     if source.suffix not in {".md", ".json", ".sh"}:
         continue
@@ -112,9 +119,16 @@ for source in sorted(path for path in source_root.rglob("*") if path.is_file()):
         expected = expected.replace(placeholder, value)
     actual = target.read_text(encoding="utf-8")
     if actual != expected:
-        changed.append(relative.as_posix())
+      changed.append(rendered_relative)
 
-source_paths = {path.relative_to(source_root) for path in source_root.rglob("*") if path.is_file()}
+source_paths = set()
+for path in source_root.rglob("*"):
+    if not path.is_file():
+        continue
+    rendered_relative = path.relative_to(source_root).as_posix()
+    for placeholder, value in replacements.items():
+        rendered_relative = rendered_relative.replace(placeholder, value)
+    source_paths.add(Path(rendered_relative))
 for target in sorted(path for path in layer_root.rglob("*") if path.is_file()):
     relative = target.relative_to(layer_root)
     if relative not in source_paths:

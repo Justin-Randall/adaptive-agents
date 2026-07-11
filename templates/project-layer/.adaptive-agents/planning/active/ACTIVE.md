@@ -1,6 +1,7 @@
 # {{ACTIVE_PLAN_ID}}: {{ACTIVE_PLAN_TITLE}}
 
 - Status: Active
+- Work Unit: {{ACTIVE_WORK_ID}}
 - Origin: Direct
 
 ## Objective
@@ -64,4 +65,4 @@ Reference the project rules that govern execution of this plan. List each with a
 
 ## Supporting Documents
 
-- [Active memory](MEMORY.md)
+- [{{ACTIVE_WORK_ID}} memory]({{ACTIVE_WORK_ID}}.memory.md)

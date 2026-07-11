@@ -24,9 +24,11 @@ The current repository includes:
   - `retrospectives/inbox/` for captured observations pending triage/promotion
   - `schemas/` for structured metadata/validation contracts
   - `agents/` for specialized role definitions
-- VS Code bootstrap wiring:
-  - `scripts/install-vscode.sh`
-  - generated pointer file: `vscode/user-wide.instructions.md`
+- Tool integration wiring:
+  - `scripts/install-vscode.sh` and generated pointer file `vscode/user-wide.instructions.md`
+  - `scripts/install-claude-code.sh` for Claude Code's native user-level import and repository access grant
+  - `scripts/install-opencode.sh` and `opencode/` assets for the experimental OpenCode integration
+  - `scripts/install.sh` for detected-tool routing
 - Project Layer bootstrap:
   - canonical source under `templates/project-layer/`
   - model-led workflow in `skills/bootstrap-project-layer/SKILL.md`
@@ -35,37 +37,17 @@ The current repository includes:
 
 ## How It Works
 
-Adaptive Agents uses a routed, layered model:
+Adaptive Agents uses a routed, layered model.
 
-1. Entry and routing
-   - Start from `AGENTS.md`, then `INDEX.md`.
-   - Load only relevant guidance for the current task.
+**Entry and routing.** Start from `AGENTS.md`, then `INDEX.md`, and load only relevant guidance for the current task.
 
-2. Default instruction split
-   - `instructions/global.instructions.md` routes to:
-     - `instructions/repository-boundaries.instructions.md`
-     - `instructions/coding.instructions.md`
-     - `instructions/tdd.instructions.md`
+**Default instruction split.** `instructions/global.instructions.md` routes to task-specific defaults covering repository boundaries, coding, TDD, command-failure pivots, and temporary-artifact hygiene.
 
-3. Adaptation lifecycle
+**Adaptation lifecycle.** Choose `Project Layer`, `User-wide`, or `Undetermined` scope before target type. Capture project-specific observations in `.adaptive-agents/retrospectives/inbox/` and established cross-project observations in `retrospectives/inbox/`. Triage and promote only durable lessons to the narrowest target within the selected scope (`memory/`, `instructions/`, `skills/`, `playbooks/`, etc.), then update `INDEX.md` when discoverability changes.
 
-- Choose `Project Layer`, `User-wide`, or `Undetermined` scope before target type.
-- Capture project-specific observations in `.adaptive-agents/retrospectives/inbox/`.
-- Capture established cross-project observations in `retrospectives/inbox/`.
-- Triage and promote only durable lessons.
-- Promote to the narrowest target within the selected scope (`memory/`, `instructions/`, `skills/`, `playbooks/`, etc.).
-- Update routing in `INDEX.md` when discoverability changes.
+**Boundary protection.** When working in other repositories, Adaptive Agents is user-wide guidance, not project-local content. Agents should not copy Adaptive Agents directories into project repositories unless explicitly instructed.
 
-1. Boundary protection
-   - When working in other repositories, Adaptive Agents is user-wide guidance, not project-local content.
-   - Agents should not copy Adaptive Agents directories into project repositories unless explicitly instructed.
-
-2. Project Layer
-
-- An installed Adaptive Agents system can bootstrap a project-owned `.adaptive-agents/` directory after interviewing the user.
-- The layer contains routed project instructions, skills, memory, retrospectives, indexed planning, lifecycle playbooks, and a read-only validator.
-- The user chooses whether the layer is tracked, clone-locally excluded through `.git/info/exclude`, or repository-wide ignored through `.gitignore`.
-- Installed user-wide guidance discovers `.adaptive-agents/INDEX.md`; bootstrap does not add root agent files or editor settings to the project.
+**Project Layer.** An installed Adaptive Agents system can bootstrap a project-owned `.adaptive-agents/` directory after interviewing the user. The layer contains routed project instructions, skills, memory, retrospectives, indexed planning, lifecycle playbooks, and a read-only validator. The user chooses whether the layer is tracked, clone-locally excluded through `.git/info/exclude`, or repository-wide ignored through `.gitignore`. Installed user-wide guidance discovers `.adaptive-agents/INDEX.md`; bootstrap does not add root agent files or editor settings to the project.
 
 Reference workflow:
 
@@ -109,6 +91,8 @@ Note: the current checked-in installer is Bash (`scripts/install-vscode.sh`).
 
 ### 2) Install OpenCode Integration
 
+> **Experimental:** Dogfooding has shown intermittent `AGENTS.md` loading in OpenCode. The installer remains available for diagnosis and existing users, but the integration is not considered verified while [OpenCode Installer Rework](.adaptive-agents/planning/backlog/PL-20260711-opencode-installer-rework.md) is pending. Validate with multiple fresh sessions rather than treating a successful installer exit as proof of instruction loading.
+
 From this repository root:
 
 ```bash
@@ -127,7 +111,7 @@ What the installer does:
 
 - detects repository root path
 - creates or updates the OpenCode global config (`opencode.json` or `opencode.jsonc`) with `instructions` referencing Adaptive Agents files
-- installs a global `~/.config/opencode/AGENTS.md` so OpenCode always knows about Adaptive Agents
+- installs a global `~/.config/opencode/AGENTS.md` intended to expose the Adaptive Agents entrypoint
 - installs custom slash commands (`/capture-retrospective`, `/triage-retrospective`, `/review-retrospective-inbox`, `/review-promotion-candidates`, `/apply-approved-promotion`, `/check-adaptive-agents`) to OpenCode's global commands directory
 - detects whether the OpenCode CLI is installed
 - creates a timestamped backup before modifying any config
@@ -140,6 +124,8 @@ What it does not do:
 - store secrets
 
 ### 3) Install Claude Code Integration
+
+Prerequisites: Bash and Python 3. On Windows, run the installer through Git Bash or WSL.
 
 From this repository root:
 
@@ -194,7 +180,9 @@ ADAPTIVE_AGENTS_GLOBAL_LOADED
 
 If you get `ADAPTIVE_AGENTS_GLOBAL_LOADED`, Adaptive Agents is active and your AI coding tool is reading the user-wide guidance from this repository.
 
-**Supported tools**: VS Code / GitHub Copilot (after `install-vscode.sh`), OpenCode-compatible editors (after `install-opencode.sh`), Claude Code (after `install-claude-code.sh`).
+**Verified integrations**: VS Code / GitHub Copilot (after `install-vscode.sh`) and Claude Code (after `install-claude-code.sh`).
+
+**Experimental integration**: OpenCode (after `install-opencode.sh`) remains under rework because fresh sessions do not yet load guidance consistently.
 
 ### 5) Invoke Prompts via Natural Language or Slash Commands
 
@@ -275,7 +263,7 @@ Use verbose output when you need to see every passing check:
 bash scripts/check-adaptive-agents.sh --verbose
 ```
 
-The checker is read-only. It validates prompt routing, retrospective statuses, promotion links, blocked private/raw link patterns, local Markdown links, and whether guidance Markdown files are reachable from `INDEX.md`. By default it prints only warnings, failures, and the final summary.
+The checker is read-only. It validates required repository structure, prompt routing, retrospective statuses and privacy patterns, local Markdown links and guidance reachability, canonical and dogfood Project Layers, Project Layer regression tests, and the installed Claude Code import and access grant when present. By default it prints only warnings, failures, and the final summary.
 
 ### 8) Bootstrap A Project Layer
 
@@ -294,6 +282,8 @@ bash scripts/bootstrap-project-layer.sh \
 
 Use `--dry-run` to preview mechanics. Bash and Python 3 are required; on Windows, run through Git Bash or WSL.
 
+Each active plan declares a canonical `PL-YYYYMMDD-descriptive-slug` work-unit ID and keeps curated handoff context in `<work-unit-id>.memory.md`. Closure preserves the plan, original backlog item when present, and memory under the same work-unit identity. Reopened work receives a new identity and links to immutable prior context rather than overwriting it.
+
 Existing layers are project-owned and are never recopied from the template. Use `scripts/inspect-project-layer-upgrade.sh` with the Project Layer upgrade skill to compare versions and prepare an approval-gated merge.
 
 Run the focused Project Layer regression suite with:
@@ -311,6 +301,9 @@ This repository is in an actively used bootstrap-plus-hardening phase:
 - adaptation playbooks and prompt workflows are present
 - retrospective inbox includes active dogfooded examples
 - the canonical Project Layer template, bootstrap/upgrade workflows, regression tests, and tracked dogfood layer are present
+- VS Code and Claude Code integrations are verified through their native loading mechanisms
+- OpenCode integration remains experimental pending the queued installer rework
+- related tool integrations are captured as lightweight backlog items with a shared native-entrypoint verification contract
 
 ## Design Intent
 

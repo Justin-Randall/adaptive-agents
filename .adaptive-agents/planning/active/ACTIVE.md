@@ -1,6 +1,7 @@
 # PL-20260711: Claude Code Support
 
 - Status: Active
+- Work Unit: PL-20260711-claude-code-support
 - Origin: Backlog ([PL-20260711-claude-code-support.md](../backlog/PL-20260711-claude-code-support.md))
 - Activated: 2026-07-11
 
@@ -152,4 +153,4 @@ Update `scripts/check-adaptive-agents.sh` to validate Claude Code config:
 - Playbook: `playbooks/adaptation-cycle.md` (repo root) — lifecycle guidance
 - Reference: `scripts/install-opencode.sh` (repo root) — parallel implementation
 - Reference: `scripts/install-vscode.sh` (repo root) — parallel implementation
-- [Session Memory](MEMORY.md) — cross-session learnings and decisions
+- [PL-20260711-claude-code-support memory](PL-20260711-claude-code-support.memory.md) — cross-session learnings and decisions

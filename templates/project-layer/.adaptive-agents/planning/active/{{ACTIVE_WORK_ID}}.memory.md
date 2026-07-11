@@ -1,4 +1,4 @@
-# Active Memory
+# {{ACTIVE_WORK_ID}} Memory
 
 Curate this file for cross-session handoff. Replace stale details rather than keeping an append-only journal.
 

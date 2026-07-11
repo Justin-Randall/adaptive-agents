@@ -30,6 +30,7 @@ failures = []
 required = (
     "INDEX.md",
     "README.md",
+    "ARCHITECTURE.md",
     "instructions/INDEX.md",
     "instructions/project.instructions.md",
     "skills/INDEX.md",
@@ -41,7 +42,6 @@ required = (
     "retrospectives/inbox/template.md",
     "planning/INDEX.md",
     "planning/active/ACTIVE.md",
-    "planning/active/MEMORY.md",
     "planning/backlog/INDEX.md",
     "planning/closed/INDEX.md",
     "playbooks/INDEX.md",
@@ -76,6 +76,11 @@ for source in sorted(root.rglob("*.md")):
         elif resolved.suffix == ".md":
             graph[source].add(resolved)
 
+project_instructions = root / "instructions/project.instructions.md"
+architecture = root / "ARCHITECTURE.md"
+if architecture not in graph.get(project_instructions, set()):
+    failures.append("project.instructions.md must link to ../ARCHITECTURE.md")
+
 entrypoint = root / "INDEX.md"
 reachable = set()
 queue = deque([entrypoint])
@@ -94,6 +99,17 @@ active_text = (root / "planning/active/ACTIVE.md").read_text(encoding="utf-8") i
 active_match = re.search(r"^# ((?:PL-[0-9]{8}|PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4})|\{\{ACTIVE_PLAN_ID\}\}): (.+)$", active_text, re.MULTILINE)
 if not active_match and "No Active Plan" not in active_text:
     failures.append("planning/active/ACTIVE.md must start with '# PL-YYYYMMDD: descriptive title' (or legacy PL-YYYYMMDDTHHMMSSZ, PL-####)")
+
+work_unit_match = re.search(r"^- Work Unit: ((?:PL-[0-9]{8}|PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4})-[a-z0-9]+(?:-[a-z0-9]+)*|\{\{ACTIVE_WORK_ID\}\})$", active_text, re.MULTILINE)
+if active_match and "No Active Plan" not in active_text and not work_unit_match:
+    failures.append("planning/active/ACTIVE.md must declare '- Work Unit: PL-YYYYMMDD-descriptive-slug'")
+elif work_unit_match:
+    work_unit = work_unit_match.group(1)
+    active_memory = root / "planning/active" / f"{work_unit}.memory.md"
+    if not active_memory.exists():
+        failures.append(f"missing active memory for work unit: {work_unit}.memory.md")
+    elif active_memory.resolve() not in graph.get((root / "planning/active/ACTIVE.md").resolve(), set()):
+        failures.append(f"ACTIVE.md must link to active memory: {work_unit}.memory.md")
 
 for support_file in sorted((root / "planning/active").glob("*.md")):
     if support_file.name == "ACTIVE.md":
@@ -127,11 +143,10 @@ for packet in sorted((root / "planning/closed").glob("PL-*")):
         plan_id = packet.name  # full slug-based identity, e.g. PL-20260710-descriptive-slug
     plan_locations.setdefault(plan_id, []).append(packet.relative_to(root).as_posix())
     id_prefix = m.group(1) if m else ""
-    if not (packet / f"{id_prefix}.sdd.md").exists() and not (packet / "ACTIVE.md").exists():
-        failures.append(f"closed packet is missing {id_prefix}.sdd.md (or ACTIVE.md): {packet.name}")
-
-if active_match and not active_match.group(1).startswith("{{"):
-    plan_locations.setdefault(active_match.group(1), []).append("planning/active/ACTIVE.md")
+    canonical_sdd = packet / f"{packet.name}.sdd.md"
+    legacy_sdd = packet / f"{id_prefix}.sdd.md"
+    if not canonical_sdd.exists() and not legacy_sdd.exists() and not (packet / "ACTIVE.md").exists():
+        failures.append(f"closed packet is missing {packet.name}.sdd.md (or legacy {id_prefix}.sdd.md/ACTIVE.md): {packet.name}")
 
 for plan_id, locations in sorted(plan_locations.items()):
     if len(locations) > 1:
