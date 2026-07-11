@@ -27,7 +27,7 @@ The current repository includes:
 - Tool integration wiring:
   - `scripts/install-vscode.sh` and generated pointer file `vscode/user-wide.instructions.md`
   - `scripts/install-claude-code.sh` for Claude Code's native user-level import and repository access grant
-  - `scripts/install-opencode.sh` and `opencode/` assets for the experimental OpenCode integration
+  - `scripts/install-opencode.sh` for OpenCode's native instructions entry point and external-directory access grant
   - `scripts/install.sh` for detected-tool routing
 - Project Layer bootstrap:
   - canonical source under `templates/project-layer/`
@@ -91,7 +91,7 @@ Note: the current checked-in installer is Bash (`scripts/install-vscode.sh`).
 
 ### 2) Install OpenCode Integration
 
-> **Experimental:** Dogfooding has shown intermittent `AGENTS.md` loading in OpenCode. The installer remains available for diagnosis and existing users, but the integration is not considered verified while [OpenCode Installer Rework](.adaptive-agents/planning/backlog/PL-20260711-opencode-installer-rework.md) is pending. Validate with multiple fresh sessions rather than treating a successful installer exit as proof of instruction loading.
+Prerequisites: Bash and Python 3. On Windows, run the installer through Git Bash or WSL.
 
 From this repository root:
 
@@ -104,24 +104,29 @@ Useful options:
 ```bash
 ./scripts/install-opencode.sh --dry-run
 ./scripts/install-opencode.sh --opencode-config PATH
-./scripts/install-opencode.sh --skip-commands
 ```
 
-What the installer does:
+The integration is two parts, applied to OpenCode's global config (`~/.config/opencode/opencode.json` or `.jsonc`):
 
-- detects repository root path
-- creates or updates the OpenCode global config (`opencode.json` or `opencode.jsonc`) with `instructions` referencing Adaptive Agents files
-- installs a global `~/.config/opencode/AGENTS.md` intended to expose the Adaptive Agents entrypoint
-- installs custom slash commands (`/capture-retrospective`, `/triage-retrospective`, `/review-retrospective-inbox`, `/review-promotion-candidates`, `/apply-approved-promotion`, `/check-adaptive-agents`) to OpenCode's global commands directory
-- detects whether the OpenCode CLI is installed
-- creates a timestamped backup before modifying any config
+- **Entry point**: one `instructions` entry loading the canonical repository `AGENTS.md` content at session start ([OpenCode rules docs](https://opencode.ai/docs/rules/)); `AGENTS.md → INDEX.md → instructions/` fan-out handles all further routing
+- **Trusted source directories**: a `permission.external_directory` grant marking this repository safe to read and write from sessions in other projects — OpenCode blocks external paths behind an "ask" prompt by default ([OpenCode permissions docs](https://opencode.ai/docs/permissions/))
+
+The installer also migrates away artifacts from earlier versions of this integration (a sentinel-duplicating global `AGENTS.md` copy, redundant `instructions` entries, installed slash commands, and stale `%APPDATA%/opencode` files), preserves all unrelated configuration, creates a timestamped backup before modifying the config, and leaves managed files byte-for-byte unchanged on re-run.
 
 What it does not do:
 
-- modify VS Code settings
+- copy or generate guidance content (the repository stays the source of truth)
+- modify provider, model, or unrelated permission configuration
 - modify project repositories
-- copy Adaptive Agents structure into other repositories
 - store secrets
+
+After installing, verify from a fresh OpenCode session in an unrelated repository:
+
+1. **Sentinel** — "Are Adaptive Agents active?" → `ADAPTIVE_AGENTS_GLOBAL_LOADED`
+2. **Content proof** — "What is the current active plan and top backlog item?" → must name the actual plan from this repository (the sentinel alone can be a false positive)
+3. **Write-back** — ask for a retrospective capture → a file appears in `retrospectives/inbox/`
+
+Run the automated installer tests with `bash scripts/test-opencode.sh`.
 
 ### 3) Install Claude Code Integration
 
@@ -166,23 +171,31 @@ What it does not do:
 
 ### 4) Verify Guidance Is Loaded
 
-In any supported tool, ask:
+Every integration is verified the same way, in a **fresh session in a repository unrelated to this one**, with three probes:
 
-```text
-Are Adaptive Agents active?
-```
+1. **Sentinel** — ask:
 
-Expected response:
+   ```text
+   Are Adaptive Agents active?
+   ```
 
-```text
-ADAPTIVE_AGENTS_GLOBAL_LOADED
-```
+   Expected response: `ADAPTIVE_AGENTS_GLOBAL_LOADED`
 
-If you get `ADAPTIVE_AGENTS_GLOBAL_LOADED`, Adaptive Agents is active and your AI coding tool is reading the user-wide guidance from this repository.
+2. **Content proof** — ask:
+
+   ```text
+   What is the current active plan and top backlog item?
+   ```
+
+   The answer must name the actual plan from this repository's `.adaptive-agents/planning/`. The sentinel alone can be a false positive — a stale installed copy can echo it without the tool ever reading this repository — so a probe answerable only from repository content is required.
+
+3. **Write-back** — ask the tool to capture a retrospective. A file must appear in `retrospectives/inbox/` without a permission failure, proving the integration's access grant covers writes.
+
+Repeat across multiple fresh sessions; intermittent loading is a failure, not a pass.
 
 **Verified integrations**: VS Code / GitHub Copilot (after `install-vscode.sh`) and Claude Code (after `install-claude-code.sh`).
 
-**Experimental integration**: OpenCode (after `install-opencode.sh`) remains under rework because fresh sessions do not yet load guidance consistently.
+**Reworked integration**: OpenCode (after `install-opencode.sh`) now uses the same two-part pattern; treat it as verified only after fresh-session dogfooding passes all three probes.
 
 ### 5) Invoke Prompts via Natural Language or Slash Commands
 
@@ -302,7 +315,7 @@ This repository is in an actively used bootstrap-plus-hardening phase:
 - retrospective inbox includes active dogfooded examples
 - the canonical Project Layer template, bootstrap/upgrade workflows, regression tests, and tracked dogfood layer are present
 - VS Code and Claude Code integrations are verified through their native loading mechanisms
-- OpenCode integration remains experimental pending the queued installer rework
+- OpenCode integration is reworked around a single native entry point plus an external-directory access grant, pending fresh-session dogfood confirmation
 - related tool integrations are captured as lightweight backlog items with a shared native-entrypoint verification contract
 
 ## Design Intent

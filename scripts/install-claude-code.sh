@@ -215,9 +215,13 @@ PY
   # Summary
   # -----------------------------------------------------------------------
   if command_exists claude; then
-    echo "Claude Code is installed. Start a session and ask:"
-    echo "  \"Are Adaptive Agents active?\""
-    echo "You should see: ADAPTIVE_AGENTS_GLOBAL_LOADED"
+    echo "Verification (fresh Claude Code session in an unrelated repository):"
+    echo "  1. Sentinel:      \"Are Adaptive Agents active?\" -> ADAPTIVE_AGENTS_GLOBAL_LOADED"
+    echo "  2. Content proof: \"What is the current active plan and top backlog item?\""
+    echo "                    -> must name the actual plan from the repository"
+    echo "  3. Write-back:    ask for a retrospective capture -> file appears in"
+    echo "                    $repo_root/retrospectives/inbox/"
+    echo "The sentinel alone is not proof; repeat across multiple fresh sessions."
   else
     echo "Claude Code CLI is not detected. Install it from:"
     echo "  https://claude.ai/download"

@@ -132,9 +132,6 @@ check_required_paths() {
     scripts/test-project-layer.sh
     scripts/install-opencode.sh
     scripts/test-opencode.sh
-    opencode
-    opencode/opencode.jsonc
-    opencode/commands
     .adaptive-agents/INDEX.md
     .adaptive-agents/project-layer.json
     .adaptive-agents/scripts/check-project-layer.sh
@@ -216,35 +213,125 @@ check_prompts() {
   done
 }
 
-check_opencode_commands() {
-  local cmd_file
-  shopt -s nullglob
-  local cmd_files=(opencode/commands/*.md)
-  shopt -u nullglob
+check_opencode() {
+  # Validates the live OpenCode config against the single-entrypoint contract:
+  # one canonical instructions entry, an external_directory read/write grant,
+  # and no leftover legacy layers. Skips silently when OpenCode is not set up.
+  # Docs: https://opencode.ai/docs/config/  https://opencode.ai/docs/rules/
+  #       https://opencode.ai/docs/permissions/
+  local config_dir="$HOME/.config/opencode"
+  local config_path=""
+  local -a PYTHON_CMD=()
 
-  if [[ "${#cmd_files[@]}" -eq 0 ]]; then
-    fail "No OpenCode command files found under opencode/commands/"
-    return
+  if [[ -f "$config_dir/opencode.jsonc" ]]; then
+    config_path="$config_dir/opencode.jsonc"
+  elif [[ -f "$config_dir/opencode.json" ]]; then
+    config_path="$config_dir/opencode.json"
+  else
+    return 0
   fi
 
-  for cmd_file in "${cmd_files[@]}"; do
-    local basename_cmd
-    basename_cmd="$(basename "$cmd_file")"
+  if ! find_python; then
+    warn "Python not found; cannot validate the OpenCode configuration"
+    return 0
+  fi
 
-    if [[ "$(sed -n '1p' "$cmd_file")" != "---" ]]; then
-      fail "$basename_cmd is missing opening frontmatter delimiter"
-      continue
-    fi
+  local check_output
+  if check_output="$("${PYTHON_CMD[@]}" - "$config_path" "$REPO_ROOT" <<'PY'
+import json
+import sys
+from pathlib import Path
 
-    local frontmatter
-    frontmatter="$(awk 'NR == 1 { next } /^---$/ { exit } { print }' "$cmd_file")"
+config_path = Path(sys.argv[1])
+repo_root = sys.argv[2].replace("\\", "/")
 
-    if grep -Eq '^description: .+' <<<"$frontmatter"; then
-      pass "$basename_cmd has description frontmatter"
-    else
-      fail "$basename_cmd is missing description frontmatter"
-    fi
-  done
+
+def clean_jsonc(text):
+    """Strip // and /* */ comments and trailing commas, preserving strings."""
+    out = []
+    i, n = 0, len(text)
+    in_string = escape = False
+    while i < n:
+        c = text[i]
+        nxt = text[i + 1] if i + 1 < n else ""
+        if in_string:
+            out.append(c)
+            if escape:
+                escape = False
+            elif c == "\\":
+                escape = True
+            elif c == '"':
+                in_string = False
+            i += 1
+        elif c == '"':
+            in_string = True
+            out.append(c)
+            i += 1
+        elif c == "/" and nxt == "/":
+            while i < n and text[i] not in "\r\n":
+                i += 1
+        elif c == "/" and nxt == "*":
+            i += 2
+            while i + 1 < n and not (text[i] == "*" and text[i + 1] == "/"):
+                i += 1
+            i += 2
+        elif c == ",":
+            j = i + 1
+            while j < n and text[j].isspace():
+                j += 1
+            if j < n and text[j] in "}]":
+                i += 1
+            else:
+                out.append(c)
+                i += 1
+        else:
+            out.append(c)
+            i += 1
+    return "".join(out)
+
+
+try:
+    config = json.loads(clean_jsonc(config_path.read_text(encoding="utf-8")))
+except (json.JSONDecodeError, OSError) as exc:
+    print(f"could not parse {config_path}: {exc}")
+    raise SystemExit(1)
+
+problems = []
+
+entry = f"{repo_root}/AGENTS.md"
+instructions = [
+    i.replace("\\", "/") if isinstance(i, str) else i
+    for i in config.get("instructions", [])
+]
+if entry not in instructions:
+    problems.append(f"instructions is missing the canonical entry {entry}")
+
+legacy = [
+    i for i in instructions
+    if isinstance(i, str) and i.startswith(repo_root) and i != entry
+]
+if legacy:
+    problems.append(f"legacy instructions entries remain: {legacy}")
+
+grant = config.get("permission", {}).get("external_directory", {})
+if not (isinstance(grant, dict) and grant.get(f"{repo_root}/**") == "allow"):
+    problems.append("permission.external_directory does not allow the repository")
+
+print("\n".join(problems))
+raise SystemExit(1 if problems else 0)
+PY
+  )"; then
+    pass "OpenCode config satisfies the single-entrypoint contract"
+  else
+    warn "OpenCode config drift: ${check_output:-unparseable config at $config_path}"
+  fi
+
+  local legacy_agents="$config_dir/AGENTS.md"
+  if [[ -f "$legacy_agents" ]] && [[ "$(sed -n '1p' "$legacy_agents")" == "# Adaptive Agents — OpenCode Global Rules" ]]; then
+    warn "Legacy sentinel-duplicating copy remains: $legacy_agents (re-run scripts/install-opencode.sh)"
+  else
+    pass "No legacy OpenCode AGENTS.md copy present"
+  fi
 }
 
 check_claude_code() {
@@ -515,7 +602,7 @@ check_project_layer_template
 check_project_layer_tests
 check_dogfood_project_layer
 check_prompts
-check_opencode_commands
+check_opencode
 check_claude_code
 check_retrospectives
 check_retrospective_private_patterns

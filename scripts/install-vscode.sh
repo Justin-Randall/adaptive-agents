@@ -468,9 +468,13 @@ main() {
     echo "Updated:"
     echo "  $settings_path"
     echo
-    echo "Next verification step:"
-    echo "  Open VS Code Chat in any project and ask:"
-    echo "  \"Use my Adaptive Agents guidance. What user-wide instructions are available for this task?\""
+    echo "Verification (fresh VS Code Chat session in an unrelated repository):"
+    echo "  1. Sentinel:      \"Are Adaptive Agents active?\" -> ADAPTIVE_AGENTS_GLOBAL_LOADED"
+    echo "  2. Content proof: \"What is the current active plan and top backlog item?\""
+    echo "                    -> must name the actual plan from the repository"
+    echo "  3. Write-back:    ask for a retrospective capture -> file appears in"
+    echo "                    $repo_root/retrospectives/inbox/"
+    echo "The sentinel alone is not proof; repeat across multiple fresh sessions."
   fi
 }
 

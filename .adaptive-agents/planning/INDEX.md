@@ -2,9 +2,7 @@
 
 ## Current Work
 
-Active: [Claude Code Support](active/ACTIVE.md).
-
-- Working memory: [PL-20260711-claude-code-support memory](active/PL-20260711-claude-code-support.memory.md)
+Active: [No Active Plan](active/ACTIVE.md). The next plan is activated from the [Backlog](backlog/INDEX.md) after user approval.
 
 ## Queues
 
