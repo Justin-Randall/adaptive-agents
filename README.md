@@ -302,6 +302,8 @@ The estimate is a deterministic compaction signal, not a model-specific tokenize
 
 The [static validation workflow](.github/workflows/static-validation.yml) runs the repository health checks on Ubuntu and Windows. Those checks include the instruction-load regression suite and the non-mutating startup high-water check. The workflow publishes one final status named `static-validation`; repository owners can require that stable status when they enable branch protection for `main`.
 
+To inspect why a run passed, open either platform job and expand **Run static validation with evidence**. The log names every structural and routing assertion, reports nested regression-suite totals, and shows the strict baseline result plus startup tokens used, limit, remaining capacity, and utilization. The final `static-validation` job confirms that both platform jobs succeeded.
+
 ### 8) Check Repository Health
 
 Run the deterministic checker before or after guidance changes:

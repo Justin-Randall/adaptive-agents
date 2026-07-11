@@ -20,7 +20,8 @@ jobs:
             - uses: actions/setup-python@v5
               with:
                   python-version: "3.11"
-            - run: bash scripts/check-adaptive-agents.sh
+            - name: Run static validation with evidence
+              run: bash scripts/check-adaptive-agents.sh --verbose
 
     validate-windows:
         name: Validate repository (Windows)
@@ -31,8 +32,9 @@ jobs:
             - uses: actions/setup-python@v5
               with:
                   python-version: "3.11"
-            - shell: bash
-              run: bash scripts/check-adaptive-agents.sh
+            - name: Run static validation with evidence
+              shell: bash
+              run: bash scripts/check-adaptive-agents.sh --verbose
 
     static-validation:
         name: static-validation
@@ -51,3 +53,4 @@ jobs:
                     printf 'Static validation failed: ubuntu=%s windows=%s\n' "$UBUNTU_RESULT" "$WINDOWS_RESULT" >&2
                     exit 1
                   fi
+                  printf 'Static validation passed: ubuntu=%s windows=%s\n' "$UBUNTU_RESULT" "$WINDOWS_RESULT"

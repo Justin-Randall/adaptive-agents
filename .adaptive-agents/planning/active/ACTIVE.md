@@ -185,10 +185,11 @@ Ask the user to confirm that profile membership and totals match their understan
 - `instruction-load-baseline.json` — contains only the `startup` profile and its two static files, `AGENTS.md` and `INDEX.md`.
 - `bash scripts/check-instruction-load-budget.sh --update-baseline` — generated the initial deterministic baseline.
 - `bash scripts/check-instruction-load-budget.sh --check` — passed against the generated baseline.
-- `bash scripts/check-adaptive-agents.sh` — 140 checks passed with zero failures and zero warnings.
+- `bash scripts/check-adaptive-agents.sh --verbose` — 141 checks passed with zero failures and zero warnings; successful nested test totals and startup utilization are emitted as CI evidence.
 - `bash .adaptive-agents/scripts/check-project-layer.sh` — zero failures.
 - Editor diagnostics and `git diff --check` — no errors; Windows line-ending notices only.
-- Cross-platform GitHub Actions execution and user-observed dogfood remain pending.
+- The user confirmed the first cross-platform `static-validation` GitHub Actions run passed after commit `0a44ce3`; detailed pass evidence was insufficient, so verbose CI evidence was added in the follow-up.
+- User-observed CLI dogfood remains pending.
 
 ## Supporting Documents
 

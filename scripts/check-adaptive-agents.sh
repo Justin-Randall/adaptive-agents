@@ -108,6 +108,14 @@ pass() {
   fi
 }
 
+verbose_evidence() {
+  local label="$1"
+  local output="$2"
+  if [[ "$VERBOSE" -eq 1 && -n "$output" ]]; then
+    printf 'EVIDENCE: %s\n%s\n' "$label" "$output"
+  fi
+}
+
 file_contains() {
   local file="$1"
   local text="$2"
@@ -581,6 +589,7 @@ check_project_layer_template() {
   local output
   if output="$(bash templates/project-layer/.adaptive-agents/scripts/check-project-layer.sh 2>&1)"; then
     pass "Canonical Project Layer template passes its validator"
+    verbose_evidence "Canonical Project Layer validator" "$output"
   else
     fail "Canonical Project Layer template fails its validator"
     printf '%s\n' "$output"
@@ -591,6 +600,7 @@ check_project_layer_tests() {
   local output
   if output="$(bash scripts/test-project-layer.sh 2>&1)"; then
     pass "Project Layer validator regression tests pass"
+    verbose_evidence "Project Layer regression tests" "$output"
   else
     fail "Project Layer validator regression tests fail"
     printf '%s\n' "$output"
@@ -601,6 +611,7 @@ check_dogfood_project_layer() {
   local output
   if output="$(bash .adaptive-agents/scripts/check-project-layer.sh 2>&1)"; then
     pass "Dogfood Project Layer passes its validator"
+    verbose_evidence "Dogfood Project Layer validator" "$output"
   else
     fail "Dogfood Project Layer fails its validator"
     printf '%s\n' "$output"
@@ -611,6 +622,11 @@ check_instruction_load_budget() {
   local output
   if output="$(bash scripts/check-instruction-load-budget.sh --check 2>&1)"; then
     pass "Instruction load budget passes"
+    if [[ "$VERBOSE" -eq 1 ]]; then
+      local status_output
+      status_output="$(bash scripts/check-instruction-load-budget.sh 2>&1)"
+      verbose_evidence "Instruction load baseline and startup high-water check" "$output"$'\n'"$status_output"
+    fi
     if [[ "$output" == *"WARN:"* ]]; then
       printf '%s\n' "$output"
     fi
@@ -624,6 +640,7 @@ check_instruction_load_budget_tests() {
   local output
   if output="$("${PYTHON_CMD[@]}" scripts/test-instruction-load-budget.py 2>&1)"; then
     pass "Instruction load budget regression tests pass"
+    verbose_evidence "Instruction load budget regression tests" "$output"
   else
     fail "Instruction load budget regression tests fail"
     printf '%s\n' "$output"
