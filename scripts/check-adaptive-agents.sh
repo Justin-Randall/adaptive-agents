@@ -150,6 +150,12 @@ check_required_paths() {
       fail "Required path missing: $path"
     fi
   done
+
+  if [[ -f "AGENTS.md" ]] && grep -q "ADAPTIVE_AGENTS_GLOBAL_LOADED" "AGENTS.md" 2>/dev/null; then
+    pass "AGENTS.md defines the installation sentinel"
+  elif [[ -f "AGENTS.md" ]]; then
+    fail "AGENTS.md is missing the installation sentinel (ADAPTIVE_AGENTS_GLOBAL_LOADED)"
+  fi
 }
 
 check_prompt_frontmatter() {
@@ -239,6 +245,54 @@ check_opencode_commands() {
       fail "$basename_cmd is missing description frontmatter"
     fi
   done
+}
+
+check_claude_code() {
+  local claude_md="$HOME/.claude/CLAUDE.md"
+  local settings_path="$HOME/.claude/settings.json"
+  local -a PYTHON_CMD=()
+
+  if [[ ! -f "$claude_md" ]]; then
+    return 0
+  fi
+
+  if grep -q "^#==ADAPTIVE_AGENTS_START==" "$claude_md" 2>/dev/null; then
+    pass "Claude Code CLAUDE.md has Adaptive Agents delegation section"
+  else
+    warn "Claude Code CLAUDE.md exists but missing Adaptive Agents delegation section"
+  fi
+
+  if grep -Fxq "@$REPO_ROOT/AGENTS.md" "$claude_md" 2>/dev/null; then
+    pass "Claude Code CLAUDE.md imports the canonical AGENTS.md"
+  else
+    warn "Claude Code CLAUDE.md does not import @$REPO_ROOT/AGENTS.md"
+  fi
+
+  if [[ ! -f "$settings_path" ]]; then
+    warn "Claude Code settings.json is missing the Adaptive Agents repository access grant"
+    return 0
+  fi
+
+  if ! find_python; then
+    warn "Python not found; cannot validate the Claude Code repository access grant"
+    return 0
+  fi
+
+  if "${PYTHON_CMD[@]}" - "$settings_path" "$REPO_ROOT" >/dev/null 2>&1 <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as settings_file:
+    settings = json.load(settings_file)
+
+directories = settings.get("permissions", {}).get("additionalDirectories", [])
+raise SystemExit(0 if sys.argv[2] in directories else 1)
+PY
+  then
+    pass "Claude Code settings grant access to the Adaptive Agents repository"
+  else
+    warn "Claude Code settings do not grant access to the Adaptive Agents repository"
+  fi
 }
 
 extract_top_status() {
@@ -462,6 +516,7 @@ check_project_layer_tests
 check_dogfood_project_layer
 check_prompts
 check_opencode_commands
+check_claude_code
 check_retrospectives
 check_retrospective_private_patterns
 check_markdown_links

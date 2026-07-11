@@ -1,0 +1,146 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# install.sh
+#
+# Umbrella installer for Adaptive Agents.
+# Detects which AI coding tools are installed and runs the appropriate
+# sub-installer for each.
+#
+# Usage:
+#   ./scripts/install.sh [options]
+#
+# Options:
+#   --dry-run     Show what would change without writing files.
+#   --tool TOOL   Install only for a specific tool (claude, opencode, vscode).
+#   -h, --help    Show this help.
+#
+# Examples:
+#   ./scripts/install.sh
+#   ./scripts/install.sh --dry-run
+#   ./scripts/install.sh --tool claude
+
+usage() {
+  cat <<EOF
+Usage:
+  ./scripts/install.sh [options]
+
+Options:
+  --dry-run     Show what would change without writing files.
+  --tool TOOL   Install only for a specific tool.
+  -h, --help    Show this help.
+
+Supported tools: claude, opencode, vscode
+EOF
+}
+
+DRY_RUN=0
+TOOL_FILTER=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+    --tool)
+      TOOL_FILTER="${2:-}"
+      if [[ -z "$TOOL_FILTER" ]]; then
+        echo "ERROR: --tool requires a tool name." >&2
+        exit 1
+      fi
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "ERROR: Unknown option: $1" >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+command_exists() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+detect_repo_root() {
+  if command_exists git && git rev-parse --show-toplevel >/dev/null 2>&1; then
+    git rev-parse --show-toplevel
+    return
+  fi
+  local script_dir
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  cd "$script_dir/.." && pwd
+}
+
+REPO_ROOT="$(detect_repo_root)"
+
+if [[ ! -f "$REPO_ROOT/AGENTS.md" || ! -f "$REPO_ROOT/INDEX.md" ]]; then
+  echo "ERROR: This does not look like the Adaptive Agents repository root." >&2
+  echo "Expected to find AGENTS.md and INDEX.md in: $REPO_ROOT" >&2
+  exit 1
+fi
+
+echo "Adaptive Agents installer"
+echo "Repository: $REPO_ROOT"
+echo
+
+SUB_INSTALLERS=()
+
+# Claude Code
+if [[ -z "$TOOL_FILTER" || "$TOOL_FILTER" == "claude" ]]; then
+  if command_exists claude || [[ -f "$HOME/.claude/settings.json" ]]; then
+    echo "  [detected] Claude Code"
+    SUB_INSTALLERS+=("$REPO_ROOT/scripts/install-claude-code.sh")
+  fi
+fi
+
+# OpenCode
+if [[ -z "$TOOL_FILTER" || "$TOOL_FILTER" == "opencode" ]]; then
+  if command_exists opencode || [[ -d "$HOME/.config/opencode" ]]; then
+    echo "  [detected] OpenCode"
+    SUB_INSTALLERS+=("$REPO_ROOT/scripts/install-opencode.sh")
+  fi
+fi
+
+# VS Code / GitHub Copilot
+if [[ -z "$TOOL_FILTER" || "$TOOL_FILTER" == "vscode" ]]; then
+  if command_exists code || [[ -n "${APPDATA:-}" && -d "$APPDATA/Code" ]]; then
+    echo "  [detected] VS Code"
+    SUB_INSTALLERS+=("$REPO_ROOT/scripts/install-vscode.sh")
+  fi
+fi
+
+echo
+
+if [[ ${#SUB_INSTALLERS[@]} -eq 0 ]]; then
+  echo "No supported AI coding tools detected."
+  echo
+  echo "Supported tools:"
+  echo "  Claude Code  — https://claude.ai/download"
+  echo "  OpenCode     — https://opencode.ai"
+  echo "  VS Code      — https://code.visualstudio.com"
+  echo
+  echo "Install a supported tool and re-run this script."
+  exit 0
+fi
+
+for installer in "${SUB_INSTALLERS[@]}"; do
+  if [[ -f "$installer" ]]; then
+    echo "Running: $installer"
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      bash "$installer" --dry-run
+    else
+      bash "$installer"
+    fi
+    echo
+  else
+    echo "WARNING: Installer not found: $installer" >&2
+  fi
+done
+
+echo "Done."

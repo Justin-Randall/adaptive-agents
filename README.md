@@ -139,15 +139,54 @@ What it does not do:
 - copy Adaptive Agents structure into other repositories
 - store secrets
 
-### 3) Verify Guidance Is Loaded
+### 3) Install Claude Code Integration
 
-In VS Code Chat or any OpenCode-compatible editor (Cursor, Windsurf, continue.dev), ask:
+From this repository root:
 
-```text
-Use my Adaptive Agents guidance. What user-wide instructions are available for this task?
+```bash
+./scripts/install-claude-code.sh
 ```
 
-You can also verify the global instruction sentinel response:
+Or install all detected tools at once:
+
+```bash
+./scripts/install.sh
+```
+
+Useful options:
+
+```bash
+./scripts/install-claude-code.sh --dry-run
+./scripts/install.sh --tool claude
+```
+
+What the installer does:
+
+- detects repository root path
+- creates or updates a marker-delimited section in `~/.claude/CLAUDE.md`
+- uses Claude Code's native absolute `@` import to load the canonical `AGENTS.md` at session startup
+- adds the repository to `permissions.additionalDirectories` in `~/.claude/settings.json` so routed files remain readable
+- preserves existing Claude Code settings and deduplicates the repository access entry
+
+Claude Code may ask you to approve the external AGENTS.md import the first time it encounters it.
+
+What it does not do:
+
+- generate rule files, hooks, skills markers, or copies of Adaptive Agents guidance
+- modify provider config, model selection, or unrelated permissions
+- modify project repositories
+- copy Adaptive Agents structure into other repositories
+- store secrets
+
+### 4) Verify Guidance Is Loaded
+
+In any supported tool, ask:
+
+```text
+Are Adaptive Agents active?
+```
+
+Expected response:
 
 ```text
 ADAPTIVE_AGENTS_GLOBAL_LOADED
@@ -155,9 +194,9 @@ ADAPTIVE_AGENTS_GLOBAL_LOADED
 
 If you get `ADAPTIVE_AGENTS_GLOBAL_LOADED`, Adaptive Agents is active and your AI coding tool is reading the user-wide guidance from this repository.
 
-**OpenCode users**: After running the OpenCode installer, the same verification prompts work in any OpenCode-compatible editor without requiring VS Code or GitHub Copilot.
+**Supported tools**: VS Code / GitHub Copilot (after `install-vscode.sh`), OpenCode-compatible editors (after `install-opencode.sh`), Claude Code (after `install-claude-code.sh`).
 
-### 4) Invoke Prompts via Natural Language or Slash Commands
+### 5) Invoke Prompts via Natural Language or Slash Commands
 
 The prompt files under `prompts/` are designed to be invoked from VS Code Chat. You can trigger them with a natural language request or a slash command, depending on how the prompt is configured.
 
@@ -203,7 +242,7 @@ Triage the latest retrospective note and recommend next steps.
 
 If a prompt has an `argument-hint` in its frontmatter, you can pass a short argument after the slash command to focus the invocation.
 
-### 5) Run the Adaptation Loop
+### 6) Run the Adaptation Loop
 
 Common flow:
 
@@ -222,7 +261,7 @@ Helpful prompt files:
 - `prompts/review-retrospective-inbox.prompt.md`
 - `prompts/review-promotion-candidates.prompt.md`
 
-### 6) Check Repository Health
+### 7) Check Repository Health
 
 Run the deterministic checker before or after guidance changes:
 
@@ -238,7 +277,7 @@ bash scripts/check-adaptive-agents.sh --verbose
 
 The checker is read-only. It validates prompt routing, retrospective statuses, promotion links, blocked private/raw link patterns, local Markdown links, and whether guidance Markdown files are reachable from `INDEX.md`. By default it prints only warnings, failures, and the final summary.
 
-### 6) Bootstrap A Project Layer
+### 8) Bootstrap A Project Layer
 
 Ask Adaptive Agents to bootstrap a Project Layer in the current project. The bootstrap skill inspects existing guidance and Git state, then asks for project-specific instructions, initial active work, and one persistence mode before previewing any changes.
 

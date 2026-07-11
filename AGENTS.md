@@ -8,6 +8,13 @@ For clarity, this file uses these terms:
 * **Current project repository**: the project the agent is currently helping modify, which may be a different repository.
 * **User-wide guidance**: reusable preferences, skills, memories, agents, prompts, playbooks, and retrospectives intended to help across multiple projects.
 
+## Installation Sentinel
+
+When asked whether Adaptive Agents is loaded, respond with:
+ADAPTIVE_AGENTS_GLOBAL_LOADED
+
+This sentinel is defined in this file, the canonical entrypoint. Tool-specific installers (Claude Code, Cursor, etc.) point their config at this file; they do not duplicate the sentinel.
+
 ## Purpose
 
 The Adaptive Agents repository is not a normal application repository.

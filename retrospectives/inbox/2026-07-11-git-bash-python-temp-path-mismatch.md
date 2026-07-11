@@ -1,13 +1,15 @@
-# Retrospective: Git Bash temp dir path mismatch with Windows Python
+# Retrospective: Git Bash test environment and Windows path mismatch
 
 - Date: 2026-07-11
 - Status: Captured
 - Scope: User-wide
-- Session or task: Implementing and testing scripts/test-opencode.sh
+- Session or task: Testing and dogfooding cross-platform installers
 
 ## Observation
 
 When running `scripts/test-opencode.sh` from Git Bash, `mktemp -d` creates temp directories under `/tmp/` (the MSYS2 mount). When the test script then calls Windows-native Python (e.g., `python` from the Microsoft Store or official installer), that Python cannot see `/tmp/` paths, causing all JSON validation tests to fail with `FileNotFoundError`. The installer itself works correctly — the generated JSON is valid — but the test harness reports false negatives.
+
+A related failure occurred when an isolated installer test set `HOME` and `USERPROFILE` to a temporary directory. A later dogfood command inherited the temporary home and successfully updated disposable configuration instead of the real user configuration. The command output looked valid until its reported config directory was checked.
 
 ## Evidence
 
@@ -18,6 +20,9 @@ When running `scripts/test-opencode.sh` from Git Bash, `mktemp -d` creates temp 
 5. Fix: convert backslashes to forward slashes (`<WINHOME>/...`) before passing to Python.
 6. Even with the right temp path, the instructions test failed because `REPO_ROOT` in Git Bash is `<GITBASH_ROOT>/adaptive-agents` but the installer writes `<WINHOME>/.../adaptive-agents`. The test expected the Git Bash format.
 7. All 5 JSON-based tests (valid JSON, sentinel marker, instructions check, path resolution, idempotency) failed despite the config file being perfectly valid.
+8. A dogfood installer run reported a temporary config directory even though the intent was to update the real user configuration.
+9. Re-running with explicit real-user `HOME` and `USERPROFILE` values updated the intended configuration, and the abandoned temporary home was removed.
+10. A direct post-install assertion against the real user files confirmed the import and settings entry were present exactly once.
 
 ## Impact
 
@@ -25,11 +30,12 @@ When running `scripts/test-opencode.sh` from Git Bash, `mktemp -d` creates temp 
 
 ## Root Cause
 
-Three independent cross-environment issues compounded:
+Four independent cross-environment issues compounded:
 
 1. **Namespace mismatch**: Git Bash (MSYS2) `/tmp/` is invisible to Windows-native Python.
 2. **Unicode escape collision**: Backslash in `<WINHOME>\...` is interpreted as `\U` Unicode escape by Python's `-c` string parser.
 3. **Path format mismatch**: Git Bash uses `<GITBASH_ROOT>` (drive-letter mount) but the installer uses `<WINHOME>/...` (Windows-native form with colon).
+4. **Environment-state leakage**: A temporary `HOME` or `USERPROFILE` intended for an isolated test can redirect a later installer or validation command while still producing successful-looking output.
 
 ## Lesson
 
@@ -39,8 +45,21 @@ When writing Bash test scripts that invoke Windows-native executables (Python, N
 - Use a temp path that is visible from both environments: e.g., `$LOCALAPPDATA/Temp` on Windows.
 - **Always** convert backslashes to forward slashes before passing paths to Python's `-c` string, or `\U`, `\L`, etc. will cause unicode escape errors.
 - Be aware that Git Bash path format (`<GITBASH_ROOT>`) differs from Windows-native format (`<WINHOME>/...`). Test expectations must match the format the tool under test actually produces.
+- Keep temporary `HOME` and `USERPROFILE` overrides inside a subprocess or restore them before dogfooding user-level installers.
+- Treat the installer's reported destination as a verification point; fail the dogfood check if it is not the intended real-user directory.
+- Verify the real target files after installation instead of relying only on a successful exit code.
 - When a test failure doesn't make sense (valid JSON is "not valid JSON"), suspect a cross-environment path issue before debugging the logic.
 
-## Proposed Project Target
+## Proposed User-Wide Target
 
-- `playbooks/windows-shell-selection.md` or `scripts/test-opencode.sh` — document the cross-environment path pattern so future test scripts don't hit this.
+- `playbooks/windows-shell-selection.md` or `instructions/temp-artifact-hygiene.instructions.md` — document cross-environment path normalization and temporary-home isolation for future test scripts.
+
+## Promotion Decision
+
+- Status: Captured
+- Decision: Pending triage
+- Rationale: The combined failure is reusable across Windows installer tests, but no durable guidance change has been approved.
+
+## Promotion Links
+
+- None yet.
