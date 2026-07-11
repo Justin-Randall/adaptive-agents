@@ -1,53 +1,146 @@
 # Adaptive Agents
 
-Adaptive Agents is a versioned, user-wide guidance repository for coding agents.
+Version-controlled behavior, planning, and learning for coding agents across projects.
 
-It is designed to keep reusable guidance in one place (instead of duplicating setup and rules in every project repository), while preserving a clear boundary between:
+## Install
 
-- Adaptive Agents repository (this repository)
-- Current project repository (the codebase currently being modified)
+```bash
+git clone https://github.com/Justin-Randall/adaptive-agents.git
+cd adaptive-agents
+bash scripts/install.sh
+```
+
+The installer detects supported tools already present on the machine and configures their native Adaptive Agents entrypoints.
+
+Requirements: Git, Bash, and Python 3. On Windows, use Git Bash or WSL.
+
+Preview changes or install for one tool only:
+
+```bash
+bash scripts/install.sh --dry-run
+bash scripts/install.sh --tool vscode
+```
+
+Valid tool names are `claude`, `opencode`, and `vscode`.
+
+Then start a fresh agent session in another repository and ask:
+
+```text
+Are Adaptive Agents active?
+```
+
+The expected response is `ADAPTIVE_AGENTS_GLOBAL_LOADED`. This is a quick first check, not complete proof of installation. See [How To Use It](#how-to-use-it) for tool-specific installation options and the full three-part verification procedure.
+
+## Start With A Request
+
+Once installation is verified, use Adaptive Agents by talking to your coding agent normally. You do not need to memorize script names, file locations, or workflow commands.
+
+For example, from a project where you want project-specific guidance, ask:
+
+> "I want to add an Adaptive Agents Project Layer here in this project. Can you do that for me?"
+
+The agent loads the Project Layer bootstrap workflow, inspects the current project, asks for the few decisions it cannot infer safely, previews the proposed files, and waits for approval before creating anything.
+
+Other requests can be just as direct:
+
+- "Add this feature idea to the project backlog, but do not interrupt the current work."
+- "We hit the same validation problem twice. Capture what we learned for review."
+- "Check whether my Adaptive Agents setup is healthy and tell me what needs attention."
+
+The scripts documented later are deterministic implementation and automation entrypoints. They are available when you need direct control, but they are not the primary user interface.
+
+## Why Developers Use It
+
+Coding agents are useful, but they usually start each tool and repository without the working context a developer has accumulated: how to test changes, when to stop retrying a failed command, where planning belongs, which mistakes should become durable guidance, and which rules are specific to one project.
+
+Adaptive Agents is a versioned source of truth for that behavior. Define reusable expectations once, connect a supported coding-agent tool, and let the same guidance follow you across projects. Project-owned guidance can add or override details without copying the user-wide system into every repository.
+
+This is not an autonomous self-modifying prompt collection. Observations are captured as reviewable evidence, durable changes require approval, and all guidance remains ordinary source-controlled files. VS Code/GitHub Copilot and Claude Code integrations are verified; OpenCode support is implemented and undergoing fresh-session dogfooding. Other agent tools need an integration that loads the canonical entrypoint.
+
+Without a shared guidance system, useful agent behavior tends to be scattered across chat history, copied instruction files, editor settings, and conventions that only one tool knows about. The result is repeated correction: one agent learns that a repository uses focused tests, another runs the broad suite; one session discovers a shell failure mode, and the next session repeats it.
+
+Adaptive Agents gives those decisions a lifecycle:
+
+- **Define behavior once.** Configured agent tools load the same user-wide coding, testing, repository-boundary, command-recovery, and artifact-hygiene guidance.
+- **Keep projects specific.** A project can own a `.adaptive-agents/` layer for its architecture, commands, planning, and exceptions. More-specific project guidance takes precedence over user-wide defaults.
+- **Carry work across sessions.** Indexed backlog items, one active plan, curated work-unit memory, verification evidence, and closed history give agents recoverable project state.
+- **Learn without silently rewriting the rules.** Agents can notice reusable friction and initiate a retrospective conversation. Capture, triage, and promotion are separate, reviewable steps.
+- **Keep the system inspectable.** Routing, local links, Project Layers, regression tests, and startup instruction cost are checked deterministically in CI.
+
+## What It Looks Like In Practice
+
+You interact with Adaptive Agents through normal requests. The installed agent uses the repository as behavioral and workflow context rather than requiring you to memorize special commands.
+
+### Set A Working Preference Once
+
+> "Always run the focused test first, then broaden validation only when the change warrants it. If a command fails twice for the same reason, stop varying flags and change the diagnostic approach."
+
+That preference can become reviewed user-wide guidance. Supported agent tools then route through the same instruction set, so the behavior is not trapped in one chat product or copied into each project. A repository can still define a more-specific test or command policy in its Project Layer.
+
+### Put An Idea In The Backlog Without Starting It
+
+> "Add OAuth device flow to this project's backlog. Capture the objective and scope, but don't interrupt the active work."
+
+Adaptive Agents checks the indexed backlog, proposes a lightweight work item, and waits for approval before changing project planning. The item remains distinct from the current active plan instead of becoming an untracked promise in chat history.
+
+Later, the request can be just as direct:
+
+> "Activate the OAuth backlog item and carry it through implementation."
+
+The planning workflow creates one active specification and curated work-unit memory, applies project rules, records decisions and verification, and asks for approval before closure. Reopened work links to immutable prior context instead of overwriting its history.
+
+### Let The Agent Notice A Repeated Problem
+
+After a session with repeated shell or validation failures, the agent can initiate the conversation:
+
+> "We corrected the same shell assumption twice. This looks reusable. Should I capture a sanitized retrospective for review?"
+
+If approved, Adaptive Agents records the observation in the appropriate project or user-wide inbox. It does not immediately turn the observation into a permanent rule. Triage checks whether the lesson is durable, promotion proposes the narrowest target, and durable guidance changes still require explicit approval.
+
+### Give One Repository Its Own Rules
+
+> "Bootstrap Adaptive Agents guidance for this repository. It uses pnpm, has a release validation command, and I want the guidance local to this clone."
+
+The bootstrap workflow inspects existing instructions and Git state, interviews you about project behavior and initial work, previews the change, and creates only the approved `.adaptive-agents/` Project Layer. Choosing `local-exclude` keeps it in `.git/info/exclude`; `tracked` and `.gitignore` are also supported.
+
+Once present, the relationship is natural:
+
+> "Use my normal coding standards here, but follow this repository's pnpm and release rules."
+
+The agent loads user-wide defaults first and the project-owned layer second. Shared behavior remains consistent while local architecture and commands stay with the project that owns them.
+
+### Check That Guidance Is Still Healthy
+
+> "Validate my Adaptive Agents setup and tell me whether startup guidance is consuming too much context."
+
+The read-only health checker validates required structure, routing, links, retrospective metadata, Project Layers, and regression suites. A separate startup gate reports the estimated cost of `AGENTS.md` and `INDEX.md`, warns at 26,215 estimated tokens, and fails above 32,768 so guidance does not consume most of a smaller model's context before useful work begins.
 
 ## What Is In Place
 
-The current repository includes:
+The repository currently provides:
 
-- Core entrypoints:
-  - `AGENTS.md` for operating model and boundary rules
-  - `INDEX.md` as the discovery and routing map
-  - `README.md` (this file) as the user-facing overview
-- Durable guidance areas:
-  - `instructions/` for default cross-project behavior
-  - `skills/` for task-specific workflows, including repository maintenance and Project Layer bootstrap/upgrade
-  - `playbooks/` for repeatable lifecycle workflows
-  - `prompts/` for guided, reusable task flows
-  - `memory/` for durable promoted lessons
-  - `retrospectives/inbox/` for captured observations pending triage/promotion
-  - `schemas/` for structured metadata/validation contracts
-  - `agents/` for specialized role definitions
-- Tool integration wiring:
-  - `scripts/install-vscode.sh` and generated pointer file `vscode/user-wide.instructions.md`
-  - `scripts/install-claude-code.sh` for Claude Code's native user-level import and repository access grant
-  - `scripts/install-opencode.sh` for OpenCode's native instructions entry point and external-directory access grant
-  - `scripts/install.sh` for detected-tool routing
-- Project Layer bootstrap:
-  - canonical source under `templates/project-layer/`
-  - model-led workflow in `skills/bootstrap-project-layer/SKILL.md`
-  - deterministic mechanics in `scripts/bootstrap-project-layer.sh`
-  - review-first upgrades through `skills/upgrade-project-layer/SKILL.md`
+- **Shared behavior:** default instructions for coding, testing, repository boundaries, command-failure recovery, and temporary-artifact hygiene.
+- **Task routing:** a canonical `AGENTS.md` entrypoint and `INDEX.md` map that load relevant skills, prompts, playbooks, and instructions instead of injecting the whole repository into every session.
+- **Controlled adaptation:** retrospective capture, review, triage, and approval-gated promotion workflows with project and user-wide scope.
+- **Project continuity:** Project Layers with project-owned guidance, indexed active/backlog/closed planning, curated work-unit memory, bootstrap, upgrades, and validation.
+- **Tool integrations:** installers for VS Code/GitHub Copilot, Claude Code, and OpenCode, plus a detected-tool umbrella installer.
+- **Deterministic checks:** repository health validation, Project Layer regression tests, and a static startup-context budget enforced on Ubuntu and Windows.
+
+The `memory/` and `agents/` directories are intentional extension points. They do not imply a prebuilt catalog of permanent memories or specialized agents; those areas grow only when reviewed evidence justifies durable content.
 
 ## How It Works
 
-Adaptive Agents uses a routed, layered model.
+Adaptive Agents separates behavior by ownership and loads it by relevance.
 
-**Entry and routing.** Start from `AGENTS.md`, then `INDEX.md`, and load only relevant guidance for the current task.
+**One source of user-wide behavior.** Each supported integration points its tool at this repository's canonical `AGENTS.md`. `INDEX.md` then routes the agent to only the instructions, skills, prompts, playbooks, or planning context relevant to the current task.
 
-**Default instruction split.** `instructions/global.instructions.md` routes to task-specific defaults covering repository boundaries, coding, TDD, command-failure pivots, and temporary-artifact hygiene.
+**Specific guidance wins.** `instructions/global.instructions.md` provides defaults for repository boundaries, coding, TDD, command-failure pivots, and temporary-artifact hygiene. When the current project has a `.adaptive-agents/` layer, the installed agent discovers it and applies its more-specific project behavior and planning context after the user-wide defaults.
 
-**Adaptation lifecycle.** Choose `Project Layer`, `User-wide`, or `Undetermined` scope before target type. Capture project-specific observations in `.adaptive-agents/retrospectives/inbox/` and established cross-project observations in `retrospectives/inbox/`. Triage and promote only durable lessons to the narrowest target within the selected scope (`memory/`, `instructions/`, `skills/`, `playbooks/`, etc.), then update `INDEX.md` when discoverability changes.
+**Learning is reviewable.** A useful session observation is first scoped as project-specific, user-wide, or undetermined. It is captured as evidence, not installed as a rule. Triage decides whether it is durable; promotion proposes the narrowest appropriate destination (`memory/`, `instructions/`, `skills/`, `playbooks/`, and related areas); explicit approval controls durable changes.
 
-**Boundary protection.** When working in other repositories, Adaptive Agents is user-wide guidance, not project-local content. Agents should not copy Adaptive Agents directories into project repositories unless explicitly instructed.
+**Repositories retain ownership.** This repository remains the user-wide source. Project-specific behavior belongs in the project's `.adaptive-agents/` layer. Adaptive Agents does not copy its own directories, root agent files, or editor settings into unrelated projects.
 
-**Project Layer.** An installed Adaptive Agents system can bootstrap a project-owned `.adaptive-agents/` directory after interviewing the user. The layer contains routed project instructions, skills, memory, retrospectives, indexed planning, lifecycle playbooks, and a read-only validator. The user chooses whether the layer is tracked, clone-locally excluded through `.git/info/exclude`, or repository-wide ignored through `.gitignore`. Installed user-wide guidance discovers `.adaptive-agents/INDEX.md`; bootstrap does not add root agent files or editor settings to the project.
+**Source control makes behavior inspectable.** Guidance, planning, retrospective evidence, schemas, and routing are ordinary files with reviewable diffs. Read-only validators detect broken links, unreachable guidance, malformed Project Layers, regression failures, and excessive startup context.
 
 Reference workflow:
 
@@ -55,6 +148,8 @@ Reference workflow:
 - `playbooks/adaptive-automation-roadmap.md`
 
 ## How To Use It
+
+The sections below document each integration and its verification steps in detail.
 
 ### 1) Install VS Code Integration
 
@@ -138,12 +233,6 @@ From this repository root:
 ./scripts/install-claude-code.sh
 ```
 
-Or install all detected tools at once:
-
-```bash
-./scripts/install.sh
-```
-
 Useful options:
 
 ```bash
@@ -197,11 +286,11 @@ Repeat across multiple fresh sessions; intermittent loading is a failure, not a 
 
 **Reworked integration**: OpenCode (after `install-opencode.sh`) now uses the same two-part pattern; treat it as verified only after fresh-session dogfooding passes all three probes.
 
-### 5) Invoke Prompts via Natural Language or Slash Commands
+### 5) Request Workflows In Natural Language
 
-The prompt files under `prompts/` are designed to be invoked from VS Code Chat. You can trigger them with a natural language request or a slash command, depending on how the prompt is configured.
+Describe the outcome you want and, when it matters, whether it belongs to this project or to your user-wide Adaptive Agents guidance. Natural language is the recommended interface across supported integrations because slash-command discovery and autocomplete are not currently dependable. The agent uses the installed routing index to select the appropriate workflow; prompt filenames are implementation details you do not need to memorize.
 
-**Natural language examples:**
+For user-wide work, ask:
 
 ```text
 Capture a retrospective about the repeated validation loop issue we hit today.
@@ -215,44 +304,32 @@ Review the retrospective inbox and tell me what needs attention.
 Triage the latest retrospective note and recommend next steps.
 ```
 
-**Slash command examples** (for prompts that define an `agent` frontmatter field):
+In a project with a Project Layer, name that scope naturally:
 
 ```text
-/capture-retrospective Repeated validation loops when editing instructions
+Capture what we learned from this failure in this project's retrospective inbox.
 ```
 
 ```text
-/review-retrospective-inbox
+Review this Project Layer's backlog and tell me which item is ready to activate.
 ```
 
 ```text
-/review-promotion-candidates
+This project-specific rule seems useful everywhere. Review whether it should be promoted to my user-wide guidance.
 ```
 
-```text
-/review-retrospective-session
-```
-
-```text
-/triage-retrospective
-```
-
-```text
-/apply-approved-promotion
-```
-
-If a prompt has an `argument-hint` in its frontmatter, you can pass a short argument after the slash command to focus the invocation.
+The agent should clarify ambiguous scope before writing. Project-specific observations stay in the Project Layer unless reviewed evidence supports promoting them to the user-wide repository.
 
 ### 6) Run the Adaptation Loop
 
-Common flow:
+Run the lifecycle as a conversation:
 
-1. Capture one observation in `retrospectives/inbox/YYYY-MM-DD-short-title.md`.
-2. Triage with prompts and playbooks.
-3. Promote only when durable.
-4. Keep generated bootstrap files disposable and durable guidance checked in.
+1. Ask the agent to capture a specific observation from the current work.
+2. Ask it to triage the observation and recommend whether to retain, defer, or promote it.
+3. Ask it to prepare the narrowest durable change when the evidence supports promotion.
+4. Approve, adjust, or deny the proposed change before it modifies durable guidance.
 
-Helpful prompt files:
+The routed workflow is implemented by these prompt files:
 
 - `prompts/capture-retrospective.prompt.md`
 - `prompts/end-of-session-capture.prompt.md`
@@ -322,9 +399,13 @@ The checker is read-only. It validates required repository structure, the instru
 
 ### 9) Bootstrap A Project Layer
 
-Ask Adaptive Agents to bootstrap a Project Layer in the current project. The bootstrap skill inspects existing guidance and Git state, then asks for project-specific instructions, initial active work, and one persistence mode before previewing any changes.
+From the project where you want the layer, ask your installed coding agent:
 
-The deterministic command used after approval is:
+> "I want to add an Adaptive Agents Project Layer here in this project. Can you do that for me?"
+
+The agent loads the bootstrap skill, inspects existing guidance and Git state, then asks for project-specific instructions, initial active work, and one persistence mode before previewing any changes. It waits for explicit approval before writing the layer.
+
+For manual use or automation, the deterministic command run after approval is:
 
 ```bash
 bash scripts/bootstrap-project-layer.sh \
@@ -349,16 +430,26 @@ bash scripts/test-project-layer.sh
 
 ## Current Status
 
-This repository is in an actively used bootstrap-plus-hardening phase:
+This repository is actively used and still being hardened.
 
-- routing is in place (`INDEX.md`)
-- default instruction split is in place (`instructions/*.instructions.md`)
-- adaptation playbooks and prompt workflows are present
-- retrospective inbox includes active dogfooded examples
-- the canonical Project Layer template, bootstrap/upgrade workflows, regression tests, and tracked dogfood layer are present
-- VS Code and Claude Code integrations are verified through their native loading mechanisms
-- OpenCode integration is reworked around a single native entry point plus an external-directory access grant, pending fresh-session dogfood confirmation
-- related tool integrations are captured as lightweight backlog items with a shared native-entrypoint verification contract
+**Verified and in use:**
+
+- canonical entrypoint and task-specific routing through `AGENTS.md` and `INDEX.md`
+- user-wide instruction defaults and approval-gated adaptation workflows
+- retrospective capture, triage, review, and promotion prompts with dogfooded inbox examples
+- Project Layer template, bootstrap and upgrade workflows, indexed planning, validators, regression tests, and a tracked dogfood layer
+- VS Code/GitHub Copilot and Claude Code integrations through their native loading mechanisms
+- repository health and 32,768-token startup-budget validation in cross-platform CI
+
+**Implemented, pending final dogfood evidence:**
+
+- OpenCode's single native entrypoint and external-directory access grant
+
+**Extension areas, not prebuilt claims:**
+
+- durable `memory/` entries are added only after evidence-backed promotion
+- specialized `agents/` definitions are added only when a concrete role is justified
+- additional coding-agent products require their own native-entrypoint integration and verification
 
 ## Design Intent
 
@@ -369,3 +460,212 @@ Adaptive Agents guidance should remain:
 - easy to discover through routing
 - explicit and reviewable in source control
 - separate from project-local source repositories unless explicitly requested
+
+## Adaptive Agents Architecture
+
+### Mental Model
+
+Adaptive Agents is a versioned context-routing system for coding agents. It is not one large prompt, a background service, or a graph database. The repository stores small, owned guidance artifacts and connects them through explicit routing instructions. An installed coding agent starts from one canonical entrypoint, classifies the current request, and follows only the routes needed for that work.
+
+The result is a logical **context graph**:
+
+- **Nodes** are instruction files, indexes, skills, prompts, playbooks, memory, plans, source files, tests, and other evidence.
+- **Edges** are meaningful directives such as "read," "load," "follow," or "use when." A Markdown link by itself does not make a file required context.
+- **Roots** are the small set of files loaded at startup.
+- **Traversal** is task-driven. The request determines which branches of the graph become context.
+- **Precedence** is ownership-driven. More-specific project guidance overrides a conflicting user-wide default.
+
+This graph is formed by checked-in documents and agent behavior. `instruction-load-routes.json` is a reviewed measurement model of important routes; it makes startup and selected task profiles auditable, but it is not a runtime registry that loads files itself.
+
+### System Layout
+
+```text
+adaptive-agents/
+|-- AGENTS.md                  canonical user-wide entrypoint
+|-- INDEX.md                   user-wide routing index
+|-- instructions/              default and focused user-wide rules
+|-- skills/                    task-specific operating workflows
+|-- prompts/                   structured workflow instructions
+|-- playbooks/                 repeatable multi-step procedures
+|-- memory/                    reviewed cross-project facts and preferences
+|-- retrospectives/inbox/      raw user-wide learning evidence
+|-- agents/                    specialized roles, added only when justified
+|-- schemas/                   machine-checkable artifact contracts
+|-- scripts/                   installers, validators, and automation
+|-- templates/project-layer/   source for new Project Layers
+|-- vscode/                    VS Code integration bootstrap
+`-- .adaptive-agents/          this repository's project-owned dogfood layer
+```
+
+The same ownership pattern applies in another project:
+
+```text
+current-project/
+|-- source, tests, and existing project instructions
+`-- .adaptive-agents/
+    |-- INDEX.md               project routing root
+    |-- instructions/          project-specific rules
+    |-- planning/              active, backlog, closed, and work-unit memory
+    |-- skills/                project-specific workflows
+    |-- memory/                durable facts that apply only here
+    |-- retrospectives/        project-scoped learning evidence
+    |-- playbooks/             local repeatable procedures
+    `-- scripts/               Project Layer validation
+```
+
+The root repository owns reusable user-wide behavior. A `.adaptive-agents/` directory belongs to the project containing it. It is not a copy of the user-wide repository, and an existing Project Layer is never regenerated from the template as an upgrade strategy.
+
+### What Is Always Read
+
+Within the canonical Adaptive Agents route, the static startup profile contains exactly two repository files:
+
+| Order | File | Why it is required |
+| --- | --- | --- |
+| 1 | `AGENTS.md` | Defines the system role, repository boundaries, discovery protocol, and canonical installation sentinel. Tool integrations point here. |
+| 2 | `INDEX.md` | Maps user intent to the focused instructions, skills, prompts, playbooks, and project workflows that may be needed next. `AGENTS.md` requires this discovery step. |
+
+A tool-native bootstrap may be loaded before these files. For example, VS Code reads its registered instruction bootstrap and Claude Code reads its native import. Those adapters locate the canonical `AGENTS.md`; they do not duplicate the guidance corpus or create another source of truth.
+
+"Always" here means always within the static Adaptive Agents startup route. The coding tool's own system prompt, tool definitions, conversation history, and project-native instruction mechanisms are separate context controlled by that tool.
+
+### What Might Be Read
+
+Everything after startup is conditional. A file is loaded because the current task, repository, or an already-selected workflow requires it.
+
+| Context tier | Trigger | Typical nodes |
+| --- | --- | --- |
+| User-wide engineering defaults | Non-trivial coding work | `instructions/global.instructions.md` and its focused boundary, coding, TDD, command-recovery, and artifact-hygiene instructions |
+| Project Layer | The current project contains `.adaptive-agents/` | Project `INDEX.md`, applicable project instructions, current planning index, active plan, and curated active work-unit memory |
+| Task workflow | The request matches a specialized operation | A bootstrap or upgrade skill, planning skill, retrospective prompt, adaptation playbook, or another narrowly routed workflow |
+| Architectural contract | A change affects structure, schemas, installers, validators, templates, or integration boundaries | The current project's `.adaptive-agents/ARCHITECTURE.md` when its project instructions require it |
+| Implementation evidence | The task needs code changes or verification | The owning source files, nearby tests, configuration, command output, and documentation needed to prove the change |
+| Historical or durable context | A selected workflow explicitly needs it | A specific memory entry, backlog item, closed plan, retrospective, or promotion candidate |
+
+Files are not loaded merely because they exist or because another document links to them. The full retrospective inbox, closed planning history, every skill, all templates, all schemas, and the whole source tree are not startup context. They remain available nodes that a relevant route can select later.
+
+### How Context Graph Traversal Works
+
+```mermaid
+flowchart TD
+    Tool[Tool-native integration] --> A[AGENTS.md<br/>always]
+    A --> I[INDEX.md<br/>always]
+    I --> Intent{Classify the request}
+    Intent -->|Non-trivial coding| Global[Global instruction router]
+    Intent -->|Bootstrap a Project Layer| Bootstrap[Bootstrap skill]
+    Intent -->|Capture learning| Retro[Retrospective workflow]
+    Intent -->|Other focused task| Focused[Relevant skill or playbook]
+    Global --> Layer{Project Layer present?}
+    Layer -->|No| Evidence[Owning code, tests, and evidence]
+    Layer -->|Yes| ProjectIndex[Project Layer INDEX.md]
+    ProjectIndex --> ProjectRules[Applicable project instructions]
+    ProjectIndex --> Planning[Active planning and work-unit memory]
+    ProjectIndex --> ProjectTask[Relevant project skill or playbook]
+    ProjectRules --> Evidence
+    Planning --> Evidence
+    ProjectTask --> Evidence
+    Bootstrap --> Approval{User approval}
+    Retro --> Approval
+    Focused --> Evidence
+    Approval --> Evidence
+```
+
+For each request, the agent should follow this sequence:
+
+1. **Enter through the native adapter.** The configured tool loads or references the canonical `AGENTS.md`.
+2. **Establish boundaries.** `AGENTS.md` identifies the user-wide repository, the current project, and what each is allowed to own.
+3. **Read the routing root.** `INDEX.md` identifies the narrow guidance area that owns the requested behavior.
+4. **Classify the task.** The agent distinguishes a read-only question, coding change, planning operation, Project Layer workflow, retrospective, installer change, or other focused task.
+5. **Load applicable defaults.** Non-trivial coding loads the user-wide engineering router and its required focused instructions.
+6. **Overlay project context.** If a Project Layer exists, its routing root supplies project instructions and current planning context. Other native project instructions remain applicable too.
+7. **Follow task-specific edges.** The agent loads only the skill, prompt, playbook, memory, plan, source, and tests needed for the selected workflow.
+8. **Act and validate.** Changes remain inside the correct ownership boundary and are checked by the narrowest relevant test, followed by broader deterministic validation when warranted.
+
+Traversal is incremental. The agent can add context when evidence reveals another dependency, but it should not preload neighboring branches merely to feel more confident.
+
+### Specificity And Ownership
+
+Adaptive Agents combines guidance; it does not flatten everything into one prompt.
+
+```text
+user-wide defaults
+   +
+current repository instructions
+   +
+Project Layer instructions and active context
+   +
+task-specific workflow and implementation evidence
+   =
+context for this request
+```
+
+When two applicable rules conflict, the more-specific project rule wins over the user-wide default. Scope does not imply promotion: a project-specific observation stays in that project's Project Layer unless review establishes that it should become reusable user-wide guidance. Raw retrospectives and active plans provide evidence and coordination; they do not silently become durable instructions.
+
+### Worked Context Traces
+
+For this request:
+
+> "I want to add an Adaptive Agents Project Layer here in this project. Can you do that for me?"
+
+The expected route is:
+
+```text
+tool adapter
+  -> AGENTS.md
+  -> INDEX.md
+  -> skills/bootstrap-project-layer/SKILL.md
+  -> current project's existing instructions and Git state
+  -> user interview and exact change preview
+  -> explicit approval
+  -> bootstrap script
+  -> generated Project Layer validator
+```
+
+The agent does not need every retrospective, closed plan, schema, or unrelated playbook to complete that request.
+
+For a production code change in a project that already has a Project Layer, the route is broader but still focused:
+
+```text
+AGENTS.md + INDEX.md
+  -> user-wide engineering instructions
+  -> .adaptive-agents/INDEX.md
+  -> project instructions + active planning context
+  -> task-relevant project skill, when one exists
+  -> owning production code + focused tests
+  -> validation evidence
+```
+
+For "capture what we learned from this failure in this project," the route selects the retrospective workflow and the project's retrospective skill and inbox. It does not activate a durable rule. Triage and explicit approval are separate graph paths that must occur before promotion.
+
+### Context Budget And Measurement
+
+Routing protects the model's finite context window. A smaller startup prefix leaves more room for the user request, source code, tests, tool results, reasoning, and response. It also reduces repeated input cost and delays context compaction in long sessions.
+
+The repository enforces this boundary in two ways:
+
+1. The `startup` profile in `instruction-load-routes.json` contains only `AGENTS.md` and `INDEX.md` and fails above 32,768 estimated tokens.
+2. Additional diagnostic profiles describe known expansions such as non-trivial coding, planned Adaptive Agents changes, planning closure, retrospective capture, and installer work.
+
+Diagnostic profiles answer "what would this known route require?" They do not make those files part of startup and do not mean every runtime traversal is identical. Dynamic source reads, tool output, and conversational context remain task-dependent and outside the static repository budget.
+
+### Why This Architecture
+
+- **Consistency:** supported tools enter through the same canonical user-wide guidance instead of maintaining divergent copies.
+- **Context efficiency:** two small startup files route to detail only when the request needs it.
+- **Project ownership:** repository-specific architecture, commands, plans, and lessons remain with the project that owns them.
+- **Inspectability:** guidance and routing are ordinary version-controlled files with reviewable diffs and deterministic checks.
+- **Controlled adaptation:** session evidence can become better guidance without allowing the system to rewrite its own rules silently.
+- **Recoverable work:** active plans and curated work-unit memory preserve intent across sessions without loading all history.
+- **Tool portability:** each integration is a narrow adapter to the same entrypoint rather than a separate implementation of Adaptive Agents.
+
+### Extending The Graph
+
+When adding a new capability, keep the graph narrow and explicit:
+
+1. Decide whether the capability is user-wide or project-specific.
+2. Put authoritative detail in the smallest owning instruction, skill, prompt, playbook, memory entry, or implementation file.
+3. Add an imperative route from the nearest relevant index or router. Do not make every task traverse the new node.
+4. Update `instruction-load-routes.json` when the change creates or alters a reviewed mandatory profile path.
+5. Add focused validation for the observable contract and run the aggregate repository checker.
+6. Update `.adaptive-agents/ARCHITECTURE.md` when ownership, canonical routing, integration boundaries, lifecycle stages, or validation responsibilities change.
+
+The architectural test is simple: a new session should load a small stable root, find the right context from an ordinary-language request, respect user-wide and project ownership, and gather no more context than it needs to complete and verify the work.
