@@ -17,6 +17,7 @@ When working inside another project, treat Adaptive Agents content as reusable g
 | Top-level routing for future guidance areas | [INDEX.md](INDEX.md) |
 | Default user-wide engineering preferences for non-trivial coding work | [instructions/global.instructions.md](instructions/global.instructions.md) |
 | Branch strategy, PR/MR workflow, and commit conventions | [instructions/branch-workflow.instructions.md](instructions/branch-workflow.instructions.md) |
+| Planning conventions, epic/child hierarchy, and work unit sizing | [instructions/planning-conventions.md](instructions/planning-conventions.md) |
 | Promoting retrospectives or updating Adaptive Agents guidance | [skills/update-adaptive-agents/SKILL.md](skills/update-adaptive-agents/SKILL.md) |
 | Bootstrapping project-specific guidance and indexed planning | [skills/bootstrap-project-layer/SKILL.md](skills/bootstrap-project-layer/SKILL.md) |
 | Reviewing structural upgrades for an existing Project Layer | [skills/upgrade-project-layer/SKILL.md](skills/upgrade-project-layer/SKILL.md) |

@@ -15,8 +15,11 @@ Use [Planning](../../planning/INDEX.md) as the authoritative planning router.
 4. Assign one canonical work-unit ID in `PL-YYYYMMDD-descriptive-slug` form. When activating a backlog item, reuse its filename stem; for direct work, derive the slug from the approved title.
 5. Create `ACTIVE.md` with `- Work Unit: <work-unit-id>` and create `<work-unit-id>.memory.md`. Link the memory from `ACTIVE.md` and `planning/INDEX.md`.
 6. **When activating a backlog item**, use its Objective, Problem Spec, Scope, and other details as source material for the SDD sections. If the backlog does not cover a required section, ask rather than inventing. Never overwrite the backlog item.
-7. **When reopening prior work**, assign a new work-unit ID. Link the prior closed SDD and memory from the new plan, then seed new memory with only still-valid facts, unresolved issues, and restart context. Never modify or restore the closed memory wholesale.
-8. Never activate work silently.
+   - **If the item is an Epic** (`Status: Epic`), it cannot be activated directly. Identify which child to activate based on the current request and the epic's children index. Load the epic for architecture context and the child for the specific scope and AC.
+   - **If the item is a child** (lives in an epic subdirectory), load its parent epic for architecture decisions and then the child for its Objective, Scope, and AC. Load both into the active plan context.
+7. **When a backlog item grows too large during spec review** (its scope spans multiple independent deliverables that won't fit one session), propose splitting it into an epic with children. Create the epic directory, move the original spec into `PL-YYYYMMDD-slug.md`, and create focused child files. Update INDEX.md.
+8. **When reopening prior work**, assign a new work-unit ID. Link the prior closed SDD and memory from the new plan, then seed new memory with only still-valid facts, unresolved issues, and restart context. Never modify or restore the closed memory wholesale.
+9. Never activate work silently.
 
 ## Record Deferred Work
 

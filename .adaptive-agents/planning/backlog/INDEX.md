@@ -17,3 +17,13 @@ Read this index before opening detailed plans or proposing a new item. Keep entr
 | PL-20260710 | [Project Layer Web UI](PL-20260710-project-layer-web-ui.md) | A browsable, editable web interface that surfaces all Project Layer artifacts without requiring directory-tree navigation. | Ready |
 
 Detailed plans use `PL-YYYYMMDD-descriptive-slug.md` (or legacy `PL-YYYYMMDDTHHMMSSZ-...`, `PL-####-...`). Backlog items are lightweight — an Objective, Problem Spec, and one-line Scope suffice. The full SDD specification is written into `ACTIVE.md` during activation, not before. Updating an existing plan or creating a new one requires user approval.
+
+### Epic / Child Conventions
+
+When a backlog item grows too large for a single activation (its scope spans multiple independent deliverables), split it into an epic with children:
+
+- **Epic**: A backlog item with `Status: Epic` and `Type: Epic`. Holds the high-level Objective, Problem Spec, architecture overview, and resolved decisions. Never activated directly — only children are activated.
+- **Children**: Independent backlog items living in a subdirectory named after the epic (`PL-YYYYMMDD-slug/PL-YYYYMMDDX-slug.md`). Each has its own Objective, Scope, AC, and Readiness.
+- **Dependencies**: Children declare `Depends on` pointing to sibling files for ordering. Activate only when dependencies are `Completed` or `Ready`.
+- **Backlog index**: The epic appears as a single row in INDEX.md; children are indented beneath it. This keeps the index scannable while making the hierarchy visible.
+- **Directory structure**: The epic file lives at `backlog/PL-YYYYMMDD-slug.md` and children live in `backlog/PL-YYYYMMDD-slug/PL-YYYYMMDDX-slug.md`. This prevents naming collisions and makes the relationship discoverable without INDEX.md parsing.
