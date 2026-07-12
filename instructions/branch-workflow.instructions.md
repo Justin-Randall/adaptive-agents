@@ -70,9 +70,10 @@ The goal is a PR/MR that a human can approve in one read and the forge can autom
 ### Preparing the branch for automerge
 
 1. **Sync**: Merge the primary branch into your branch. Resolve any conflicts.
-2. **Validate**: Run any project-local checks — linters, tests, project-layer validator. All must pass.
-3. **Squash and commit**: One clean commit with work unit reference.
-4. **Push**: `git push -u origin <branch>`. The `-u` sets upstream tracking so IDEs like VS Code recognise the branch as published.
+2. **Self-review**: Run the structured self-review checklist from [coding.instructions.md](coding.instructions.md) on every work product (SDD, code, documentation, configuration) before presenting it for approval. This catches precision gaps, ambiguity, and speculative claims while the branch context is fresh.
+3. **Validate**: Run any project-local checks — linters, tests, project-layer validator. All must pass.
+4. **Squash and commit**: One clean commit with work unit reference.
+5. **Push**: `git push -u origin <branch>`. The `-u` sets upstream tracking so IDEs like VS Code recognise the branch as published.
 
 ### Creating the PR/MR
 
