@@ -20,8 +20,8 @@ Key decisions that apply to all children: stack, interfaces, constraints, integr
 
 | ID | Deliverable | Depends on | Est. size |
 |----|-------------|------------|-----------|
-| [child-name](PL-YYYYMMDD-slug-child-name.md) | One-line description | — | Small |
-| [child-name](PL-YYYYMMDD-slug-child-name.md) | One-line description | child-name | Medium |
+| child-name | One-line description | — | Small |
+| child-name | One-line description | child-name — see child-name for prerequisite | Medium |
 
 Children are ordered by dependency — implement in this order. Each child is sized for a single activation.
 
