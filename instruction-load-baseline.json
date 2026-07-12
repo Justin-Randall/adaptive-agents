@@ -20,26 +20,26 @@
           "words": 932
         },
         {
-          "characterEstimate": 2432,
-          "characters": 9725,
-          "estimatedTokens": 2432,
-          "normalizedBytes": 9725,
+          "characterEstimate": 2494,
+          "characters": 9975,
+          "estimatedTokens": 2494,
+          "normalizedBytes": 9975,
           "path": "INDEX.md",
-          "sha256": "00c64928f86f50fca6bfa316e6ad3b2acb3623dee3901cb80e5efdc5e541e98e",
-          "wordEstimate": 1365,
-          "words": 910
+          "sha256": "ec0d6f4e673676941ec14b2fbbc524a63495b0860286af4dffcf42c227a37b1e",
+          "wordEstimate": 1385,
+          "words": 923
         }
       ],
       "maxEstimatedTokens": 32768,
       "maxGrowthEstimatedTokens": null,
       "name": "startup",
       "totals": {
-        "characterEstimate": 4111,
-        "characters": 16438,
-        "estimatedTokens": 4111,
-        "normalizedBytes": 16442,
-        "wordEstimate": 2763,
-        "words": 1842
+        "characterEstimate": 4173,
+        "characters": 16688,
+        "estimatedTokens": 4173,
+        "normalizedBytes": 16692,
+        "wordEstimate": 2783,
+        "words": 1855
       }
     }
   ],
