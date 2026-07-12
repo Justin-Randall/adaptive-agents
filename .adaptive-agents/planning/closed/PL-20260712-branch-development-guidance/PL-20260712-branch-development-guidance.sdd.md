@@ -1,10 +1,10 @@
 # PL-20260712: Branch Development Guidance
 
-- Status: Spec completed — awaiting PR merge
+- Status: Completed
 - Work Unit: PL-20260712-branch-development-guidance
 - Origin: Direct (no backlog item)
 - Activated: 2026-07-12
-- Last Updated: 2026-07-12
+- Closed: 2026-07-12
 
 ## Objective
 
@@ -53,35 +53,9 @@ The current session's active plan self-applies the branch workflow: created `pl-
 
 After completing this work unit, capture a retrospective note if the process revealed any friction — particularly around the branch-and-PR workflow for planning artifacts.
 
-## Acceptance Criteria
+## Outcome
 
-- [x] `.adaptive-agents/instructions/branch-workflow.md` exists and covers decision logic, naming, safety, commit strategy, planning lifecycle, automerge-ready PR/MR workflow, cross-session awareness, and detection heuristics.
-- [x] The active plan (ACTIVE.md, SDD, memory) are on branch `pl-branch-development-guidance` and linked from planning INDEX.md.
-- [x] Project-layer validation passes (`check-project-layer.sh` reports 0 failures).
-- [x] `instructions/branch-workflow.instructions.md` created with forge-agnostic user-wide content.
-- [x] `global.instructions.md` updated to reference the new instruction.
-- [x] `INDEX.md` updated to list the new guidance area.
-- [x] `.adaptive-agents/instructions/branch-workflow.md` updated to redirect to user-wide version.
-- [x] Plan artifacts reviewed and updated for correctness and completeness.
-- [x] Project-layer validation passes after all patches (0 failures).
-- [x] Retrospective captured: SDD scope drift lesson.
-- [ ] A retrospective is captured if the workflow revealed process improvements.
-- [ ] The branch is synced, squashed, validated, pushed, and PR/MR'd to `main` (or a paste-ready description is presented if no forge CLI is available).
-
-## Scope
-
-### In Scope
-
-- Creating `.adaptive-agents/instructions/branch-workflow.md` with branch conventions.
-- Creating and linking the active plan artifacts for this work.
-- Self-applying the workflow during this session.
-- Promoting the branch workflow to user-wide guidance: `instructions/branch-workflow.instructions.md`, `global.instructions.md` reference, `INDEX.md` entry.
-
-### Out of Scope
-
-- Modifying the repo-level branch protection settings or CI workflows.
-- Creating scripts that enforce branch naming.
-- Retroactively renaming existing closed-plan branches.
+All specifications implemented and validated. Retrospective captured for SDD scope drift lesson. Branch `pl-branch-development-guidance` is on `origin` with a PR ready for user dogfooding and merge.
 
 ## Applicable Guidance
 

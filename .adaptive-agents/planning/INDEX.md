@@ -2,7 +2,7 @@
 
 ## Current Work
 
-Active: [PL-20260712-branch-development-guidance](active/PL-20260712-branch-development-guidance.sdd.md) — Branch Development Guidance. [ACTIVE.md](active/ACTIVE.md) | [Memory](active/PL-20260712-branch-development-guidance.memory.md)
+Active: No active plan ([ACTIVE.md](active/ACTIVE.md)).
 
 ## Queues
 
