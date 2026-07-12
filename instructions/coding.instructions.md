@@ -20,4 +20,16 @@ Default coding standards:
 
 After the requested scope is complete and at least one focused validation has succeeded, run the completion-time retrospective checkpoint from [global.instructions.md](global.instructions.md), then stop and summarize. Do not repeat equivalent validation, readback, or status checks unless the latest result reveals a new issue, the task still has an unfinished requested step, the user asks for more detail, or a concrete blocker remains.
 
+### Self-Review Before Presentation
+
+Before presenting a work product (SDD, architecture document, design spec, implementation plan, or other deliverable) for user approval, run this structured self-review checklist:
+
+1. **Cross-reference claims** — Verify each factual claim against its source (docs, code, reference implementations) rather than relying on memory.
+2. **Check for ambiguity** — Flag any "consider", "optional", "may", or otherwise non-decisive language and make it decisive.
+3. **Verify completeness** — Does every section from the template, skill, or playbook have content? Are there sections with placeholder text or "TBD" markers?
+4. **Test edge cases** — What happens on first-run (no directories, no config)? On re-run? On missing prerequisites?
+5. **Check for speculative leaps** — Where is an assumption being treated as fact without a caveat or evidence?
+
+Run the checklist immediately after completing the work product and before presenting it. This is distinct from the retrospective checkpoint below, which captures process-friction evidence after approval.
+
 For multi-step tasks, validate each meaningful completed slice once, then continue to the next unfinished step. Do not rerun equivalent checks just to regain confidence.

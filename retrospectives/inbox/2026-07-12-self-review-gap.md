@@ -1,9 +1,10 @@
 # Retrospective: Self-Review Gap on Work Products
 
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 
 **Captured:** 2026-07-12
+**Promoted:** 2026-07-12
 
 ## Observation
 
@@ -25,6 +26,13 @@ A structured self-review checklist should be applied as the final step before pr
 4. **Test edge cases** — what happens on first-run (no directories, no config)? On re-run? On missing prerequisites?
 5. **Check for speculative leaps** — where is an assumption being treated as fact without a caveat?
 
-## Promotion Candidates
+## Promotion Decision
 
-- Add the self-review checklist to `instructions/coding.instructions.md` or as a step in the `manage-planning` skill's end-work workflow.
+- Status: Promoted
+- Decision: Promoted to `instructions/coding.instructions.md` — Self-Review Before Presentation subsection added to Completion Discipline.
+- Rationale: Two documented instances (Antigravity SDD, Gemini SDD) cross the single-instance threshold. Checklist is well-defined and actionable. No existing guidance covered structured pre-submit self-review.
+
+## Promotion Links
+
+- [instructions/coding.instructions.md](../../instructions/coding.instructions.md) — Self-Review Before Presentation subsection
+- [instructions/branch-workflow.instructions.md](../../instructions/branch-workflow.instructions.md) — self-review step added to PR/MR preparation checklist
