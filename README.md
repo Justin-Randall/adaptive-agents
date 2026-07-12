@@ -47,7 +47,7 @@ Other requests can be just as direct:
 - "We hit the same validation problem twice. Capture what we learned for review."
 - "Check whether my Adaptive Agents setup is healthy and tell me what needs attention."
 
-The scripts documented later are deterministic implementation and automation entrypoints. They are available when you need direct control, but they are not the primary user interface.
+The scripts documented later are deterministic implementation and automation entrypoints. You can also simply ask the agent to run or preview them — for example, "Check whether my configuration is healthy" or "Show me the startup instruction cost." The agent will invoke the appropriate script and return the result. The commands are available when you prefer direct control, but they are not the primary user interface.
 
 ## Why Developers Use It
 
@@ -66,6 +66,14 @@ Adaptive Agents gives those decisions a lifecycle:
 - **Carry work across sessions.** Indexed backlog items, one active plan, curated work-unit memory, verification evidence, and closed history give agents recoverable project state.
 - **Learn without silently rewriting the rules.** Agents can notice reusable friction and initiate a retrospective conversation. Capture, triage, and promotion are separate, reviewable steps.
 - **Keep the system inspectable.** Routing, local links, Project Layers, regression tests, and startup instruction cost are checked deterministically in CI.
+
+## An Opinionated Personal System
+
+Adaptive Agents is my personal system for shaping how my coding agents behave. It reflects strong preferences about software engineering: understand the owning code before editing it, test behavioral changes, preserve repository boundaries, validate claims with evidence, keep context focused, and turn repeated friction into reviewed guidance rather than another forgotten chat lesson.
+
+This repository is not presented as a universal standard or a neutral catalog of every possible workflow. Its `main` branch is protected, and changes to the canonical guidance are expected to remain deliberate, reviewable, and consistent with my engineering principles.
+
+The architecture is reusable even when the opinions are not. Anyone can fork or clone the repository, revise the instructions and workflows to reflect their own habits, and point supported AI tools at that version. The goal is not to make every developer's agent behave like mine; it is to provide a working pattern for making an agent consistently pursue the practices its owner actually values.
 
 ## What It Looks Like In Practice
 
@@ -357,11 +365,15 @@ Show the static Adaptive Agents startup cost from `AGENTS.md` and `INDEX.md`, ex
 ./scripts/check-instruction-load-budget.sh
 ```
 
+Or just ask: "How much context do my Adaptive Agents use at startup?"
+
 Optionally inspect all reviewed route profiles, including active and task-conditional guidance. This detailed report is diagnostic and does not define the startup gate:
 
 ```bash
 bash scripts/check-instruction-load-budget.sh --report
 ```
+
+Or ask: "Show me the full startup report."
 
 Run the read-only static-startup gate before committing entrypoint or startup-routing changes:
 
@@ -389,11 +401,15 @@ Run the deterministic checker before or after guidance changes:
 bash scripts/check-adaptive-agents.sh
 ```
 
+Or simply ask: "Validate my Adaptive Agents setup" or "Run the health checks."
+
 Use verbose output when you need to see every passing check:
 
 ```bash
 bash scripts/check-adaptive-agents.sh --verbose
 ```
+
+Or ask: "Run health checks with full detail."
 
 The checker is read-only. It validates required repository structure, the instruction-load budget, prompt routing, retrospective statuses and privacy patterns, local Markdown links and guidance reachability, canonical and dogfood Project Layers, Project Layer regression tests, and the installed Claude Code import and access grant when present. By default it prints only warnings, failures, and the final summary.
 
@@ -405,7 +421,7 @@ From the project where you want the layer, ask your installed coding agent:
 
 The agent loads the bootstrap skill, inspects existing guidance and Git state, then asks for project-specific instructions, initial active work, and one persistence mode before previewing any changes. It waits for explicit approval before writing the layer.
 
-For manual use or automation, the deterministic command run after approval is:
+You can also just ask and the agent will handle the rest. For manual use or automation, the deterministic command run after approval is:
 
 ```bash
 bash scripts/bootstrap-project-layer.sh \
