@@ -4,7 +4,7 @@ Curated cross-session context for the Branch Development Guidance work unit.
 
 ## Status
 
-Spec completed — 2026-07-12. All promotion patches applied, validation passes. Branch not yet merged (awaiting user dogfooding before PR).
+Closed — 2026-07-12. Branch workflow promoted to user-wide guidance. PR ready for user dogfooding.
 
 ## Key Context
 
