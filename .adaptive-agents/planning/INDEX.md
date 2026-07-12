@@ -2,9 +2,7 @@
 
 ## Current Work
 
-Active: [Gemini CLI Support](active/ACTIVE.md).
-
-- Working memory: [PL-20260711-gemini-cli-support memory](active/PL-20260711-gemini-cli-support.memory.md)
+Active: No active plan ([ACTIVE.md](active/ACTIVE.md)).
 
 ## Queues
 

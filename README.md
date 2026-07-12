@@ -21,7 +21,7 @@ bash scripts/install.sh --dry-run
 bash scripts/install.sh --tool vscode
 ```
 
-Valid tool names are `claude`, `opencode`, and `vscode`.
+Valid tool names are `claude`, `antigravity`, `opencode`, and `vscode`.
 
 Then start a fresh agent session in another repository and ask:
 
@@ -55,7 +55,7 @@ Coding agents are useful, but they usually start each tool and repository withou
 
 Adaptive Agents is a versioned source of truth for that behavior. Define reusable expectations once, connect a supported coding-agent tool, and let the same guidance follow you across projects. Project-owned guidance can add or override details without copying the user-wide system into every repository.
 
-This is not an autonomous self-modifying prompt collection. Observations are captured as reviewable evidence, durable changes require approval, and all guidance remains ordinary source-controlled files. VS Code/GitHub Copilot and Claude Code integrations are verified; OpenCode support is implemented and undergoing fresh-session dogfooding. Other agent tools need an integration that loads the canonical entrypoint.
+This is not an autonomous self-modifying prompt collection. Observations are captured as reviewable evidence, durable changes require approval, and all guidance remains ordinary source-controlled files. VS Code/GitHub Copilot and Claude Code integrations are verified; OpenCode support is implemented and undergoing fresh-session dogfooding. Antigravity 2.0 support is implemented and undergoing fresh-session dogfooding. Other agent tools need an integration that loads the canonical entrypoint.
 
 Without a shared guidance system, useful agent behavior tends to be scattered across chat history, copied instruction files, editor settings, and conventions that only one tool knows about. The result is repeated correction: one agent learns that a repository uses focused tests, another runs the broad suite; one session discovers a shell failure mode, and the next session repeats it.
 
@@ -231,7 +231,32 @@ After installing, verify from a fresh OpenCode session in an unrelated repositor
 
 Run the automated installer tests with `bash scripts/test-opencode.sh`.
 
-### 3) Install Claude Code Integration
+### 3) Install Antigravity 2.0 Integration
+
+```bash
+./scripts/install-antigravity.sh
+```
+
+Preview without modifying files:
+
+```bash
+./scripts/install-antigravity.sh --dry-run
+```
+
+The integration is two parts:
+
+- **Entry point**: one `@` import line in the global `~/.gemini/GEMINI.md` referencing the canonical repository `AGENTS.md` at the absolute repository path; `AGENTS.md → INDEX.md → instructions/` fan-out handles all further routing. The global context file is loaded automatically in every Antigravity 2.0 session ([context docs](https://antigravity.google/docs/cli/gcli-migration)).
+- **One-time permission grant**: The first time the agent accesses the Adaptive Agents repository, Antigravity will display a permission dialog. Select **"Yes, and always allow"** to persist the grant permanently. This is required because Antigravity stores file-access permissions in internal binary storage that cannot be scripted from the installer. Once granted, the dialog never appears again for this path.
+
+Prerequisites:
+
+- Antigravity 2.0 must be installed. See [Antigravity Download](https://antigravity.google/download).
+
+The installer detects the Antigravity 2.0 desktop app in its standard install location, writes the global context file, preserves existing user content, guarantees content-idempotent reruns, and exits with an actionable error if the app is not found.
+
+Run the automated installer tests with `bash scripts/test-install-antigravity.sh`.
+
+### 4) Install Claude Code Integration
 
 Prerequisites: Bash and Python 3. On Windows, run the installer through Git Bash or WSL.
 
@@ -290,7 +315,7 @@ Every integration is verified the same way, in a **fresh session in a repository
 
 Repeat across multiple fresh sessions; intermittent loading is a failure, not a pass.
 
-**Verified integrations**: VS Code / GitHub Copilot (after `install-vscode.sh`) and Claude Code (after `install-claude-code.sh`).
+**Verified integrations**: VS Code / GitHub Copilot (after `install-vscode.sh`) and Claude Code (after `install-claude-code.sh`). Antigravity 2.0 support is implemented and undergoing fresh-session dogfooding.
 
 **Reworked integration**: OpenCode (after `install-opencode.sh`) now uses the same two-part pattern; treat it as verified only after fresh-session dogfooding passes all three probes.
 
@@ -411,7 +436,7 @@ bash scripts/check-adaptive-agents.sh --verbose
 
 Or ask: "Run health checks with full detail."
 
-The checker is read-only. It validates required repository structure, the instruction-load budget, prompt routing, retrospective statuses and privacy patterns, local Markdown links and guidance reachability, canonical and dogfood Project Layers, Project Layer regression tests, and the installed Claude Code import and access grant when present. By default it prints only warnings, failures, and the final summary.
+The checker is read-only. It validates required repository structure, the instruction-load budget, prompt routing, retrospective statuses and privacy patterns, local Markdown links and guidance reachability, canonical and dogfood Project Layers, Project Layer regression tests, and the installed Claude Code and Antigravity 2.0 import grant when present. By default it prints only warnings, failures, and the final summary.
 
 ### 9) Bootstrap A Project Layer
 

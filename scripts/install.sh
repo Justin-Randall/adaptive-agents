@@ -30,7 +30,7 @@ Options:
   --tool TOOL   Install only for a specific tool.
   -h, --help    Show this help.
 
-Supported tools: claude, opencode, vscode
+Supported tools: claude, antigravity, opencode, vscode  ("antigravity" = Antigravity 2.0 desktop app; not the agy CLI)
 EOF
 }
 
@@ -107,6 +107,24 @@ if [[ -z "$TOOL_FILTER" || "$TOOL_FILTER" == "opencode" ]]; then
   fi
 fi
 
+# Antigravity 2.0 (desktop app)
+if [[ -z "$TOOL_FILTER" || "$TOOL_FILTER" == "antigravity" ]]; then
+  local detected=""
+  if [[ -n "${LOCALAPPDATA:-}" ]] && [[ -f "$LOCALAPPDATA/Programs/Antigravity/Antigravity.exe" ]]; then
+    detected=1
+  elif [[ -n "${PROGRAMFILES:-}" ]] && [[ -f "$PROGRAMFILES/Antigravity/Antigravity.exe" ]]; then
+    detected=1
+  elif [[ -n "${PROGRAMFILES_X86:-}" ]] && [[ -f "$PROGRAMFILES_X86/Antigravity/Antigravity.exe" ]]; then
+    detected=1
+  elif [[ -d "/Applications/Antigravity.app" ]]; then
+    detected=1
+  fi
+  if [[ -n "$detected" ]]; then
+    echo "  [detected] Antigravity 2.0"
+    SUB_INSTALLERS+=("$REPO_ROOT/scripts/install-antigravity.sh")
+  fi
+fi
+
 # VS Code / GitHub Copilot
 if [[ -z "$TOOL_FILTER" || "$TOOL_FILTER" == "vscode" ]]; then
   if command_exists code || [[ -n "${APPDATA:-}" && -d "$APPDATA/Code" ]]; then
@@ -121,9 +139,10 @@ if [[ ${#SUB_INSTALLERS[@]} -eq 0 ]]; then
   echo "No supported AI coding tools detected."
   echo
   echo "Supported tools:"
-  echo "  Claude Code  — https://claude.ai/download"
-  echo "  OpenCode     — https://opencode.ai"
-  echo "  VS Code      — https://code.visualstudio.com"
+  echo "  Claude Code     — https://claude.ai/download"
+  echo "  Antigravity 2.0 — https://antigravity.google/download"
+  echo "  OpenCode        — https://opencode.ai"
+  echo "  VS Code         — https://code.visualstudio.com"
   echo
   echo "Install a supported tool and re-run this script."
   exit 0
