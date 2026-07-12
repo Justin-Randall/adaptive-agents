@@ -1,8 +1,9 @@
 # Process friction: SDD scope drift during active development
 
-Status: Captured
-Date: 2026-07-12
-Work Unit: PL-20260712-branch-development-guidance
+- Date: 2026-07-12
+- Status: Captured
+- Scope: User-wide
+- Work Unit: PL-20260712-branch-development-guidance
 
 ## Evidence
 

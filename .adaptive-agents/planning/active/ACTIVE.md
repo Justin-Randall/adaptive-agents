@@ -28,11 +28,12 @@ Define and document branch workflow conventions for the Adaptive Agents reposito
 
 ## Awaiting Dogfood
 
-Remaining to close the branch:
+Branch `pl-branch-development-guidance` is at `origin`, committed and pushed. User is running the PR process. If dogfooding reveals issues or missing features, reactivate the plan and revise accordingly.
 
-- [ ] Merge `main` into branch (sync before PR/MR)
-- [ ] Re-run `check-project-layer.sh` after sync
-- [ ] Squash and commit with work unit reference
-- [ ] Push branch to origin
-- [ ] Create PR/MR (via CLI if available, else present paste-ready template)
+- [x] Merge `main` into branch (no merge needed — `main` had not advanced)
+- [x] Squash and commit with work unit reference
+- [x] Push branch to origin
+- [ ] User opens PR/MR
+- [ ] Dogfooding — if issues found, revise
+- [ ] PR merges to `main`
 - [ ] Delete local branch post-merge
