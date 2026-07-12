@@ -16,6 +16,7 @@ When working inside another project, treat Adaptive Agents content as reusable g
 | User-facing overview and VS Code setup expectations | [README.md](README.md) |
 | Top-level routing for future guidance areas | [INDEX.md](INDEX.md) |
 | Default user-wide engineering preferences for non-trivial coding work | [instructions/global.instructions.md](instructions/global.instructions.md) |
+| Branch strategy, PR/MR workflow, and commit conventions | [instructions/branch-workflow.instructions.md](instructions/branch-workflow.instructions.md) |
 | Promoting retrospectives or updating Adaptive Agents guidance | [skills/update-adaptive-agents/SKILL.md](skills/update-adaptive-agents/SKILL.md) |
 | Bootstrapping project-specific guidance and indexed planning | [skills/bootstrap-project-layer/SKILL.md](skills/bootstrap-project-layer/SKILL.md) |
 | Reviewing structural upgrades for an existing Project Layer | [skills/upgrade-project-layer/SKILL.md](skills/upgrade-project-layer/SKILL.md) |
@@ -67,6 +68,7 @@ This is the current checked-in entrypoint for default user-wide engineering guid
 - [instructions/tdd.instructions.md](instructions/tdd.instructions.md)
 - [instructions/command-failure-pivot.instructions.md](instructions/command-failure-pivot.instructions.md)
 - [instructions/temp-artifact-hygiene.instructions.md](instructions/temp-artifact-hygiene.instructions.md)
+- [instructions/branch-workflow.instructions.md](instructions/branch-workflow.instructions.md)
 
 More specific instruction files may be added later for coding style, testing, Unreal Engine, Go, diagnostics, command-line tool behavior, or other recurring work.
 

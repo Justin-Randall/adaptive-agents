@@ -34,6 +34,7 @@ Read:
 - [TDD instructions](tdd.instructions.md)
 - [Command failure pivot instructions](command-failure-pivot.instructions.md)
 - [Temporary artifact hygiene instructions](temp-artifact-hygiene.instructions.md)
+- [Branch workflow instructions](branch-workflow.instructions.md)
 
 Project-local instructions override these user-wide instructions when they are more specific.
 
