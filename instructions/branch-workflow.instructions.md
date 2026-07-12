@@ -28,7 +28,7 @@ Before starting work that will create or modify tracked files, determine branch 
 
 | Purpose | Pattern | Example |
 |---------|---------|---------|
-| Active plan work | `pl-<short-slug>` | `pl-branch-workflow` |
+| Active plan work | `pl-<work-unit-id>` where the slug includes the date and topic | `pl-20260712-branch-development-guidance` |
 | Non-plan feature | `<kebab-case-description>` | `fix-installer-path` |
 | Experimental | `explore/<topic>` | `explore/idea-validation` |
 | Repository-specific | Follow project conventions if they exist | See `CONTRIBUTING.md` |
