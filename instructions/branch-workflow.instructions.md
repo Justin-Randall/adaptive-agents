@@ -102,8 +102,17 @@ A human reading this can approve immediately. A forge with automerge rules can m
 A new session may load the primary branch by default. On session start:
 
 1. List feature branches: `git branch --list 'pl-*'` (or the project's convention).
-2. If an unmerged feature branch exists, check it out and load its `ACTIVE.md`.
-3. If multiple exist, ask the user which to resume or close.
+2. Fetch the latest remote state: `git fetch origin --prune`.
+3. For each feature branch, check whether it has been merged:
+   - **Merged** (all commits reachable from `origin/main`): switch to `main`, pull, delete the local branch (`git branch -d <branch>`), and load the primary branch's planning state silently — no user question needed. The work is already delivered.
+   - **Unmerged** and has commits ahead of `origin/main`: check it out and load its `ACTIVE.md` as a resumption candidate.
+   - **Unmerged** but no local commits (just a stale ref): delete the local branch and continue on the primary branch.
+4. If multiple unmerged feature branches exist, none is clearly active — ask the user which to resume or close.
+
+Detect merge status deterministically with:
+```bash
+git merge-base --is-ancestor <branch> origin/main && echo merged
+```
 
 ## Detection Heuristics Summary
 
