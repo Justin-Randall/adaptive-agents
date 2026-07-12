@@ -72,9 +72,7 @@ The goal is a PR/MR that a human can approve in one read and the forge can autom
 1. **Sync**: Merge the primary branch into your branch. Resolve any conflicts.
 2. **Validate**: Run any project-local checks — linters, tests, project-layer validator. All must pass.
 3. **Squash and commit**: One clean commit with work unit reference.
-4. **Push**: `git push origin <branch>`.
-
-At this point the branch is automerge-ready: up to date, validated, clean commit history.
+4. **Push**: `git push -u origin <branch>`. The `-u` sets upstream tracking so IDEs like VS Code recognise the branch as published.
 
 ### Creating the PR/MR
 
