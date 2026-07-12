@@ -1,102 +1,145 @@
-# PL-20260711: Instruction Load Budget
+# PL-20260711: Gemini CLI Support
 
 - Status: Active
-- Work Unit: PL-20260711-instruction-load-budget
-- Origin: Backlog ([PL-20260711-instruction-load-budget.md](../backlog/PL-20260711-instruction-load-budget.md))
-- Activated: 2026-07-11
+- Work Unit: PL-20260711-gemini-cli-support
+- Origin: Backlog ([PL-20260711-gemini-cli-support.md](../backlog/PL-20260711-gemini-cli-support.md))
+- Activated: 2026-07-12
 
 ## Objective
 
-Implement a deterministic inventory and CI gate for the static files required to initialize Adaptive Agents through the canonical `AGENTS.md` route. Report the startup source size and rough token cost, warn at 80% utilization, and reject startup cost above the 32,768 estimated-token high-water mark. Active planning and task-conditional guidance are diagnostic only and do not affect the gate.
+Provide an idempotent Gemini CLI integration that loads the canonical Adaptive Agents `AGENTS.md` through one verified native entrypoint — following the two-part installer pattern (native entry point + read/write trust grant) proven by Claude Code, OpenCode, and VS Code Agent Mode.
 
 ## Specifications
 
-The approved [backlog specification](../backlog/PL-20260711-instruction-load-budget.md) is the detailed contract for deliverables, route semantics, data shapes, algorithms, CLI behavior, CI topology, tests, guardrails, and boundary conditions. Do not silently change that contract during implementation; record any evidence-driven adjustment in `## Decisions` and update the active specification before applying it.
-
 ### Problem Spec
 
-Adaptive Agents does not measure the transitive context cost of files its routing tells models they must read. A deterministic, model-neutral estimate is needed to detect instruction bloat and enforce a 32 Ki-token compaction safeguard without treating optional links or the entire repository as mandatory context.
+Gemini CLI uses a `GEMINI.md`-equivalent file for user-wide agent configuration, but the exact native loading syntax, import semantics (whether it supports `@file` references, `file://` URIs, or requires inline content), and external-repository read/write access boundaries must be verified before an installer can be written. Installing copied commands or skills would duplicate routing already owned by `AGENTS.md` and `INDEX.md`, violating the Adaptive Agents principle of a single canonical entrypoint.
 
-### Feature Specs
+The cross-tool integration contract (established by PL-20260711 Claude Code and OpenCode Rework) requires every integration to deliver: a single native entry point at user scope, a trusted source-directories grant, legacy migration (detect and remove prior-gen artifacts), isolated automated tests against temp-dir config, a live health check in `scripts/check-adaptive-agents.sh`, version pinning, and three-probe dogfood (sentinel, content-proof, routed write-back).
 
-1. Maintain a reviewed route manifest with named required-read profiles and explicit reasons for every counted path.
-2. Normalize strict UTF-8 source text and calculate deterministic byte, character, word, hash, and rough token metrics.
-3. Generate a stable machine-readable startup baseline with ordered files, metrics, totals, formulas, and limits.
-4. Provide startup-focused default, read-only `--check`, and explicit `--update-baseline` modes, plus an all-profile diagnostic `--report`.
-5. Warn at 26,215 startup estimated tokens and fail above 32,768 startup estimated tokens.
-6. Run isolated tests and the non-mutating gate on Ubuntu and Windows, exposing one stable branch-protection status.
-7. Integrate the read-only check into repository health and document local commands and external branch-protection setup.
+### Phase 1: Research & Verification ✅
 
-### Interface And Contract Specs
+Research completed 2026-07-12 against the official Gemini CLI documentation at `https://google-gemini.github.io/gemini-cli/`.
 
-Required implementation artifacts:
+**Gemini CLI Version Target:** `@google/gemini-cli` (npm), latest stable. Version pinning determined at install time via `gemini --version`.
 
-- `instruction-load-routes.json`
-- `instruction-load-baseline.json`
-- `schemas/instruction-load-routes.schema.json`
-- `schemas/instruction-load-baseline.schema.json`
-- `scripts/check-instruction-load-budget.sh`
-- `scripts/check-instruction-load-budget.py`
-- `scripts/test-instruction-load-budget.py`
-- `.github/workflows/static-validation.yml`
+**Part A — Native Entry Point:**
 
-CLI contract:
+The Gemini CLI uses a **hierarchical context file system** with `GEMINI.md` as the default context filename (configurable via `context.fileName`):
 
-```text
-bash scripts/check-instruction-load-budget.sh
-bash scripts/check-instruction-load-budget.sh --report
-bash scripts/check-instruction-load-budget.sh --check
-bash scripts/check-instruction-load-budget.sh --update-baseline
+1. **Global context file**: `~/.gemini/GEMINI.md` — loaded automatically in EVERY Gemini CLI session. This is the canonical user-wide entry point.
+2. **Project-level context files**: `GEMINI.md` files discovered hierarchically from the project root and subdirectories.
+3. **Import syntax**: The Memory Import Processor supports `@path/to/file.md` syntax to import external Markdown files. Supported formats:
+   - Relative: `@./file.md`, `@../file.md`, `@./components/file.md`
+   - Absolute: `@/absolute/path/to/file.md`
+   - Nested imports supported (max depth: 5 levels)
+   - Circular import detection built in
+   - Imports inside code blocks are ignored
+4. **Custom context filename**: The `context.fileName` setting in `settings.json` can rename context files from `GEMINI.md` to `["AGENTS.md", "CONTEXT.md", "GEMINI.md"]`.
+
+**Native entry point mechanism:** An `@` import line in `~/.gemini/GEMINI.md` referencing the canonical `AGENTS.md` file. Example:
+
+```
+@/absolute/path/to/adaptive-agents/AGENTS.md
 ```
 
-- The shell script is the canonical human, repository-health, and CI entrypoint.
-- With no arguments, print the static `startup` profile's counted-file total, used and remaining estimated tokens, utilization, and PASS/FAIL result.
-- Default status, `--check`, and `--update-baseline` select only the `startup` profile. They do not read, hash, baseline, or enforce active planning and task-conditional Markdown.
-- `--report` expands all reviewed profiles for diagnostics but does not define or enforce the static startup gate.
-- Default status validates current startup routes and source metrics but does not compare baseline drift; `--check` remains the strict startup CI and repository-health gate.
-- The shell script uses `#!/usr/bin/env bash`, `set -euo pipefail`, resolves the adjacent Python script from `BASH_SOURCE`, and forwards all arguments unchanged.
-- The shell script invokes an available Python 3 interpreter, preserves stdout and stderr, and returns the Python process exit code. If no Python 3 interpreter is available, it emits one actionable error and exits nonzero.
-- The Python script remains directly executable for focused tests and native Windows troubleshooting.
-- Exit `0`: success, including warning-only utilization.
-- Exit `1`: validation, route, drift, stale-baseline, or budget failure.
-- Exit `2`: missing, incompatible, or unknown arguments.
-- `--report` and `--check` write nothing.
-- `--update-baseline` atomically replaces only the baseline and never runs in CI.
+This loads AGENTS.md content into every session's system context via the native Memory Import Processor. Single entry point — AGENTS.md → INDEX.md → instructions/ fan-out handles all routing.
 
-### Data And Metric Specs
+**Part B — Read/Write Trust Grant:**
 
-- Canonical Markdown remains authoritative; the manifest is an audited measurement model and contains no instruction text.
-- Paths are explicit repository-relative POSIX paths with no globs, backslashes, URI schemes, drive prefixes, or traversal.
-- Profiles inherit ordered paths, reject cycles, and deduplicate within each profile while preserving first-seen order.
-- If `ACTIVE.md` has no active plan, active memory is omitted. Otherwise, the manifest names the exact active work-unit memory path.
-- Normalize CRLF and lone CR to LF before all metrics.
-- Count words with `len(normalized_text.split())`.
-- Hash normalized UTF-8 bytes with SHA-256.
-- Calculate profile estimates with integer arithmetic:
+Gemini CLI uses a multi-layered security model for external directory access:
 
-```text
-word_estimate = (total_words * 3 + 1) // 2
-character_estimate = (total_characters + 3) // 4
-estimated_tokens = max(word_estimate, character_estimate)
-```
+1. **`context.includeDirectories`** (in `~/.gemini/settings.json`): An array of directory paths added to the workspace context. The sandbox and file system service explicitly allow reads/writes to these paths. This is the primary trust grant mechanism.
+2. **`context.loadMemoryFromIncludeDirectories`** (boolean): When `true`, the `/memory refresh` command scans include directories for `GEMINI.md` files.
+3. **`security.folderTrust.enabled`** + `~/.gemini/trustedFolders.json`: Folder trust feature for controlling project-level config loading. Managed via `/permissions` command in the CLI.
+4. **`tools.allowed`**: Array of tool call patterns that auto-approve without confirmation dialog (e.g., `["run_shell_command(git)"]`).
 
-- JSON output uses two-space indentation, deterministic ordering, and exactly one trailing LF.
-- Python 3.11 or newer and standard-library APIs only.
+**Trust grant mechanism for the installer:** Add the Adaptive Agents repository path to `context.includeDirectories` in `~/.gemini/settings.json`. This grants the Gemini agent permission to read and write files in that directory tree. The narrowest scoped grant is a single absolute directory path.
 
-### Behavioral Specs
+### Phase 2: Installer — `scripts/install-gemini-cli.sh`
 
-- Optional references, historical artifacts, and unrelated Markdown never count merely because they are linked or reachable.
-- Any counted-file hash change makes the committed baseline stale, including same-size edits.
-- Exactly 32,768 estimated tokens passes; 32,769 fails.
-- Exactly 26,215 estimated tokens warns without failing.
-- Profile-specific limits may be stricter than the global limit but never looser.
-- Warning-only results return success.
-- The checker reports all safely discoverable failures in stable profile and file order.
-- No mode mutates the manifest; only `--update-baseline` may mutate the baseline.
+Apply the proven two-part pattern:
+
+**Part A — Native entry point:**
+
+- Target file: `~/.gemini/GEMINI.md` — the global context file, loaded automatically in EVERY Gemini CLI session.
+- Write a single `@` import line pointing to the canonical `AGENTS.md`:
+
+  ```text
+  @/absolute/path/to/AGENTS.md
+  ```
+
+- Use the absolute path format so the import resolves regardless of which directory the CLI is launched from.
+- The Memory Import Processor resolves `@` paths, loads AGENTS.md content, and includes it in every session's system context.
+- Preserve and deduplicate any existing user content in `~/.gemini/GEMINI.md` — append or update the `@` import line, never overwrite user prose.
+- Guarantee content-idempotent reruns: same-version reruns produce byte-identical `~/.gemini/GEMINI.md`.
+- **Single entry point** — AGENTS.md → INDEX.md → instructions/ fan-out handles all routing.
+
+**Part B — Read/write trust grant:**
+
+- Target file: `~/.gemini/settings.json` — the user-level settings file.
+- Add the Adaptive Agents repository root path to `context.includeDirectories`:
+
+  ```json
+  {
+    "context": {
+      "includeDirectories": ["/absolute/path/to/adaptive-agents"]
+    }
+  }
+  ```
+
+- This grants the Gemini agent permission to read and write files within that directory tree.
+- Preserve and deduplicate any existing `context.includeDirectories` entries and all other settings.
+- Guarantee content-idempotent reruns: same-version reruns produce byte-identical settings.
+- The narrowest scope is a single directory path — no wildcards, no parent directory grants.
+
+**Legacy migration:**
+
+- Detect and remove any prior-generation artifacts written by earlier installer versions.
+- Match installer-generated signatures only — never delete user-authored files.
+- If no prior artifacts exist, skip migration silently.
+
+**Contract:**
+
+- `scripts/install-gemini-cli.sh` — idempotent, dry-run support via `--dry-run`, exit 0 on no-op.
+- `--dry-run` writes nothing but reports what would change.
+- Validate the exact destination file content after write (not just "file exists").
+- Support same-version rerun producing byte-identical config.
+
+### Phase 3: Health Check — `scripts/check-adaptive-agents.sh`
+
+Add a `check_gemini_cli` function to `scripts/check-adaptive-agents.sh` that:
+
+1. Detects whether Gemini CLI is installed (`which gemini` or equivalent).
+2. If installed, reads the Gemini CLI user-level config file.
+3. Parses the config file to confirm the canonical `AGENTS.md` entry point reference is present (string-aware parsing; naive comment-stripping corrupts URLs).
+4. Validates the trusted-directories grant includes the Adaptive Agents repository.
+5. Reports PASS/FAIL with diagnostic detail.
+6. Returns non-zero on any validation failure.
+
+### Phase 4: Isolated Tests — `scripts/test-install-gemini-cli.sh`
+
+Create a focused test script that runs entirely against temporary directories (never touches real user configuration):
+
+1. **Fresh install**: Install into empty temp config → verify entry point and trust grant present.
+2. **Legacy migration**: Seed temp config with prior-gen artifact → run installer → verify artifact removed and canonical entry point in place.
+3. **Byte-stable rerun**: Run installer twice → verify second run produces identical output.
+4. **Dry-run writes nothing**: Run `--dry-run` → verify no files modified.
+5. **Unrelated-config preservation**: Seed temp config with unrelated configuration lines → run installer → verify unrelated content preserved and deduplicated.
+6. **User-file preservation**: Seed temp config with a file that looks like a user-authored file (no installer signature) → verify it is not deleted.
+
+### Phase 5: Dogfood & Verification
+
+From an unrelated repository across fresh Gemini CLI sessions, verify:
+
+1. **Sentinel probe**: `ADAPTIVE_AGENTS_GLOBAL_LOADED` is echoed when asked if Adaptive Agents is loaded.
+2. **Content-proof probe**: A question answerable only from repository content, e.g., "What is the current active plan?" — the sentinel alone is a false positive (a stale installed copy can echo it, as PL-20260711 OpenCode proved).
+3. **Routed write-back**: A routed workflow persists a retrospective or planning artifact back to the Adaptive Agents repository (e.g., capture a retrospective note).
+4. Intermittent loading is a failure, not a pass.
 
 ## Applicable Guidance
 
-- `.adaptive-agents/ARCHITECTURE.md` — preserve canonical routing, Project Layer ownership, and deterministic validation boundaries.
+- `.adaptive-agents/ARCHITECTURE.md` — preserve canonical routing, Project Layer ownership, and cross-tool integration boundaries.
 - `instructions/global.instructions.md` — load routed engineering guidance and run the completion retrospective checkpoint.
 - `instructions/repository-boundaries.instructions.md` — keep this repository's canonical and Project Layer ownership distinct.
 - `instructions/coding.instructions.md` — use testable seams, source-backed claims, and focused reversible changes.
@@ -104,94 +147,82 @@ estimated_tokens = max(word_estimate, character_estimate)
 - `instructions/command-failure-pivot.instructions.md` — classify command failures and pivot rather than retrying equivalent guesses.
 - `instructions/temp-artifact-hygiene.instructions.md` — keep generated test artifacts isolated and cleaned up.
 - `.adaptive-agents/skills/manage-planning/SKILL.md` — maintain active progress, decisions, verification, and work-unit memory.
+- `scripts/install-claude-code.sh` and `scripts/install-opencode.sh` — reference implementations for the two-part installer pattern.
+- `scripts/test-install-claude-code.sh` and `scripts/test-opencode.sh` — reference implementations for isolated temp-dir tests.
 
 ## Scope
 
-- Verify the candidate required-read inventory against current imperative routing language.
-- Add the reviewed manifest, generated baseline, schemas, Python CLI, and isolated tests.
-- Add Ubuntu and Windows CI coverage with one final required-status job.
-- Integrate the read-only gate into repository health.
-- Document report, check, baseline-update, dogfood, and branch-protection steps.
+- Research Gemini CLI's configuration mechanism, import syntax, and trust model.
+- Implement `scripts/install-gemini-cli.sh` with the two-part pattern, legacy migration, and dry-run support.
+- Add `check_gemini_cli` to `scripts/check-adaptive-agents.sh`.
+- Create `scripts/test-install-gemini-cli.sh` with isolated temp-dir tests.
+- Version-pin the verified Gemini CLI release.
+- Dogfood from an unrelated repository with three probes (sentinel, content-proof, write-back).
+- Update `README.md` with Gemini CLI install and verification commands.
+- Update `install.sh` to include Gemini CLI in the all-tools install if applicable.
 
 ## Out Of Scope
 
-- Model-specific tokenizer accounting or network services.
-- Tool-added system prompts outside this repository.
-- Third-party runtime packages.
-- Automatic baseline rewriting during checks or CI.
-- Local Git hooks or automated branch-protection configuration.
-- Counting every linked or reachable Markdown file.
+- Generating `.gemini/` project-local configuration, hooks, or skill markers.
+- Creating standalone `GEMINI.md` — fan-out from `AGENTS.md` handles it.
+- Modifying anything outside the installer, health check, tests, README, and user-level config.
+- Supporting Gemini CLI versions older than the pinned verified version.
+- Chronicling, slash commands, or plugin manifests.
 
 ## Acceptance Criteria
 
-- [x] Every counted file traces to mandatory routing language and a profile trigger.
-- [x] Optional links and unrelated Markdown are excluded.
-- [x] Manifest and baseline satisfy their schemas and built-in structural validation.
-- [x] LF and CRLF content produce identical metrics and hashes.
-- [ ] Baseline generation is byte-stable on Windows and Linux.
-- [x] `--check` is read-only and rejects invalid startup routes, stale startup baselines, unsafe paths, and startup cost above 32,768 estimated tokens.
-- [x] Warning utilization starts at 26,215 without failing.
-- [x] Exactly 32,768 passes and 32,769 fails.
-- [x] Focused tests cover all twenty scenarios in the backlog specification without touching real user configuration.
-- [x] Repository health invokes the read-only budget check.
-- [x] CI runs repository static validation, including the shell-wrapped startup budget check and its regression tests, on Ubuntu and Windows and exposes one stable `static-validation` status.
-- [x] README documents shell-wrapper commands for report, check, baseline update, dogfood observation, and branch protection; direct Python usage is secondary troubleshooting guidance.
-- [x] No model-specific tokenizer or third-party runtime package is required.
-- [x] The shell wrapper forwards arguments, output streams, and exit codes without changing checker behavior.
-- [x] No-argument invocation reports static startup estimated tokens versus the 32,768 high-water mark and exits from that startup PASS/FAIL status.
-- [x] Active planning and task-conditional Markdown are absent from the committed baseline and cannot fail the startup gate.
-- [x] Dogfood instructions give the user copy-paste commands and explain what successful and warning output looks like.
-- [ ] The user runs default status and `--check`, observes the static startup total and utilization, and confirms the output is understandable before closure.
-
-## Dogfood Procedure
-
-After implementation and automated validation, give the user these commands from the repository root:
-
-```bash
-./scripts/check-instruction-load-budget.sh
-bash scripts/check-instruction-load-budget.sh --report
-bash scripts/check-instruction-load-budget.sh --check
-```
-
-Explain that default status should show static startup estimated tokens versus the 32,768 high-water mark and a startup PASS/FAIL result. Explain that `--report` should show diagnostic profile composition without defining the gate. Explain that `--check` should produce no file changes, exit `0`, warn only when startup reaches 80%, and fail with an actionable startup file/metric delta if the manifest, baseline, path contract, or hard limit is violated.
-
-Ask the user to confirm that profile membership and totals match their understanding of what models must read. Do not close the work until this dogfood confirmation is recorded or the user explicitly waives it.
+- [x] Research phase complete: Gemini CLI config path (`~/.gemini/GEMINI.md`), import syntax (`@path`), trust grant mechanism (`context.includeDirectories`), and version (`@google/gemini-cli`) documented in memory.
+- [ ] `scripts/install-gemini-cli.sh` exists, is idempotent, supports `--dry-run`, and installs only the two-part pattern.
+- [ ] No copied `AGENTS.md` content, prose load directives, or duplicate guidance — only native imports.
+- [ ] Existing user config is preserved and deduplicated on rerun.
+- [ ] Legacy prior-gen artifacts are detected and removed (installer-signed files only).
+- [ ] `scripts/test-install-gemini-cli.sh` passes all scenarios against temp directories.
+- [ ] `scripts/check-adaptive-agents.sh --verbose` includes a `check_gemini_cli` function and passes.
+- [ ] Three-probe dogfood confirmed from an unrelated repository:
+  - Sentinel (`ADAPTIVE_AGENTS_GLOBAL_LOADED`).
+  - Content-proof (e.g., current active plan name).
+  - Routed write-back (e.g., retrospective capture).
+- [ ] Intermittent loading is classified as a failure, not a pass.
+- [ ] README documents install, verify, dogfood commands.
+- [ ] No prior-installer artifacts remain after migration.
 
 ## Progress
 
-- [x] Verify the candidate route inventory against current imperative wording.
-- [x] Add focused failing tests for normalization, profile expansion, and limit boundaries.
-- [x] Add schemas and the reviewed route manifest.
-- [x] Implement metrics, validation, reporting, and deterministic serialization.
-- [x] Implement baseline update and read-only check behavior.
-- [x] Generate and review the initial baseline.
-- [x] Add CI and repository-health integration.
-- [ ] Dogfood the documented README commands with the user.
+- [x] Phase 1: Research Gemini CLI config mechanism (path, import syntax, trust grant, version).
+- [ ] Phase 2: Implement `scripts/install-gemini-cli.sh`.
+- [ ] Phase 3: Add health check to `scripts/check-adaptive-agents.sh`.
+- [ ] Phase 4: Create isolated temp-dir tests.
+- [ ] Phase 5: Dogfood from unrelated repository (three probes).
+- [ ] Phase 6: Update README and any remaining documentation.
 
 ## Decisions
 
-- Use a rough model-neutral token heuristic, not a model-specific tokenizer.
-- Apply a hard high-water mark of 32,768 estimated tokens to static startup cost.
-- Warn at 26,215 estimated tokens (80%, rounded upward).
-- Keep canonical Markdown authoritative; the manifest is measurement configuration only.
-- Require explicit baseline updates so instruction growth and route changes remain reviewable.
-- Use a thin Bash wrapper as the canonical public entrypoint while retaining Python for deterministic cross-platform logic.
-- Require user-observed `--report` and `--check` output before closure.
+- Follow the established two-part pattern exactly (Claude Code and OpenCode are reference implementations).
+- Research completed 2026-07-12: documented in memory and SDD.
+- **Part A mechanism**: Single `@` import line in `~/.gemini/GEMINI.md` → AGENTS.md → INDEX.md → instructions/ fan-out.
+- **Part B mechanism**: `context.includeDirectories` in `~/.gemini/settings.json` granting read/write access to the repo.
+- The global `~/.gemini/GEMINI.md` is the correct user-wide entry point (not project `.gemini/settings.json`).
+- Require three-probe dogfood for closure (sentinel alone is insufficient — prior false-positive evidence from OpenCode).
+- No project-local `.gemini/` or `.rules/` files — fan-out from `AGENTS.md`.
 
 ## Verification
 
-- `python scripts/test-instruction-load-budget.py` — 31 tests passed on Windows, including proof that oversized active Markdown does not affect baseline or gate results.
-- `./scripts/check-instruction-load-budget.sh` — startup passed at 4,111 estimated tokens out of 32,768 (12.5%).
-- `instruction-load-baseline.json` — contains only the `startup` profile and its two static files, `AGENTS.md` and `INDEX.md`.
-- `bash scripts/check-instruction-load-budget.sh --update-baseline` — generated the initial deterministic baseline.
-- `bash scripts/check-instruction-load-budget.sh --check` — passed against the generated baseline.
-- `bash scripts/check-adaptive-agents.sh --verbose` — 141 checks passed with zero failures and zero warnings; successful nested test totals and startup utilization are emitted as CI evidence.
-- `bash .adaptive-agents/scripts/check-project-layer.sh` — zero failures.
-- Editor diagnostics and `git diff --check` — no errors; Windows line-ending notices only.
-- The user confirmed the first cross-platform `static-validation` GitHub Actions run passed after commit `0a44ce3`; detailed pass evidence was insufficient, so verbose CI evidence was added in the follow-up.
-- User-observed CLI dogfood remains pending.
+- Research findings documented in work-unit memory before implementation begins.
+- All temp-dir tests pass.
+- `check-adaptive-agents.sh --verbose` includes `check_gemini_cli` and passes.
+- Three-probe dogfood recorded with evidence.
+- `bash .adaptive-agents/scripts/check-project-layer.sh` passes after all changes.
 
 ## Supporting Documents
 
-- [Backlog specification](../backlog/PL-20260711-instruction-load-budget.md) — approved detailed implementation contract.
-- [PL-20260711-instruction-load-budget memory](PL-20260711-instruction-load-budget.memory.md) — cross-session decisions and handoff state.
+- [Backlog specification](../backlog/PL-20260711-gemini-cli-support.md) — approved lightweight objective, problem spec, and scope.
+- [PL-20260711-gemini-cli-support memory](PL-20260711-gemini-cli-support.memory.md) — research findings, decisions, and handoff state.
+- `scripts/install-claude-code.sh` — reference two-part installer for Claude Code.
+- `scripts/install-opencode.sh` — reference two-part installer for OpenCode.
+- `scripts/test-install-claude-code.sh` — reference isolated test pattern.
+- `scripts/test-opencode.sh` — reference isolated test pattern.
+- [Gemini CLI Configuration](https://google-gemini.github.io/gemini-cli/docs/get-started/configuration.html) — settings files, context system, `context.includeDirectories`, `context.fileName`.
+- [GEMINI.md Context Files](https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html) — context hierarchy: global (`~/.gemini/GEMINI.md`), project, subdirectory.
+- [Memory Import Processor](https://google-gemini.github.io/gemini-cli/docs/core/memport.html) — `@path` import syntax, supported formats, security, circular detection.
+- [Trusted Folders](https://google-gemini.github.io/gemini-cli/docs/cli/trusted-folders.html) — `security.folderTrust.enabled`, `~/.gemini/trustedFolders.json`.
+- [Gemini CLI Deployment](https://google-gemini.github.io/gemini-cli/docs/get-started/deployment.html) — Installation via `npm install -g @google/gemini-cli`.

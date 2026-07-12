@@ -2,9 +2,9 @@
 
 ## Current Work
 
-Active: [Instruction Load Budget](active/ACTIVE.md).
+Active: [Gemini CLI Support](active/ACTIVE.md).
 
-- Working memory: [PL-20260711-instruction-load-budget memory](active/PL-20260711-instruction-load-budget.memory.md)
+- Working memory: [PL-20260711-gemini-cli-support memory](active/PL-20260711-gemini-cli-support.memory.md)
 
 ## Queues
 
