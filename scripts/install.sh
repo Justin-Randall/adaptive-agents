@@ -109,7 +109,7 @@ fi
 
 # Antigravity 2.0 (desktop app)
 if [[ -z "$TOOL_FILTER" || "$TOOL_FILTER" == "antigravity" ]]; then
-  local detected=""
+  detected=""
   if [[ -n "${LOCALAPPDATA:-}" ]] && [[ -f "$LOCALAPPDATA/Programs/Antigravity/Antigravity.exe" ]]; then
     detected=1
   elif [[ -n "${PROGRAMFILES:-}" ]] && [[ -f "$PROGRAMFILES/Antigravity/Antigravity.exe" ]]; then
