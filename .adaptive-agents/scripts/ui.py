@@ -14,13 +14,14 @@ import queue
 import sys
 import threading
 import time
+import urllib.parse
 import webbrowser
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import HTTPServer, ThreadingHTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
 
 UI_DIR = Path(__file__).resolve().parent.parent / "ui"
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent  # adaptive-agents root
-PORT = 8080
+PORT = 8099
 DEBOUNCE_MS = 0.3  # seconds
 
 event_queue = queue.Queue()
@@ -279,8 +280,8 @@ class Handler(BaseHTTPRequestHandler):
             return self._send_json(tree_json())
 
         if path == "/api/file":
-            params = dict(p.split("=", 1) for p in query.split("&") if "=" in p)
-            file_path = params.get("path", "")
+            params = urllib.parse.parse_qs(query)
+            file_path = params.get("path", [""])[0]
             full = (REPO_ROOT / file_path).resolve()
             try:
                 full.relative_to(REPO_ROOT.resolve())
@@ -337,16 +338,21 @@ class Handler(BaseHTTPRequestHandler):
             return self._send_text("Forbidden", status=403)
         if full.exists() and full.is_file():
             content_type, _ = mimetypes.guess_type(str(full))
-            self._serve_static(
-                Path("..") / full.relative_to(UI_DIR.parent) if full != UI_DIR else path,
-                content_type or "application/octet-stream",
-            )
+            content_type = content_type or "application/octet-stream"
+            body = full.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(body)
+            self.wfile.flush()
             return
 
         # View route
         if path.startswith("/view"):
-            params = dict(p.split("=", 1) for p in query.split("&") if "=" in p)
-            file_path = params.get("path", "")
+            params = urllib.parse.parse_qs(query)
+            file_path = params.get("path", [""])[0]
             if file_path:
                 return self._serve_static("index.html", "text/html")
             return self._send_text("Missing path parameter", status=400)
@@ -371,7 +377,7 @@ def cmd_serve():
     watcher = WatchdogWatcher()
     watcher.start()
 
-    server = HTTPServer(("0.0.0.0", PORT), Handler)
+    server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
     url = f"http://localhost:{PORT}"
 
     print(f"Adaptive Agents Markdown Browser")

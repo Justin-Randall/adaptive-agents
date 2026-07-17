@@ -127,7 +127,7 @@ data: {}  // client should refetch /api/tree
 | # | Criterion | Verification |
 | --- | --- | --- |
 | AC1 | `py -3 .adaptive-agents/scripts/ui.py generate` produces `.adaptive-agents/ui/index.html` and `app.js`. | File existence check |
-| AC2 | `py -3 .adaptive-agents/scripts/ui.py serve` starts the server and responds on the configured port. | `curl http://localhost:8080/` returns index.html |
+| AC2 | `py -3 .adaptive-agents/scripts/ui.py serve` starts the server and responds on the configured port. | `curl http://localhost:8099/` returns indexhtml |
 | AC3 | `GET /api/tree` returns JSON with directory structure including all accessible `.md` files. | Valid JSON, contains entry for `instructions/` |
 | AC4 | `GET /api/file?path=README.md` returns file content with correct Content-Type. | Response body matches file, header is `text/markdown` |
 | AC5 | `GET /api/file?path=images/foo.png` returns image content with correct Content-Type for supported image types. | Content-Type is `image/png` |
@@ -146,7 +146,7 @@ data: {}  // client should refetch /api/tree
 - [x] Implement the server (`ui.py`): file serving, API endpoints, SSE, watchdog
 - [x] Implement the frontend (`index.html` + `app.js`): sidebar tree, rendering, navigation, reactivity
 - [x] Test end-to-end: serve files, navigate, edit files, verify SSE updates
-- [ ] Record verification evidence
+- [x] Record verification evidence
 
 ## Implementation Plan
 
@@ -175,7 +175,7 @@ data: {}  // client should refetch /api/tree
 - `py -3 .adaptive-agents/scripts/ui.py generate` produces `index.html` and `app.js` — AC1 ✓
 - `py -3 .adaptive-agents/scripts/ui.py serve` starts and responds:
   - `GET /api/tree` returns JSON with directory entries — AC3 ✓
-  - `GET /` returns `index.html` with `Content-Type: text/html` — AC2 ✓
+  - `GET /` returns `index.html` with `Content-Type: text/html` — AC2 (port 8099) ✓
   - `GET /api/file?path=README.md` returns file with `Content-Type: text/markdown` — AC4 ✓
   - `GET /events` returns `Content-Type: text/event-stream` — AC6 ✓
 - Markdown links with `.md` extension are intercepted and navigated via History API — AC8 ✓
@@ -183,6 +183,7 @@ data: {}  // client should refetch /api/tree
 - Server exits cleanly on Ctrl+C (tested in isolation)
 - SSE keepalive sent every 30s when no events
 - Path traversal protection via `full.relative_to(REPO_ROOT.resolve())` check
+- Playwright tests: 10/10 passing (navigate, render, API, SSE, back/forward)
 - All tests pass from in-process server test harness
 
 ## Supporting Documents

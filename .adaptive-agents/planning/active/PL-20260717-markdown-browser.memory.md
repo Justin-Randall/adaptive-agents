@@ -18,7 +18,7 @@ IDE markdown preview lacks navigation (no back/forward, no history). Users need 
 
 ## Open Questions
 
-- Default port? 8080 seems conventional. Could add `--port` later.
+- Default port? 8099 (avoiding 8080 which commonly conflicts). Could add `--port` later.
 - Should `generate` re-run automatically on `serve` if files are missing? Yes — auto-generate on serve if output doesn't exist.
 - What image types to support in `/api/file`? Start with png, jpg/jpeg, gif, svg, webp.
 
