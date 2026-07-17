@@ -2,7 +2,7 @@
 
 ## Current Work
 
-Active: None. See [active planning state](active/ACTIVE.md).
+Active: [PL-20260717 — Session-Start Adaptive Agents Upgrade Check](active/ACTIVE.md) ([memory](active/PL-20260717-session-start-upgrade-check.memory.md)).
 
 ## Queues
 
