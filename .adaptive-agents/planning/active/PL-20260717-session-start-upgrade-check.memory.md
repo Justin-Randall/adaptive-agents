@@ -55,3 +55,7 @@ No existing upgrade mechanism exists. Sessions never check for upstream changes.
 - Regex keys support object values with `approve` and `matchCommandLine`; full-line matching is appropriate for the canonical startup invocation.
 - Existing "Always Allow" choices are persisted in user settings, confirming user/profile scope rather than extension-private workspace storage.
 - Official references: <https://code.visualstudio.com/docs/agents/approvals> and <https://code.visualstudio.com/docs/agents/reference/ai-settings>.
+
+## Multi-Host Dogfood
+
+- 2026-07-17: Published a documentation-only marker commit to exercise remote update detection, approval, fast-forward pull, installer rerun, and guidance reload on another host.
