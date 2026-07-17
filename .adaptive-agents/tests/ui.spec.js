@@ -1,5 +1,7 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const fs = require('fs/promises');
+const path = require('path');
 
 test.describe('Markdown Browser', () => {
   test('loads Project Layer INDEX.md on start', async ({ page }) => {
@@ -93,5 +95,24 @@ test.describe('Markdown Browser', () => {
       req.setTimeout(5000, () => { req.destroy(); reject(new Error('timeout')); });
     });
     expect(headers['content-type']).toContain('text/event-stream');
+  });
+
+  test('updates every client displaying markdown after the file changes', async ({ page, context }, testInfo) => {
+    const repoRoot = path.resolve(__dirname, '../..');
+    const fixturePath = testInfo.outputPath('live-update.md');
+    const fixtureUrlPath = path.relative(repoRoot, fixturePath).replaceAll('\\', '/');
+    const secondPage = await context.newPage();
+    await fs.mkdir(path.dirname(fixturePath), { recursive: true });
+    await fs.writeFile(fixturePath, '# Before update\n', 'utf8');
+
+    await page.goto('/view?path=' + encodeURIComponent(fixtureUrlPath));
+    await secondPage.goto('/view?path=' + encodeURIComponent(fixtureUrlPath));
+    await expect(page.locator('#content')).toContainText('Before update');
+    await expect(secondPage.locator('#content')).toContainText('Before update');
+
+    await fs.writeFile(fixturePath, '# After update\n', 'utf8');
+
+    await expect(page.locator('#content')).toContainText('After update', { timeout: 5000 });
+    await expect(secondPage.locator('#content')).toContainText('After update', { timeout: 5000 });
   });
 });

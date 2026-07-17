@@ -27,6 +27,7 @@ from pathlib import Path
 
 root = Path(sys.argv[1]).resolve()
 failures = []
+ignored_directories = {"node_modules", "playwright-report", "test-results"}
 required = (
     "INDEX.md",
     "README.md",
@@ -55,8 +56,12 @@ for relative in required:
 
 link_pattern = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 graph = {}
+markdown_files = sorted(
+    path for path in root.rglob("*.md")
+    if not ignored_directories.intersection(path.relative_to(root).parts[:-1])
+)
 
-for source in sorted(root.rglob("*.md")):
+for source in markdown_files:
     graph.setdefault(source, set())
     text = source.read_text(encoding="utf-8")
     for raw_target in link_pattern.findall(text):
@@ -85,7 +90,7 @@ while queue:
     reachable.add(current)
     queue.extend(graph.get(current, ()))
 
-for markdown in sorted(root.rglob("*.md")):
+for markdown in markdown_files:
     if markdown not in reachable:
         failures.append(f"orphan Markdown file: {markdown.relative_to(root).as_posix()}")
 

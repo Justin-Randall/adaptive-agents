@@ -24,7 +24,30 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent  # adaptive-agents roo
 PORT = 8099
 DEBOUNCE_MS = 0.3  # seconds
 
-event_queue = queue.Queue()
+
+class EventBroker:
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._subscribers = set()
+
+    def subscribe(self):
+        subscriber = queue.Queue()
+        with self._lock:
+            self._subscribers.add(subscriber)
+        return subscriber
+
+    def unsubscribe(self, subscriber):
+        with self._lock:
+            self._subscribers.discard(subscriber)
+
+    def publish(self, event_type, data):
+        with self._lock:
+            subscribers = tuple(self._subscribers)
+        for subscriber in subscribers:
+            subscriber.put((event_type, data))
+
+
+event_broker = EventBroker()
 
 
 # ---------------------------------------------------------------------------
@@ -90,7 +113,7 @@ async function loadFile(path){
 function anchorHandler(a){const h=a.getAttribute('href');if(!h)return;if(h.startsWith('http://')||h.startsWith('https://')||h.startsWith('mailto:')||h.startsWith('#'))return;if(h.endsWith('.md')){a.addEventListener('click',e=>{e.preventDefault();navigateTo(resolvePath(currentPath||'',h))})}}
 function resolvePath(base,target){if(target.startsWith('/'))return target.slice(1);const parts=base.split('/').slice(0,-1).concat(target.split('/')),result=[];for(const p of parts){if(p==='.'||p==='')continue;if(p==='..'){result.pop();continue}result.push(p)}return result.join('/')}
 window.addEventListener('popstate',e=>{const p=new URLSearchParams(location.search).get('path')||(e.state&&e.state.path)||null;if(p)navigateTo(p,false);else navigateTo('.adaptive-agents/INDEX.md',false)})
-function connectSSE(){const s=new EventSource('/events');s.addEventListener('file_changed',e=>{const d=JSON.parse(e.data);if(d.path===currentPath)loadFile(currentPath)});s.onerror=()=>showStatus('SSE reconnecting...',3000)}
+function connectSSE(){const s=new EventSource('/events');s.addEventListener('file_changed',e=>{const d=JSON.parse(e.data);if(d.path===currentPath)loadFile(currentPath)});s.addEventListener('file_added',e=>{const d=JSON.parse(e.data);if(d.path===currentPath)loadFile(currentPath);showStatus('File added: '+d.path,3000)});s.addEventListener('file_removed',e=>{const d=JSON.parse(e.data);if(d.path===currentPath)navigateTo('.adaptive-agents/INDEX.md',false);showStatus('File removed: '+d.path,3000)});s.onerror=()=>showStatus('SSE reconnecting...',3000)}
 ready(()=>{marked.use({breaks:true,gfm:true});connectSSE();const ip=new URLSearchParams(location.search).get('path');if(ip)navigateTo(ip,false);else navigateTo('.adaptive-agents/INDEX.md',false)})
 
 """# ---------------------------------------------------------------------------
@@ -144,37 +167,42 @@ def tree_json():
 # ---------------------------------------------------------------------------
 
 class WatchdogWatcher:
-    """Monitors the repo root for file changes and puts events on the queue."""
+    """Monitors the repo root and publishes file changes to SSE clients."""
 
-    def __init__(self):
+    def __init__(self, broker=event_broker):
+        self._broker = broker
         self._observer = None
         self._running = False
         self._debounce_timer = None
         self._lock = threading.Lock()
         self._pending = set()
+        self._known_paths = set()  # paths seen on last flush, for add/remove detection
 
     def start(self):
         try:
             from watchdog.observers import Observer
             from watchdog.events import FileSystemEventHandler
         except ImportError:
+            print("watchdog not installed — file reactivity disabled")
             return  # watchdog not available — SSE events won't fire
 
         class Handler(FileSystemEventHandler):
             def on_any_event(_, event):
                 if event.is_directory:
                     return
-                src = event.src_path
                 try:
-                    rel = str(Path(src).relative_to(REPO_ROOT).as_posix())
+                    ev_path = Path(event.src_path).resolve()
+                    repo_path = REPO_ROOT.resolve()
+                    rel = str(ev_path.relative_to(repo_path).as_posix())
                 except ValueError:
+                    print(f"watchdog: path outside repo: {event.src_path}")
                     return
                 if not rel.endswith(".md"):
                     return
                 with self._lock:
                     self._pending.add(rel)
-                if self._debounce_timer and self._debounce_timer.is_alive():
-                    return
+                if self._debounce_timer is not None:
+                    self._debounce_timer.cancel()
                 self._debounce_timer = threading.Timer(DEBOUNCE_MS, self._flush)
                 self._debounce_timer.start()
 
@@ -182,24 +210,38 @@ class WatchdogWatcher:
         self._observer.schedule(Handler(), str(REPO_ROOT), recursive=True)
         self._observer.start()
         self._running = True
+        print(f"watchdog observer started on {REPO_ROOT}")
 
     def _flush(self):
         with self._lock:
             batch = list(self._pending)
             self._pending.clear()
+        if not batch:
+            return  # nothing to flush
         tree_changed = False
         for path in batch:
             full = REPO_ROOT / path
-            if full.exists():
-                event_queue.put(("file_changed", {"path": path}))
-            else:
-                event_queue.put(("file_removed", {"path": path}))
+            exists = full.exists()
+            was_known = path in self._known_paths
+            if exists:
+                self._broker.publish("file_changed", {"path": path})
+                if not was_known:
+                    tree_changed = True
+            elif was_known:
+                self._broker.publish("file_removed", {"path": path})
                 tree_changed = True
+            # Update known set
+            if exists:
+                self._known_paths.add(path)
+            else:
+                self._known_paths.discard(path)
         if tree_changed:
-            # also check for new files (watchdog doesn't always fire "created")
-            event_queue.put(("tree_changed", {}))
-        # periodic tree refresh in case of new files
-        event_queue.put(("tree_changed", {}))
+            self._broker.publish("tree_changed", {})
+        # Reschedule if new events arrived while flushing
+        with self._lock:
+            if self._pending:
+                self._debounce_timer = threading.Timer(DEBOUNCE_MS, self._flush)
+                self._debounce_timer.start()
 
     def stop(self):
         self._running = False
@@ -215,6 +257,7 @@ class WatchdogWatcher:
 # ---------------------------------------------------------------------------
 
 class Handler(BaseHTTPRequestHandler):
+    broker = event_broker
 
     def log_message(self, fmt, *args):
         pass  # quieter output
@@ -294,20 +337,22 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Connection", "keep-alive")
             self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
-            sid = id(self)
+            subscriber = self.broker.subscribe()
             try:
                 while True:
                     try:
-                        event_type, data = event_queue.get(timeout=30)
+                        event_type, data = subscriber.get(timeout=30)
                         line = f"event: {event_type}\ndata: {json.dumps(data)}\n\n"
                         self.wfile.write(line.encode("utf-8"))
                         self.wfile.flush()
                     except queue.Empty:
-                        # Send keepalive comment
                         self.wfile.write(": keepalive\n\n".encode("utf-8"))
                         self.wfile.flush()
-            except (BrokenPipeError, ConnectionResetError):
+            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
                 pass
+            finally:
+                self.broker.unsubscribe(subscriber)
+                self.close_connection = True
             return
 
         # Serve UI app files

@@ -83,6 +83,16 @@ orphan="$(new_fixture orphan)"
 printf '# Orphan\n' > "$orphan/orphan.md"
 expect_failure "$orphan" "orphan Markdown file: orphan.md"
 
+generated_outputs="$(new_fixture generated-outputs)"
+mkdir -p "$generated_outputs/tests/node_modules/example" "$generated_outputs/tests/test-results/example"
+printf '# Dependency documentation\n' > "$generated_outputs/tests/node_modules/example/README.md"
+printf '# Test artifact\n' > "$generated_outputs/tests/test-results/example/result.md"
+if bash "$generated_outputs/scripts/check-project-layer.sh" >/dev/null; then
+  pass
+else
+  fail "Validator should ignore generated dependency and test-output directories"
+fi
+
 broken_link="$(new_fixture broken-link)"
 printf '\n- [Missing](missing.md)\n' >> "$broken_link/INDEX.md"
 expect_failure "$broken_link" "INDEX.md: missing link target: missing.md"

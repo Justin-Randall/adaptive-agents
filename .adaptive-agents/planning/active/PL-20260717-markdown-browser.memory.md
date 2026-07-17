@@ -14,7 +14,7 @@ IDE markdown preview lacks navigation (no back/forward, no history). Users need 
 - **Project Layer scope**: Everything lives under `.adaptive-agents/`. Future graduates to canonical `ui/`.
 - **Read-only MVP**: No editing, creating, or deleting files through the UI. Browser only.
 - **Server runs from repo root**: Relative links and image references resolve naturally without rewriting.
-- **Reactivity via SSE**: Watchdog background thread feeds a queue; SSE handler reads and pushes to connected clients. Debounce 300ms.
+- **Reactivity via SSE**: Watchdog publishes through a broadcast broker; every SSE connection owns a subscriber queue so all clients receive each event. Debounce 300ms.
 
 ## Open Questions
 

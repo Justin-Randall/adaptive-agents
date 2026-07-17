@@ -34,18 +34,18 @@ The MVP must be simple, zero-infrastructure, and live within the Project Layer s
    - `/events` — SSE stream for file-change notifications.
 
 4. **Frontend** at `.adaptive-agents/ui/index.html` + `.adaptive-agents/ui/app.js`:
-   - Left sidebar: expandable file tree loaded from `/api/tree`.
-   - Right pane: rendered markdown via `marked.js` (CDN).
-   - History API navigation: back/forward work natively, URL reflects current file.
-   - `.md` links: navigate within the app using `history.pushState`.
-   - External links: open in new tab.
-   - Images: render inline in markdown output.
-   - SSE connection to `/events`: re-render current file on `file_changed`, refresh tree on `tree_changed`. Show a brief indicator on update.
+  - Full-width markdown viewer using `marked.js` (CDN).
+  - `.adaptive-agents/INDEX.md` as the default document.
+  - History API navigation: back/forward work natively, URL reflects current file.
+  - `.md` links: navigate within the app using `history.pushState`.
+  - External links: open in new tab.
+  - Images: render inline in markdown output.
+  - SSE connection to `/events`: re-render current file on `file_changed`, refresh tree on `tree_changed`. Show a brief indicator on update.
 
 5. **File watching:**
    - `watchdog.Observer` monitors the repo root recursively on a background thread.
    - Events debounced 300ms before dispatch.
-   - Changes pushed to all connected SSE clients via a shared queue.
+  - A broadcast broker gives each connected SSE client its own queue and publishes every change to every subscriber.
 
 ### Interface / Contract Spec
 
@@ -132,7 +132,7 @@ data: {}  // client should refetch /api/tree
 | AC4 | `GET /api/file?path=README.md` returns file content with correct Content-Type. | Response body matches file, header is `text/markdown` |
 | AC5 | `GET /api/file?path=images/foo.png` returns image content with correct Content-Type for supported image types. | Content-Type is `image/png` |
 | AC6 | `GET /events` returns `Content-Type: text/event-stream` and stays connected. | Response headers + connection stays open |
-| AC7 | Frontend loads in browser, sidebar shows file tree, clicking a file renders markdown. | Manual browser check |
+| AC7 | Frontend loads `.adaptive-agents/INDEX.md` in a full-width markdown viewer. | Playwright browser check |
 | AC8 | Clicking a `.md` link in rendered content navigates without page reload and updates the URL. | History API check: `pushState` called |
 | AC9 | Browser Back button loads the previously viewed file. | `popstate` event restores previous content |
 | AC10 | Creating a new `.md` file triggers a `file_added` SSE event within 1 second. | Watchdog + SSE delivery |
@@ -147,14 +147,16 @@ data: {}  // client should refetch /api/tree
 - [x] Implement the frontend (`index.html` + `app.js`): sidebar tree, rendering, navigation, reactivity
 - [x] Test end-to-end: serve files, navigate, edit files, verify SSE updates
 - [x] Record verification evidence
+- [x] Reach the user-verified MVP checkpoint
+- [ ] Refine and polish the deliverable
 
 ## Implementation Plan
 
 1. Create `.adaptive-agents/ui/` directory and `.gitkeep`.
 2. Implement `ui.py` with `generate` subcommand that writes `index.html` and `app.js` shells.
 3. Implement HTTP server: file serving + `/api/tree` + `/api/file` + `/events`.
-4. Implement watchdog integration on a background thread with shared event queue.
-5. Implement frontend: sidebar tree, markdown rendering, History API, SSE consumer.
+4. Implement watchdog integration on a background thread with per-client event broadcast.
+5. Implement frontend: full-width markdown rendering, History API, SSE consumer.
 6. Test manually: start server, open browser, navigate, edit files, verify reactivity.
 7. Add basic error handling (watchdog not installed, port in use, etc.).
 
@@ -169,6 +171,7 @@ data: {}  // client should refetch /api/tree
 | 2026-07-17 | History API for navigation | Back/forward work natively. No hash-router hackery. |
 | 2026-07-17 | `.adaptive-agents/ui/` for output | Lives inside the Project Layer, always available alongside guidance. |
 | 2026-07-17 | Server runs from repo root | Relative Markdown links and images resolve correctly without rewriting. |
+| 2026-07-17 | Per-client SSE queues | Filesystem events are broadcasts; a shared work queue lets one client consume another client's update. |
 
 ## Verification
 
@@ -183,7 +186,8 @@ data: {}  // client should refetch /api/tree
 - Server exits cleanly on Ctrl+C (tested in isolation)
 - SSE keepalive sent every 30s when no events
 - Path traversal protection via `full.relative_to(REPO_ROOT.resolve())` check
-- Playwright tests: 8/8 passing (INDEX.md start, navigation, back/forward, link interception, SSE, API)
+- Event broker unit tests prove one publication reaches every subscriber and unsubscribed clients stop receiving events
+- Playwright includes a two-client live-update regression: one filesystem save updates both rendered DOMs without navigation or reload
 - URL-encoded paths (%%2F) handled correctly via `urllib.parse.parse_qs`
 - Sidebar removed — app starts on `.adaptive-agents/INDEX.md` as home page
 - `ThreadingHTTPServer` handles SSE + regular requests concurrently
