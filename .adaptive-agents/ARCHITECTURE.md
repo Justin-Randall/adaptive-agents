@@ -22,7 +22,7 @@ The repository root owns reusable user-wide guidance. Raw observations begin in 
 
 ## Integration Boundary
 
-Tool integrations are adapters from each tool's native instruction-discovery and access mechanisms to the canonical `AGENTS.md` entrypoint. They may install minimal pointers, settings, or commands required by the tool, but they must not copy the guidance corpus or create competing sources of truth.
+Tool integrations are adapters from each tool's native instruction-discovery, lifecycle, and access mechanisms to canonical routed guidance. They may install minimal pointers, hooks, settings, or commands required by the tool, but they must not copy the guidance corpus or create competing sources of truth. Deterministic lifecycle hooks should inject canonical file contents directly rather than instructing a model to load or execute mandatory startup behavior.
 
 Installers must preserve unrelated user configuration, deduplicate managed values, support safe repeated execution, and verify behavior through fresh sessions or equivalent tool-native checks. A successful file write or installer exit is not sufficient proof that a tool loaded the guidance.
 

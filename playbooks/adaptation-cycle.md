@@ -128,7 +128,7 @@ Promotion should be a small, focused change.
 - Do not make the user-wide repository the target merely because it has more artifact types. Project-owned behavior belongs in the Project Layer.
 - Treat Project Layer to user-wide escalation as a new, separately approved promotion proposal.
 - Update `INDEX.md` when discovery changes.
-- Keep generated files, especially `vscode/user-wide.instructions.md`, as disposable bootstrap wiring.
+- Keep tool-native adapters as disposable wiring rather than sources of durable guidance.
 
 ## 5. Validate
 

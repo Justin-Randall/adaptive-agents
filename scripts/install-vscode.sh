@@ -1,26 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# install-vscode.sh
-#
-# Installs Adaptive Agents user-wide guidance for VS Code Chat / GitHub Copilot.
-#
-# This script:
-#   - detects the Adaptive Agents repository root
-#   - creates vscode/user-wide.instructions.md
-#   - updates VS Code user settings.json
-#   - adds this repository's vscode/ directory to chat.instructionsFilesLocations
-#   - grants read access to the repository root via github.copilot.chat.additionalReadAccessPaths
-#   - approves the exact Adaptive Agents session-start command line
-#   - enables applying instruction files
-#   - preserves existing settings where possible
-#   - creates a timestamped backup before modifying settings.json
-#
-# It does not:
-#   - modify project repositories
-#   - copy Adaptive Agents files into other repositories
-#   - store secrets
-#   - require the repository to live at a fixed path
+# Installs deterministic Adaptive Agents SessionStart integration for VS Code 1.129+.
 
 usage() {
   cat <<EOF
@@ -32,12 +13,6 @@ Options:
   --settings PATH      Use an explicit VS Code settings.json path.
   --code-flavor NAME   VS Code flavor: code, insiders, codium. Default: code.
   -h, --help           Show this help.
-
-Examples:
-  ./scripts/install-vscode.sh
-  ./scripts/install-vscode.sh --dry-run
-  ./scripts/install-vscode.sh --code-flavor insiders
-  ./scripts/install-vscode.sh --settings "\$APPDATA/Code/User/settings.json"
 EOF
 }
 
@@ -84,23 +59,18 @@ command_exists() {
 }
 
 to_unix_path() {
-  local p="$1"
-
   if command_exists cygpath; then
-    cygpath -u "$p" 2>/dev/null || printf '%s\n' "$p"
+    cygpath -u "$1" 2>/dev/null || printf '%s\n' "$1"
   else
-    printf '%s\n' "$p"
+    printf '%s\n' "$1"
   fi
 }
 
-to_vscode_setting_path() {
-  local p="$1"
-
-  # VS Code settings are safest with forward slashes, even on Windows.
+to_vscode_path() {
   if command_exists cygpath; then
-    cygpath -m "$p" 2>/dev/null || printf '%s\n' "$p"
+    cygpath -m "$1" 2>/dev/null || printf '%s\n' "$1"
   else
-    printf '%s\n' "$p"
+    printf '%s\n' "$1"
   fi
 }
 
@@ -112,16 +82,6 @@ detect_repo_root() {
     cd "$candidate" && pwd
     return
   fi
-
-  if command_exists git && git rev-parse --show-toplevel >/dev/null 2>&1; then
-    local top
-    top="$(git rev-parse --show-toplevel)"
-    if [[ -f "$top/AGENTS.md" && -f "$top/INDEX.md" ]]; then
-      printf '%s\n' "$top"
-      return
-    fi
-  fi
-
   echo "ERROR: Could not determine Adaptive Agents repository root." >&2
   exit 1
 }
@@ -134,423 +94,303 @@ detect_settings_path() {
 
   local uname_s
   uname_s="$(uname -s 2>/dev/null || echo unknown)"
-
+  local product_dir=""
   case "$CODE_FLAVOR" in
-    code)
-      case "$uname_s" in
-        MINGW*|MSYS*|CYGWIN*)
-          if [[ -n "${APPDATA:-}" ]]; then
-            to_unix_path "$APPDATA/Code/User/settings.json"
-          else
-            echo "ERROR: APPDATA is not set; use --settings PATH." >&2
-            exit 1
-          fi
-          ;;
-        Darwin*)
-          printf '%s\n' "$HOME/Library/Application Support/Code/User/settings.json"
-          ;;
-        *)
-          printf '%s\n' "$HOME/.config/Code/User/settings.json"
-          ;;
-      esac
-      ;;
-    insiders)
-      case "$uname_s" in
-        MINGW*|MSYS*|CYGWIN*)
-          if [[ -n "${APPDATA:-}" ]]; then
-            to_unix_path "$APPDATA/Code - Insiders/User/settings.json"
-          else
-            echo "ERROR: APPDATA is not set; use --settings PATH." >&2
-            exit 1
-          fi
-          ;;
-        Darwin*)
-          printf '%s\n' "$HOME/Library/Application Support/Code - Insiders/User/settings.json"
-          ;;
-        *)
-          printf '%s\n' "$HOME/.config/Code - Insiders/User/settings.json"
-          ;;
-      esac
-      ;;
-    codium)
-      case "$uname_s" in
-        MINGW*|MSYS*|CYGWIN*)
-          if [[ -n "${APPDATA:-}" ]]; then
-            to_unix_path "$APPDATA/VSCodium/User/settings.json"
-          else
-            echo "ERROR: APPDATA is not set; use --settings PATH." >&2
-            exit 1
-          fi
-          ;;
-        Darwin*)
-          printf '%s\n' "$HOME/Library/Application Support/VSCodium/User/settings.json"
-          ;;
-        *)
-          printf '%s\n' "$HOME/.config/VSCodium/User/settings.json"
-          ;;
-      esac
-      ;;
+    code) product_dir="Code" ;;
+    insiders) product_dir="Code - Insiders" ;;
+    codium) product_dir="VSCodium" ;;
     *)
       echo "ERROR: Unsupported --code-flavor '$CODE_FLAVOR'. Use code, insiders, or codium." >&2
       exit 1
       ;;
   esac
+
+  case "$uname_s" in
+    MINGW*|MSYS*|CYGWIN*)
+      if [[ -z "${APPDATA:-}" ]]; then
+        echo "ERROR: APPDATA is not set; use --settings PATH." >&2
+        exit 1
+      fi
+      to_unix_path "$APPDATA/$product_dir/User/settings.json"
+      ;;
+    Darwin*) printf '%s\n' "$HOME/Library/Application Support/$product_dir/User/settings.json" ;;
+    *) printf '%s\n' "$HOME/.config/$product_dir/User/settings.json" ;;
+  esac
 }
 
-write_user_wide_instructions() {
-  local repo_root="$1"
-  local out_file="$2"
-  local repo_setting_path="$3"
-
-  if [[ "$DRY_RUN" -eq 1 ]]; then
-    echo "[dry-run] Would write: $out_file"
-    return
-  fi
-
-  mkdir -p "$(dirname "$out_file")"
-
-  cat > "$out_file" <<EOF
----
-applyTo: "**"
----
-
-# User-Wide Adaptive Agent Bootstrap
-
-The user's canonical Adaptive Agents knowledgebase is located at:
-
-\`$repo_setting_path\`
-
-Apply these referenced Adaptive Agents instructions:
-
-- [Adaptive Agents operating rules]($repo_setting_path/AGENTS.md)
-- [Adaptive Agents routing index]($repo_setting_path/INDEX.md)
-- [Global user-wide instructions]($repo_setting_path/instructions/global.instructions.md)
-
-Before responding to the first user request, run \
-\`bash "$repo_setting_path/scripts/session-start.sh"\` once, even when the request is trivial or only asks whether Adaptive Agents is active. Treat any non-empty output as instructions to follow before answering. Do not wait to load the referenced guidance first.
-
-Before doing non-trivial coding work:
-
-1. Treat the Adaptive Agents repository as user-wide guidance.
-2. Follow the routing in the Adaptive Agents index to load only relevant checked-in instructions, skills, memories, prompts, agents, or playbooks.
-3. Also read the Current project repository's own local instructions if they exist.
-4. Check for \`.adaptive-agents/INDEX.md\`; when present, read its routed project instructions and active planning context after user-wide guidance.
-5. Project-local instructions override Adaptive Agents guidance when they are more specific.
-6. Do not create Adaptive Agents directories or files inside the Current project repository unless explicitly instructed or applying the user-approved Project Layer bootstrap workflow.
-7. Do not copy \`skills/\`, \`memory/\`, \`retrospectives/\`, \`agents/\`, \`playbooks/\`, or \`schemas/\` into the Current project repository unless explicitly instructed.
-8. If a durable user-wide lesson should be captured, propose or write it in the Adaptive Agents repository, not in the Current project repository.
-9. If unsure whether a lesson is durable, create or propose a retrospective note rather than modifying permanent instructions.
-
-The generated file is only a local bootstrap. Durable guidance belongs in checked-in Adaptive Agents repository files.
-EOF
-}
-
-update_vscode_settings() {
-  local settings_path="$1"
-  local instructions_dir_setting_path="$2"
-  local repo_root_path="$3"
-
-  python_candidate_works() {
-    local candidate="$1"
-    eval "$candidate --version >/dev/null 2>&1"
-  }
-
-  local settings_dir
-  settings_dir="$(dirname "$settings_path")"
-
-  if [[ "$DRY_RUN" -eq 1 ]]; then
-    echo "[dry-run] Would update VS Code settings: $settings_path"
-    echo "[dry-run] Would set chat.instructionsFilesLocations['$instructions_dir_setting_path'] = true"
-    echo "[dry-run] Would remove obsolete github.copilot.chat.additionalReadAccessFolders"
-    echo "[dry-run] Would set github.copilot.chat.additionalReadAccessPaths += ['$repo_root_path']"
-    echo "[dry-run] Would approve exact command: bash \"$repo_root_path/scripts/session-start.sh\""
-    echo "[dry-run] Would set chat.includeApplyingInstructions = true"
-    echo "[dry-run] Would set chat.includeReferencedInstructions = true"
-    return
-  fi
-
-  mkdir -p "$settings_dir"
-
-  if [[ ! -f "$settings_path" ]]; then
-    printf '{}\n' > "$settings_path"
-  fi
-
-  local backup_path
-  backup_path="${settings_path}.adaptive-agents.$(date +%Y%m%d-%H%M%S).bak"
-  cp "$settings_path" "$backup_path"
-
-  if command_exists python3 && python_candidate_works "python3"; then
-    PYTHON_BIN="python3"
-  elif command_exists python && python_candidate_works "python"; then
-    PYTHON_BIN="python"
-  elif command_exists py && python_candidate_works "py -3"; then
-    PYTHON_BIN="py -3"
+find_python_command() {
+  local uname_s
+  uname_s="$(uname -s 2>/dev/null || echo unknown)"
+  if [[ "$uname_s" == MINGW* || "$uname_s" == MSYS* || "$uname_s" == CYGWIN* ]] && py -3 -c 'import sys; raise SystemExit(sys.version_info < (3, 11))' >/dev/null 2>&1; then
+    PYTHON_CMD=(py -3)
+    HOOK_PYTHON_COMMAND="py -3"
+  elif python3 -c 'import sys; raise SystemExit(sys.version_info < (3, 11))' >/dev/null 2>&1; then
+    PYTHON_CMD=(python3)
+    HOOK_PYTHON_COMMAND="python3"
+  elif python -c 'import sys; raise SystemExit(sys.version_info < (3, 11))' >/dev/null 2>&1; then
+    PYTHON_CMD=(python)
+    HOOK_PYTHON_COMMAND="python"
+  elif py -3 -c 'import sys; raise SystemExit(sys.version_info < (3, 11))' >/dev/null 2>&1; then
+    PYTHON_CMD=(py -3)
+    HOOK_PYTHON_COMMAND="py -3"
   else
-    echo "ERROR: Python is required to safely update VS Code settings.json." >&2
-    echo "Detected Python launchers may be unavailable or misconfigured in this shell." >&2
-    echo "A backup was not written because settings were not modified." >&2
-    echo "Install Python, or update this setting manually:" >&2
-    echo "  chat.instructionsFilesLocations['$instructions_dir_setting_path'] = true" >&2
-    exit 1
+    echo "ERROR: Python 3.11 or newer is required for VS Code integration." >&2
+    return 1
+  fi
+}
+
+detect_vscode_version() {
+  local output="${ADAPTIVE_AGENTS_VSCODE_VERSION_OUTPUT:-}"
+  local cli=""
+  case "$CODE_FLAVOR" in
+    code) cli="code" ;;
+    insiders) cli="code-insiders" ;;
+    codium) cli="codium" ;;
+    *)
+      echo "ERROR: Unsupported --code-flavor '$CODE_FLAVOR'. Use code, insiders, or codium." >&2
+      return 1
+      ;;
+  esac
+
+  if [[ -z "$output" ]]; then
+    if ! command_exists "$cli" || ! output="$($cli --version 2>&1)"; then
+      echo "ERROR: Could not determine the $CODE_FLAVOR version." >&2
+      echo "Adaptive Agents requires VS Code 1.129.0 or newer." >&2
+      echo "Verify with: $cli --version" >&2
+      return 1
+    fi
+  fi
+  if [[ ! "$output" =~ ([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+    echo "ERROR: Could not parse the $CODE_FLAVOR version from: $output" >&2
+    echo "Adaptive Agents requires VS Code 1.129.0 or newer." >&2
+    echo "Verify with: $cli --version" >&2
+    return 1
   fi
 
-  # shellcheck disable=SC2086
-  $PYTHON_BIN - "$settings_path" "$instructions_dir_setting_path" "$repo_root_path" <<'PY'
+  local major="${BASH_REMATCH[1]}"
+  local minor="${BASH_REMATCH[2]}"
+  VSCODE_VERSION="$major.$minor.${BASH_REMATCH[3]}"
+  if (( major < 1 || (major == 1 && minor < 129) )); then
+    echo "ERROR: Detected $CODE_FLAVOR version $VSCODE_VERSION." >&2
+    echo "Adaptive Agents requires VS Code 1.129.0 or newer." >&2
+    return 1
+  fi
+}
+
+update_settings() {
+  local mode="$1"
+  local settings_path="$2"
+  local repo_root="$3"
+  local legacy_vscode_dir="$4"
+
+  "${PYTHON_CMD[@]}" - "$mode" "$settings_path" "$repo_root" "$legacy_vscode_dir" <<'PY'
 import json
 import re
 import sys
 from pathlib import Path
 
-settings_path = Path(sys.argv[1])
-instructions_dir = sys.argv[2]
-repo_root = sys.argv[3]
+mode, settings_name, repo_root, legacy_vscode_dir = sys.argv[1:]
+settings_path = Path(settings_name)
 
 
-def strip_jsonc(text: str) -> str:
-    """Remove // and /* */ comments while preserving string literals."""
+def strip_jsonc(text):
     result = []
-    i = 0
-    n = len(text)
+    index = 0
     in_string = False
-    escape = False
-    in_line_comment = False
-    in_block_comment = False
-
-    while i < n:
-        c = text[i]
-        nxt = text[i + 1] if i + 1 < n else ""
-
-        if in_line_comment:
-            if c in "\r\n":
-                in_line_comment = False
-                result.append(c)
-            i += 1
+    escaped = False
+    line_comment = False
+    block_comment = False
+    while index < len(text):
+        character = text[index]
+        following = text[index + 1] if index + 1 < len(text) else ""
+        if line_comment:
+            if character in "\r\n":
+                line_comment = False
+                result.append(character)
+            index += 1
             continue
-
-        if in_block_comment:
-            if c == "*" and nxt == "/":
-                in_block_comment = False
-                i += 2
+        if block_comment:
+            if character == "*" and following == "/":
+                block_comment = False
+                index += 2
             else:
-                if c in "\r\n":
-                    result.append(c)
-                i += 1
+                if character in "\r\n":
+                    result.append(character)
+                index += 1
             continue
-
         if in_string:
-            result.append(c)
-            if escape:
-                escape = False
-            elif c == "\\":
-                escape = True
-            elif c == '"':
+            result.append(character)
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == '"':
                 in_string = False
-            i += 1
+            index += 1
             continue
-
-        if c == '"':
+        if character == '"':
             in_string = True
-            result.append(c)
-            i += 1
+            result.append(character)
+            index += 1
             continue
-
-        if c == "/" and nxt == "/":
-            in_line_comment = True
-            i += 2
+        if character == "/" and following == "/":
+            line_comment = True
+            index += 2
             continue
-
-        if c == "/" and nxt == "*":
-            in_block_comment = True
-            i += 2
+        if character == "/" and following == "*":
+            block_comment = True
+            index += 2
             continue
-
-        result.append(c)
-        i += 1
-
+        result.append(character)
+        index += 1
     return "".join(result)
 
 
-def remove_trailing_commas(text: str) -> str:
-    """Remove trailing commas before ] or } while preserving string literals."""
-    result = []
-    i = 0
-    n = len(text)
-    in_string = False
-    escape = False
-    while i < n:
-        c = text[i]
-        if in_string:
-            result.append(c)
-            if escape:
-                escape = False
-            elif c == "\\":
-                escape = True
-            elif c == '"':
-                in_string = False
-            i += 1
-            continue
-        if c == '"':
-            in_string = True
-            result.append(c)
-            i += 1
-            continue
-        if c == ",":
-            j = i + 1
-            while j < n and text[j].isspace():
-                j += 1
-            if j < n and text[j] in "}]":
-                i += 1
-                continue
-        result.append(c)
-        i += 1
-    return "".join(result)
-
-
-raw = settings_path.read_text(encoding="utf-8").strip()
-
-if not raw:
-    settings = {}
-else:
-    try:
-        settings = json.loads(remove_trailing_commas(strip_jsonc(raw)))
-    except json.JSONDecodeError as exc:
-        print(f"ERROR: Could not parse VS Code settings file: {settings_path}", file=sys.stderr)
-        print(f"JSON error: {exc}", file=sys.stderr)
-        print("No changes were written. Restore from the generated backup if needed.", file=sys.stderr)
-        sys.exit(1)
+try:
+    raw = settings_path.read_text(encoding="utf-8") if settings_path.is_file() else "{}"
+    settings = json.loads(re.sub(r",\s*([}\]])", r"\1", strip_jsonc(raw)))
+except (json.JSONDecodeError, OSError) as error:
+    print(f"ERROR: Could not parse VS Code settings file: {settings_path}: {error}", file=sys.stderr)
+    raise SystemExit(1)
 
 if not isinstance(settings, dict):
     print("ERROR: VS Code settings root must be a JSON object.", file=sys.stderr)
-    sys.exit(1)
+    raise SystemExit(1)
+if settings.get("chat.useHooks") is False:
+    print("ERROR: chat.useHooks is false; enable hooks before installing Adaptive Agents.", file=sys.stderr)
+    raise SystemExit(1)
+if mode == "preflight":
+    raise SystemExit(0)
 
 locations = settings.get("chat.instructionsFilesLocations")
-if locations is None:
-    locations = {}
-elif not isinstance(locations, dict):
-    print("ERROR: Existing chat.instructionsFilesLocations is not an object.", file=sys.stderr)
-    sys.exit(1)
+if locations is not None:
+    if not isinstance(locations, dict):
+        print("ERROR: Existing chat.instructionsFilesLocations is not an object.", file=sys.stderr)
+        raise SystemExit(1)
+    locations.pop(legacy_vscode_dir, None)
+    if not locations:
+        settings.pop("chat.instructionsFilesLocations", None)
 
-locations[instructions_dir] = True
-settings["chat.instructionsFilesLocations"] = locations
-
-# Required for applyTo-based instruction files to be automatically included.
-settings["chat.includeApplyingInstructions"] = True
-
-# Helpful once instructions start linking to other Adaptive Agents files.
-settings["chat.includeReferencedInstructions"] = True
-
-# Remove the ineffective key generated by the initial implementation.
 settings.pop("github.copilot.chat.additionalReadAccessFolders", None)
-
-# Grant read access to the Adaptive Agents repository from any workspace.
-additional_paths = settings.get("github.copilot.chat.additionalReadAccessPaths")
-if additional_paths is None:
-    additional_paths = []
-elif not isinstance(additional_paths, list):
+additional_paths = settings.get("github.copilot.chat.additionalReadAccessPaths", [])
+if not isinstance(additional_paths, list):
     print("ERROR: Existing github.copilot.chat.additionalReadAccessPaths is not an array.", file=sys.stderr)
-    sys.exit(1)
-
+    raise SystemExit(1)
 if repo_root not in additional_paths:
     additional_paths.append(repo_root)
 settings["github.copilot.chat.additionalReadAccessPaths"] = additional_paths
 
-# Installing Adaptive Agents includes approval to run its exact session-start
-# entrypoint. Upgrade mutations remain separately gated by the script output.
+approval_value = {"approve": True, "matchCommandLine": True}
 terminal_approvals = settings.get("chat.tools.terminal.autoApprove")
-if terminal_approvals is None:
-    terminal_approvals = {}
-elif not isinstance(terminal_approvals, dict):
-    print("ERROR: Existing chat.tools.terminal.autoApprove is not an object.", file=sys.stderr)
-    sys.exit(1)
+if terminal_approvals is not None:
+    if not isinstance(terminal_approvals, dict):
+        print("ERROR: Existing chat.tools.terminal.autoApprove is not an object.", file=sys.stderr)
+        raise SystemExit(1)
+    for pattern, value in list(terminal_approvals.items()):
+        generated = (
+            value == approval_value
+            and pattern.startswith('/^bash\\ "')
+            and pattern.endswith('/scripts/session\\-start\\.sh"$/')
+        )
+        if generated:
+            del terminal_approvals[pattern]
+    if not terminal_approvals:
+        settings.pop("chat.tools.terminal.autoApprove", None)
 
-session_start_command = f'bash "{repo_root}/scripts/session-start.sh"'
-session_start_pattern = f"/^{re.escape(session_start_command)}$/"
-approval_value = {
-    "approve": True,
-    "matchCommandLine": True,
-}
-
-# Remove only exact rules previously generated by this installer. The narrow
-# signature deliberately excludes user-authored prefixes and non-bash rules.
-for pattern, value in list(terminal_approvals.items()):
-    is_generated_session_start_rule = (
-        value == approval_value
-        and pattern.startswith('/^bash\\ "')
-        and pattern.endswith('/scripts/session\\-start\\.sh"$/')
-    )
-    if is_generated_session_start_rule and pattern != session_start_pattern:
-        del terminal_approvals[pattern]
-
-terminal_approvals[session_start_pattern] = {
-    "approve": True,
-    "matchCommandLine": True,
-}
-settings["chat.tools.terminal.autoApprove"] = terminal_approvals
-
-settings_path.write_text(
-    json.dumps(settings, indent=2, ensure_ascii=False) + "\n",
-    encoding="utf-8",
-)
+settings_path.parent.mkdir(parents=True, exist_ok=True)
+settings_path.write_text(json.dumps(settings, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 PY
+}
 
-  echo "Backup written: $backup_path"
+write_hook() {
+  local hook_path="$1"
+  local adapter_path="$2"
+  local adapter_setting_path="$3"
+  if [[ ! -f "$adapter_path" ]]; then
+    echo "ERROR: SessionStart adapter is missing: $adapter_path" >&2
+    return 1
+  fi
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[dry-run] Would install deterministic SessionStart hook: $hook_path"
+    return
+  fi
+
+  "${PYTHON_CMD[@]}" - "$hook_path" "$HOOK_PYTHON_COMMAND \"$adapter_setting_path\"" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+hook_path = Path(sys.argv[1])
+payload = {
+    "hooks": {
+        "SessionStart": [
+            {"type": "command", "command": sys.argv[2], "timeout": 30}
+        ]
+    }
+}
+hook_path.parent.mkdir(parents=True, exist_ok=True)
+hook_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+json.loads(hook_path.read_text(encoding="utf-8"))
+PY
+}
+
+remove_legacy_bootstrap() {
+  local legacy_file="$1"
+  if [[ ! -f "$legacy_file" ]]; then
+    return
+  fi
+  if ! grep -Fq '# User-Wide Adaptive Agent Bootstrap' "$legacy_file"; then
+    echo "WARNING: Preserving unrecognized file at legacy bootstrap path: $legacy_file" >&2
+    return
+  fi
+  rm "$legacy_file"
+  rmdir "$(dirname "$legacy_file")" 2>/dev/null || :
 }
 
 main() {
   local repo_root
   repo_root="$(detect_repo_root)"
-
-  if [[ ! -f "$repo_root/AGENTS.md" || ! -f "$repo_root/INDEX.md" ]]; then
-    echo "ERROR: This does not look like the Adaptive Agents repository root." >&2
-    echo "Expected to find AGENTS.md and INDEX.md in: $repo_root" >&2
-    exit 1
-  fi
-
   local repo_setting_path
-  repo_setting_path="$(to_vscode_setting_path "$repo_root")"
-
-  local vscode_dir="$repo_root/vscode"
-  local instructions_file="$vscode_dir/user-wide.instructions.md"
-
-  local vscode_dir_setting_path
-  vscode_dir_setting_path="$(to_vscode_setting_path "$vscode_dir")"
-
+  repo_setting_path="$(to_vscode_path "$repo_root")"
   local settings_path
   settings_path="$(detect_settings_path)"
+  local legacy_vscode_dir
+  legacy_vscode_dir="$(to_vscode_path "$repo_root/vscode")"
+  local hook_path="$HOME/.copilot/hooks/adaptive-agents.json"
+  local adapter_path="$repo_root/scripts/vscode-session-start.py"
+  local adapter_setting_path
+  adapter_setting_path="$(to_vscode_path "$adapter_path")"
+
+  find_python_command
+  detect_vscode_version
+  update_settings preflight "$settings_path" "$repo_setting_path" "$legacy_vscode_dir"
 
   echo "Adaptive Agents repository: $repo_root"
   echo "VS Code flavor: $CODE_FLAVOR"
+  echo "VS Code version: $VSCODE_VERSION"
   echo "VS Code settings: $settings_path"
-  echo "VS Code instructions directory: $vscode_dir"
 
-  write_user_wide_instructions "$repo_root" "$instructions_file" "$repo_setting_path"
-  update_vscode_settings "$settings_path" "$vscode_dir_setting_path" "$repo_setting_path"
+  write_hook "$hook_path" "$adapter_path" "$adapter_setting_path"
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[dry-run] Would retain github.copilot.chat.additionalReadAccessPaths + repo root"
+    echo "[dry-run] Would remove installer-owned legacy VS Code bootstrap settings"
+    echo "Dry run complete. No files were modified."
+    return
+  fi
+
+  if [[ -f "$settings_path" ]]; then
+    cp "$settings_path" "${settings_path}.adaptive-agents.$(date +%Y%m%d-%H%M%S).bak"
+  fi
+  update_settings apply "$settings_path" "$repo_setting_path" "$legacy_vscode_dir"
+  remove_legacy_bootstrap "$repo_root/vscode/user-wide.instructions.md"
 
   echo
-  if [[ "$DRY_RUN" -eq 1 ]]; then
-    echo "Dry run complete. No files were modified."
-  else
-    echo "VS Code setup complete."
-    echo
-    echo "Generated:"
-    echo "  $instructions_file"
-    echo
-    echo "Updated:"
-    echo "  $settings_path"
-    echo "    - chat.instructionsFilesLocations + vscode/ directory"
-    echo "    - github.copilot.chat.additionalReadAccessPaths + repo root"
-    echo "    - chat.tools.terminal.autoApprove + exact session-start command"
-    echo "    - chat.includeApplyingInstructions = true"
-    echo "    - chat.includeReferencedInstructions = true"
-    echo
-    echo "Verification (fresh VS Code Chat session in an unrelated repository):"
-    echo "  1. Sentinel:      \"Are Adaptive Agents active?\" -> ADAPTIVE_AGENTS_GLOBAL_LOADED"
-    echo "  2. Content proof: \"What is in section 1 of the Adaptive Agents INDEX.md?\""
-    echo "                    -> must describe the items listed from the repository"
-    echo "  3. Write-back:    ask for a retrospective capture -> file appears in"
-    echo "                    $repo_root/retrospectives/inbox/"
-    echo "The sentinel alone is not proof; repeat across multiple fresh sessions."
-  fi
+  echo "VS Code setup complete with deterministic SessionStart hook."
+  echo "Installed: $hook_path"
+  echo "Session status: $HOME/.cache/adaptive-agents/vscode-session-start-status.json"
+  echo "Updated: $settings_path"
+  echo "  - github.copilot.chat.additionalReadAccessPaths + repo root"
+  echo "  - removed installer-owned legacy bootstrap settings"
 }
 
 main "$@"

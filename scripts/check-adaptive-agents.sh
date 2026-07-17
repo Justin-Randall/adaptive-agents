@@ -27,7 +27,7 @@ Checks:
   - Project Layer validator regression tests reject known defects
   - instruction-load budget regression tests pass
   - static startup instruction load remains within budget
-  - VS Code integration satisfies the two-part contract (instructions loading + read-access trust grant)
+  - VS Code integration has a valid deterministic SessionStart hook and read-access trust grant
   - OpenCode config satisfies the single-entrypoint contract
   - Claude Code integration has instructions loading and read-access grant
   - Antigravity integration has instructions loading
@@ -155,6 +155,11 @@ check_required_paths() {
     scripts/install-opencode.sh
     scripts/test-opencode.sh
     scripts/test-install-vscode.sh
+    scripts/test-install.sh
+    scripts/vscode-session-start.py
+    scripts/test-vscode-session-start.py
+    scripts/check-vscode-integration.py
+    scripts/test-vscode-integration.py
     .adaptive-agents/INDEX.md
     .adaptive-agents/project-layer.json
     .adaptive-agents/scripts/check-project-layer.sh
@@ -426,37 +431,41 @@ has_promotion_link() {
 }
 
 check_vscode_integration() {
-  local settings_path=""
+  local settings_path="${ADAPTIVE_AGENTS_VSCODE_SETTINGS_PATH:-}"
+  local hook_path="${ADAPTIVE_AGENTS_VSCODE_HOOK_PATH:-$HOME/.copilot/hooks/adaptive-agents.json}"
+  local version_output="${ADAPTIVE_AGENTS_VSCODE_VERSION_OUTPUT:-}"
   local uname_s
   uname_s="$(uname -s 2>/dev/null || echo unknown)"
 
-  # Auto-detect VS Code settings.json (same logic as install-vscode.sh)
-  case "$uname_s" in
-    MINGW*|MSYS*|CYGWIN*)
-      if [[ -n "${APPDATA:-}" ]]; then
-        settings_path="$APPDATA/Code/User/settings.json"
-      fi
-      ;;
-    Darwin*)
-      settings_path="$HOME/Library/Application Support/Code/User/settings.json"
-      ;;
-    *)
-      settings_path="$HOME/.config/Code/User/settings.json"
-      ;;
-  esac
-
-  if [[ -z "$settings_path" || ! -f "$settings_path" ]]; then
-    pass "VS Code integration SKIP (settings.json not found)"
-    return 0
+  if [[ -z "$settings_path" ]]; then
+    case "$uname_s" in
+      MINGW*|MSYS*|CYGWIN*)
+        if [[ -n "${APPDATA:-}" ]]; then
+          settings_path="$APPDATA/Code/User/settings.json"
+        fi
+        ;;
+      Darwin*) settings_path="$HOME/Library/Application Support/Code/User/settings.json" ;;
+      *) settings_path="$HOME/.config/Code/User/settings.json" ;;
+    esac
   fi
 
+  if [[ ! -f "$settings_path" && ! -f "$hook_path" ]] && ! command_exists code; then
+    pass "VS Code integration SKIP (VS Code not detected)"
+    return 0
+  fi
   if ! find_python; then
     warn "Python not found; cannot validate the VS Code integration"
     return 0
   fi
+  if [[ -z "$version_output" ]]; then
+    if command_exists code; then
+      version_output="$(code --version 2>&1 || printf 'unknown')"
+    else
+      version_output="unknown"
+    fi
+  fi
 
   local repo_setting_path
-  # Normalize to forward slashes, same as install-vscode.sh
   if command_exists cygpath; then
     repo_setting_path="$(cygpath -m "$REPO_ROOT" 2>/dev/null || printf '%s\n' "$REPO_ROOT")"
   else
@@ -464,159 +473,16 @@ check_vscode_integration() {
   fi
 
   local check_output
-  if check_output="$("${PYTHON_CMD[@]}" - "$settings_path" "$repo_setting_path" <<'PY'
-import json
-import sys
-from pathlib import Path
-
-settings_path = Path(sys.argv[1])
-repo_root = sys.argv[2]
-
-
-def strip_jsonc(text: str) -> str:
-    """Remove // and /* */ comments while preserving string literals."""
-    result = []
-    i = 0
-    n = len(text)
-    in_string = False
-    escape = False
-    in_line_comment = False
-    in_block_comment = False
-
-    while i < n:
-        c = text[i]
-        nxt = text[i + 1] if i + 1 < n else ""
-
-        if in_line_comment:
-            if c in "\r\n":
-                in_line_comment = False
-                result.append(c)
-            i += 1
-            continue
-
-        if in_block_comment:
-            if c == "*" and nxt == "/":
-                in_block_comment = False
-                i += 2
-            else:
-                if c in "\r\n":
-                    result.append(c)
-                i += 1
-            continue
-
-        if in_string:
-            result.append(c)
-            if escape:
-                escape = False
-            elif c == "\\":
-                escape = True
-            elif c == '"':
-                in_string = False
-            i += 1
-            continue
-
-        if c == '"':
-            in_string = True
-            result.append(c)
-            i += 1
-            continue
-
-        if c == "/" and nxt == "/":
-            in_line_comment = True
-            i += 2
-            continue
-
-        if c == "/" and nxt == "*":
-            in_block_comment = True
-            i += 2
-            continue
-
-        result.append(c)
-        i += 1
-
-    return "".join(result)
-
-
-def remove_trailing_commas(text: str) -> str:
-    """Remove trailing commas before ] or } while preserving string literals."""
-    result = []
-    i = 0
-    n = len(text)
-    in_string = False
-    escape = False
-    while i < n:
-        c = text[i]
-        if in_string:
-            result.append(c)
-            if escape:
-                escape = False
-            elif c == "\\":
-                escape = True
-            elif c == '"':
-                in_string = False
-            i += 1
-            continue
-        if c == '"':
-            in_string = True
-            result.append(c)
-            i += 1
-            continue
-        if c == ",":
-            j = i + 1
-            while j < n and text[j].isspace():
-                j += 1
-            if j < n and text[j] in "}]":
-                i += 1
-                continue
-        result.append(c)
-        i += 1
-    return "".join(result)
-
-
-try:
-    raw = settings_path.read_text(encoding="utf-8").strip()
-    if not raw:
-        settings = {}
-    else:
-        settings = json.loads(remove_trailing_commas(strip_jsonc(raw)))
-except (json.JSONDecodeError, OSError) as exc:
-    print(f"could not parse {settings_path}: {exc}")
-    raise SystemExit(1)
-
-problems = []
-
-# Part A: instructions loading
-vscode_dir = f"{repo_root}/vscode"
-locations = settings.get("chat.instructionsFilesLocations", {})
-if not isinstance(locations, dict):
-    problems.append("chat.instructionsFilesLocations is not an object")
-elif not locations.get(vscode_dir, False):
-    problems.append(f"vscode/ directory not registered in chat.instructionsFilesLocations")
-
-if not settings.get("chat.includeApplyingInstructions", False):
-    problems.append("chat.includeApplyingInstructions is not enabled")
-
-if not settings.get("chat.includeReferencedInstructions", False):
-    problems.append("chat.includeReferencedInstructions is not enabled")
-
-# Part B: read-access trust grant
-additional_paths = settings.get("github.copilot.chat.additionalReadAccessPaths", [])
-if not isinstance(additional_paths, list):
-    problems.append("github.copilot.chat.additionalReadAccessPaths is not an array")
-elif repo_root not in additional_paths:
-    problems.append("github.copilot.chat.additionalReadAccessPaths does not include the repo root")
-
-if "github.copilot.chat.additionalReadAccessFolders" in settings:
-    problems.append("obsolete github.copilot.chat.additionalReadAccessFolders remains; rerun scripts/install-vscode.sh")
-
-print("\n".join(problems))
-raise SystemExit(1 if problems else 0)
-PY
-  )"; then
-    pass "VS Code integration satisfies the two-part contract (Part A: instructions loading + Part B: read-access trust grant)"
+  if check_output="$("${PYTHON_CMD[@]}" "$REPO_ROOT/scripts/check-vscode-integration.py" \
+    --settings "$settings_path" \
+    --hook "$hook_path" \
+    --repo-root "$repo_setting_path" \
+    --version-output "$version_output")"; then
+    pass "VS Code integration has a valid deterministic SessionStart hook and read grant"
   else
-    warn "VS Code integration drift: ${check_output:-unparseable config at $settings_path}"
+    warn "VS Code integration drift: ${check_output:-validator returned no details}"
   fi
+  return 0
 }
 
 check_antigravity() {

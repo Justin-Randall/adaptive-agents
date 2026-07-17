@@ -4,7 +4,7 @@ This playbook describes how the agent checks for Adaptive Agents repository upda
 
 ## When to Use
 
-Run `bash <repo-root>/scripts/check-upgrade.sh` once per conversation after loading guidance. If it exits 0 with an action line, read this playbook and carry out the upgrade. If it exits 1, nothing needs to be done — no further action for this conversation.
+Run `scripts/session-start.sh` once per conversation through the installed integration. VS Code 1.129.0 or newer runs it deterministically through the personal `SessionStart` hook; integrations without lifecycle hooks follow their first-response startup guidance. Do not invoke the upgrade probe directly.
 
 ## Refusal guard
 
@@ -18,8 +18,8 @@ No session concept, no marker cleanup, no model memory needed. Crash-safe by des
 
 The agent is typically not inside the Adaptive Agents directory. Determine the repo root by checking these sources in order:
 
-1. **Loaded instruction content** — the user-wide bootstrap file (`vscode/user-wide.instructions.md`) explicitly states the repo path on line 6.
-2. **`@`-referenced paths** in loaded instructions — extract the common directory root from paths such as `@<repo-root>/AGENTS.md`.
+1. **Loaded startup context** — the VS Code hook context explicitly states the canonical repository path.
+2. **Referenced instruction paths** — extract the common directory root from loaded canonical file references.
 3. **Tool configuration** — VS Code `github.copilot.chat.additionalReadAccessPaths`, Claude Code `permissions.additionalDirectories`, or similar configured path in the current tool.
 4. **Working directory fallback** — if `AGENTS.md` exists at the root of the current directory.
 

@@ -56,7 +56,6 @@ These areas are expected to grow over time. Some directories may not exist yet w
 | `retrospectives/` | Raw observations and session learnings before promotion into durable guidance. |
 | `schemas/` | Shared schemas for structured guidance, metadata, or validation. |
 | `templates/` | Canonical reusable source trees for explicitly bootstrapped project-owned features. |
-| `vscode/` | Generated or VS Code-facing integration files when setup scripts create them. |
 
 ## Default Instructions
 
@@ -89,7 +88,7 @@ For comparing an existing Project Layer with a newer canonical template, load:
 
 - [skills/upgrade-project-layer/SKILL.md](skills/upgrade-project-layer/SKILL.md)
 
-This skill covers promoting retrospectives, choosing durable guidance targets, using Markdown links between checked-in documents, and keeping generated bootstrap files disposable.
+This skill covers promoting retrospectives, choosing durable guidance targets, using Markdown links between checked-in documents, and keeping tool adapters minimal.
 
 ## Adaptation Lifecycle
 
@@ -136,7 +135,7 @@ The repository is currently bootstrap-stage. `AGENTS.md` and `README.md` define 
 
 ## VS Code / GitHub Copilot
 
-VS Code integration should be installed through the setup flow documented in `README.md`. Generated VS Code-facing files should live under `vscode/` and should make the Adaptive Agents repository discoverable as user-wide guidance without modifying ordinary project repositories.
+VS Code integration should be installed through the setup flow documented in `README.md`. The installer owns one personal `SessionStart` hook and the external repository read grant; canonical guidance remains in its routed repository files.
 
 ## Maintenance Notes
 

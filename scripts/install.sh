@@ -161,18 +161,31 @@ if [[ ${#SUB_INSTALLERS[@]} -eq 0 ]]; then
   exit 0
 fi
 
+FAILED_INSTALLERS=()
+
 for installer in "${SUB_INSTALLERS[@]}"; do
   if [[ -f "$installer" ]]; then
     echo "Running: $installer"
     if [[ "$DRY_RUN" -eq 1 ]]; then
-      bash "$installer" --dry-run
+      if ! bash "$installer" --dry-run; then
+        FAILED_INSTALLERS+=("$(basename "$installer")")
+      fi
     else
-      bash "$installer"
+      if ! bash "$installer"; then
+        FAILED_INSTALLERS+=("$(basename "$installer")")
+      fi
     fi
     echo
   else
     echo "WARNING: Installer not found: $installer" >&2
+    FAILED_INSTALLERS+=("$(basename "$installer")")
   fi
 done
+
+if [[ ${#FAILED_INSTALLERS[@]} -gt 0 ]]; then
+  echo "Failed integrations:" >&2
+  printf '  - %s\n' "${FAILED_INSTALLERS[@]}" >&2
+  exit 1
+fi
 
 echo "Done."

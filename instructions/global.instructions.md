@@ -16,7 +16,7 @@ Before making changes:
 6. When a session reveals a recurring lesson, failure mode, preference, or guidance drift, follow the autonomous capture triggers in [adaptation-cycle.md](../playbooks/adaptation-cycle.md); capture or propose only a sanitized `Captured` retrospective unless the user explicitly approves promotion.
 7. In a Current project repository or directory, check for `.adaptive-agents/INDEX.md`. When present, read its routed project instructions and active planning context after this user-wide guidance.
 8. When you need a value that can be retrieved via a terminal command (e.g., the current date via `date -u +%Y%m%d`), run the command rather than fabricating the value.
-9. Before responding to the first user request, run `bash "<repo-root>/scripts/session-start.sh"` once using the canonical Adaptive Agents repository root from the loaded bootstrap, even when the request is trivial or only asks whether Adaptive Agents is active. Treat any non-empty output as instructions to follow before answering.
+9. Unless deterministic lifecycle context explicitly states that Adaptive Agents session startup already ran, run `bash "<repo-root>/scripts/session-start.sh"` once before responding to the first user request, even when the request is trivial or only asks whether Adaptive Agents is active. Treat any non-empty output as instructions to follow before answering, and do not run startup again in the same conversation.
 
 Before the final response for non-trivial work, run a brief retrospective checkpoint:
 

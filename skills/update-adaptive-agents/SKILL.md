@@ -59,7 +59,7 @@ For non-trivial Adaptive Agents maintenance work, include a completion-time retr
 
 - Prefer small, focused files over expanding broad entrypoints.
 - Keep `instructions/global.instructions.md` short; it should route to more specific instruction files rather than contain all guidance.
-- Keep generated files, especially `vscode/user-wide.instructions.md`, minimal and disposable.
+- Keep tool-native adapters minimal and disposable; canonical guidance belongs in routed repository files.
 - Do not duplicate the same rule across many files unless repeated intentionally for discovery.
 - Use Markdown links when referencing other checked-in guidance files.
 - Keep checked-in retrospectives and durable guidance sanitized: do not include private project names, repository names, people, clients, paths, proprietary outputs, secrets, or raw copied logs unless the user explicitly says they are safe to include.

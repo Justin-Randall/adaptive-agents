@@ -10,9 +10,7 @@ cd adaptive-agents
 bash scripts/install.sh
 ```
 
-The installer detects supported tools already present on the machine and configures their native Adaptive Agents entrypoints.
-
-For VS Code, installation also adds a user-profile terminal approval for the exact command `bash "<repo-root>/scripts/session-start.sh"`. Saying "I want to install Adaptive Agents" includes consent for this narrowly scoped approval because the session-start framework is part of the installed integration. The rule does not approve generic Bash commands or Adaptive Agents upgrades.
+The installer detects supported tools already present on the machine and configures their native Adaptive Agents entrypoints. VS Code 1.129.0 or newer uses a deterministic user-level `SessionStart` hook; older versions must be updated before that integration can be installed.
 
 Requirements: Git, Bash, and Python 3. On Windows, use Git Bash or WSL.
 
@@ -179,22 +177,27 @@ Useful options:
 
 What the installer does:
 
-- detects repository root path
-- writes or refreshes `vscode/user-wide.instructions.md`
-- updates VS Code user `settings.json` additively
-- registers the repository guidance location for chat instructions
-- enables instruction loading/apply settings
-- approves the exact Adaptive Agents session-start command at user/profile scope
+- requires VS Code 1.129.0 or newer and Python 3.11 or newer
+- installs one Adaptive Agents-owned hook at `~/.copilot/hooks/adaptive-agents.json`
+- invokes the Python context adapter directly, without routing hook startup through Bash
+- injects manifest-routed canonical guidance before the first model response
+- runs `scripts/session-start.sh` through the hook and injects any non-empty probe output
+- retains the repository root in `github.copilot.chat.additionalReadAccessPaths` for later routed reads
+- removes installer-owned generated-bootstrap registration and terminal approval rules from prior versions
+- preserves unrelated hooks, instruction settings, terminal rules, and read-access paths
 - creates a timestamped backup before editing settings
 
-The terminal approval trusts `scripts/session-start.sh` and every probe under `scripts/session-start/`, including probes added by future Adaptive Agents updates. Session-start probes may inspect state and propose actions, but upgrade mutation remains separately gated: the agent must wait for explicit user approval before following an `--- ON APPROVE` section.
+The personal hook trusts the Python context adapter, `scripts/session-start.sh`, and every probe under `scripts/session-start/`, including probes added by future Adaptive Agents updates. On Windows, the adapter resolves Bash from the installed Git for Windows executable instead of using an ambiguous `bash` from `PATH`. Session-start probes may inspect state and propose actions, but upgrade mutation remains separately gated: the agent must wait for explicit user approval before following an `--- ON APPROVE` section.
+
+After successful hook execution, the adapter atomically writes `~/.cache/adaptive-agents/vscode-session-start-status.json`. The file records the UTC completion time, canonical repository, loaded-file count, and whether probes emitted dynamic output. The adapter removes the prior marker before each attempt, so a stale success cannot hide a failed startup. Inspect it after opening a fresh chat when validating lifecycle behavior.
 
 What it does not do:
 
 - modify unrelated project repositories
 - copy Adaptive Agents structure into other repositories
 - store secrets
-- approve generic shell commands or upgrades
+- add terminal auto-approval rules
+- update VS Code or apply Adaptive Agents upgrades automatically
 
 Note: the current checked-in installer is Bash (`scripts/install-vscode.sh`).
 
