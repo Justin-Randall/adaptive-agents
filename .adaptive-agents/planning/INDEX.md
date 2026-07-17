@@ -2,7 +2,7 @@
 
 ## Current Work
 
-Active: [PL-20260717 — Deterministic and Simplified VS Code Integration](active/ACTIVE.md) ([memory](active/PL-20260717-vscode-session-start-hook.memory.md)).
+Active: none. See [active status](active/ACTIVE.md).
 
 ## Queues
 

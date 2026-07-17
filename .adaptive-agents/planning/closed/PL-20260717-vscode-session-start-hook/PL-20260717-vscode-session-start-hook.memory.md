@@ -2,7 +2,7 @@
 
 - Work Unit: PL-20260717-vscode-session-start-hook
 - Activated: 2026-07-17
-- Status: Active — Complete, Closure Approval Pending
+- Status: Completed
 
 ## Trigger
 
@@ -17,7 +17,7 @@ Multi-host dogfood showed that clear first-response instructions are not a deter
 | VS Code core | Registers `chat.hookFilesLocations`, `chat.useHooks`, and personal hook discovery at `~/.copilot/hooks`. |
 | Copilot runtime | Executes `SessionStart` through the hook service before handling the request. |
 | Hook output | `hookSpecificOutput.additionalContext` is added to the model conversation. |
-| Current user state | `~/.copilot/hooks` does not exist on this host. |
+| Current user state | Hook-native integration is installed and validated on local and remote dogfood hosts. |
 | Prior local version | VS Code `1.128.0` did not expose the same hook configuration surface. |
 | Route-manifest report | Full-profile reporting passes after adding this active work-unit memory path to `adaptive_agents_planned_change`. |
 | Live migration | VS Code 1.129.0 installed `~/.copilot/hooks/adaptive-agents.json`; independent validation confirms the hook, read grant, and legacy-artifact removal. |
@@ -27,13 +27,14 @@ Multi-host dogfood showed that clear first-response instructions are not a deter
 | Corrected live hook | Installer regression executes the exact stored direct-Python command; focused adapter and independent health tests pass pending fresh-session lifecycle confirmation. |
 | Dogfood observability | Successful adapter completion atomically writes `~/.cache/adaptive-agents/vscode-session-start-status.json`; invocation start removes stale markers so absence indicates the latest attempt did not complete. |
 | Fresh-session lifecycle proof | A new VS Code chat wrote a success marker at `2026-07-17T09:57:35.007195Z` with eight files loaded and no dynamic output. AC8 passes. |
+| Remote-system dogfood | Full clone/install/fresh-session workflow passed from `origin/main`; the user approved closure. |
 
 ## Sources
 
 - <https://code.visualstudio.com/docs/copilot/customization/hooks>
 - <https://code.visualstudio.com/docs/agents/reference/hooks-reference>
 - Installed VS Code 1.129.0 core and bundled Copilot runtime.
-- Prior closed work: [SDD](../closed/PL-20260717-session-start-upgrade-check/PL-20260717-session-start-upgrade-check.sdd.md) and [memory](../closed/PL-20260717-session-start-upgrade-check/PL-20260717-session-start-upgrade-check.memory.md).
+- Prior closed work: [SDD](../PL-20260717-session-start-upgrade-check/PL-20260717-session-start-upgrade-check.sdd.md) and [memory](../PL-20260717-session-start-upgrade-check/PL-20260717-session-start-upgrade-check.memory.md).
 
 ## Decisions
 
@@ -57,8 +58,8 @@ Multi-host dogfood showed that clear first-response instructions are not a deter
 - Do not authorize upgrade mutations through the startup hook.
 - Do not remove legacy artifacts until the replacement hook is written and validated.
 - Do not unset generic instruction booleans whose ownership cannot be proven.
-- Do not close the work unit until a fresh VS Code session proves lifecycle ordering and the user approves closure.
+- Reopened work must use a new work-unit ID and link this immutable closure packet.
 
-## Next Step
+## Closure
 
-Request user approval to close the completed work unit.
+Completed and approved on 2026-07-17 after local and remote-system dogfood passed.

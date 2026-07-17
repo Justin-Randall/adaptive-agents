@@ -94,11 +94,6 @@
 					"path": ".adaptive-agents/planning/active/ACTIVE.md",
 					"classification": "profile",
 					"reason": "Planning router identifies this file as the current work specification."
-				},
-				{
-					"path": ".adaptive-agents/planning/active/PL-20260717-vscode-session-start-hook.memory.md",
-					"classification": "profile",
-					"reason": "Active work-unit memory preserves handoff-critical implementation evidence and decisions."
 				}
 			]
 		},
