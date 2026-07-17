@@ -14,7 +14,6 @@ Read this index before opening detailed plans or proposing a new item. Keep entr
 | PL-20260711 | [Copilot Agent Mode Support](PL-20260711-copilot-agent-mode.md) | Verify Agent Mode's user-wide instruction discovery and extend install-vscode.sh only where required — no project-owned .github/copilot-instructions.md generation, no prose load directives. | Ready |
 | PL-20260711 | [Cline Support](PL-20260711-cline-support.md) | Single-entrypoint installer: verified native user-wide rules mechanism loading repo AGENTS.md content, plus read/write trust grant. No .clineignore, skills/hooks mapping, or Kanban integration — fan-out handles everything. | Ready |
 | PL-20260711 | [Windsurf Support](PL-20260711-windsurf-support.md) | Single-entrypoint installer: verified native user-wide rules mechanism loading repo AGENTS.md content, plus read/write trust grant. No separate rule files. | Ready |
-| PL-20260710 | [Project Layer Web UI](PL-20260710-project-layer-web-ui.md) | A browsable, editable web interface that surfaces all Project Layer artifacts without requiring directory-tree navigation. | Ready |
 
 Detailed plans use `PL-YYYYMMDD-descriptive-slug.md` (or legacy `PL-YYYYMMDDTHHMMSSZ-...`, `PL-####-...`). Backlog items are lightweight — an Objective, Problem Spec, and one-line Scope suffice. The full SDD specification is written into `ACTIVE.md` during activation, not before. Updating an existing plan or creating a new one requires user approval.
 
