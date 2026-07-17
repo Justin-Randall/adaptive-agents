@@ -100,11 +100,11 @@ No new CLI or API surface for this feature. The upgrade workflow is invoked by t
 
 ## Scope
 
-1. **Detection prompt**: git fetch, rev-list comparison, user prompt with show-changelog option.
-2. **Upgrade execution**: git pull, installer re-run for detected tools, re-read entry point.
-3. **Once-per-session guard**: suppress repeated checks in the same session.
-4. **Logging**: report outcomes (skipped, upgraded, declined, failed) for user awareness.
-5. **Testing**: manual dogfood from a session that detects new commits.
+1. ✅ **Detection prompt**: git fetch, rev-list comparison, user prompt with show-changelog option.
+2. ✅ **Upgrade execution**: git pull, umbrella installer re-run, re-read entry point.
+3. ✅ **Once-per-session guard**: suppress repeated checks in the same session.
+4. ✅ **Logging**: report outcomes (skipped, upgraded, declined, failed) for user awareness.
+5. ⬜ **Testing**: manual dogfood from a session that detects new commits.
 
 ## Out of Scope
 

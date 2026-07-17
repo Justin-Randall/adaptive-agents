@@ -41,8 +41,8 @@ No existing upgrade mechanism exists. Sessions never check for upstream changes.
 | Phase | Status | Details |
 | ----- | ------ | ------- |
 | Spec | ✅ Complete | Full SDD in ACTIVE.md |
-| Implementation | ⬜ Pending | |
-| Dogfood | ⬜ Pending | |
+| Implementation | ✅ Complete | Playbook, global.instructions.md hook, and INDEX.md routing deployed. |
+| Dogfood | ⬜ Pending | Requires a subsequent push to origin/main and a fresh session. |
 
 ## Deferred Discoveries
 

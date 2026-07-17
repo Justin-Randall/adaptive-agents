@@ -23,6 +23,7 @@ When working inside another project, treat Adaptive Agents content as reusable g
 | Reviewing structural upgrades for an existing Project Layer | [skills/upgrade-project-layer/SKILL.md](skills/upgrade-project-layer/SKILL.md) |
 | Reusable Project Layer source | [templates/project-layer/template.json](templates/project-layer/template.json) and [template routing root](templates/project-layer/.adaptive-agents/INDEX.md) |
 | Running the adaptation lifecycle | [playbooks/adaptation-cycle.md](playbooks/adaptation-cycle.md) |
+| Checking for upgrades at session start | [playbooks/session-start-upgrade-check.md](playbooks/session-start-upgrade-check.md) |
 | Selecting shells for Windows command execution | [playbooks/windows-shell-selection.md](playbooks/windows-shell-selection.md) |
 | Using temporary diagnostics with searchable IDs and cleanup gates | [playbooks/temporary-diagnostic-logging.md](playbooks/temporary-diagnostic-logging.md) |
 | Planning adaptive automation layers | [playbooks/adaptive-automation-roadmap.md](playbooks/adaptive-automation-roadmap.md) |
@@ -94,6 +95,7 @@ This skill covers promoting retrospectives, choosing durable guidance targets, u
 For the end-to-end learning loop, use:
 
 - [playbooks/adaptation-cycle.md](playbooks/adaptation-cycle.md)
+- [playbooks/session-start-upgrade-check.md](playbooks/session-start-upgrade-check.md)
 - [playbooks/windows-shell-selection.md](playbooks/windows-shell-selection.md)
 - [playbooks/temporary-diagnostic-logging.md](playbooks/temporary-diagnostic-logging.md)
 - [playbooks/adaptive-automation-roadmap.md](playbooks/adaptive-automation-roadmap.md)
