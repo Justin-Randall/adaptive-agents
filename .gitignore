@@ -20,3 +20,6 @@ retrospectives/**/*.local.md
 
 # Node / npm (if any scripts use it)
 node_modules/
+
+# For those using Obsidian to view all the markdown files in this repo, ignore the following:
+.obsidian/

@@ -12,6 +12,7 @@ Default coding standards:
 - Read existing code before introducing new patterns.
 - Do not invent APIs, paths, project structure, or tool behavior.
 - Verify claims against source code, local files, documentation, compiler output, test output, MCP output, or command output where practical.
+- When a deterministic check exists, verification requires running it. The check must be capable of falsifying the claim, and its expected result must come from a contract or evidence independent of the implementation under test. Re-reading the changed artifact or checking output against the same assumptions used to produce it is self-review, not verification. When no deterministic check is available, use externally grounded evidence and report the validation limitation.
 - When changes affect project structure, setup commands, public workflows, prompt invocation, user-facing behavior, or discoverability, check whether `README.md` or other user-facing documentation needs to be updated. Do not describe aspirational files or workflows as implemented.
 - Prefer small, reversible changes.
 - Preserve project-local style unless explicitly asked to refactor.
@@ -22,7 +23,7 @@ After the requested scope is complete and at least one focused validation has su
 
 ### Self-Review Before Presentation
 
-Before presenting a work product (SDD, architecture document, design spec, implementation plan, or other deliverable) for user approval, run this structured self-review checklist:
+Before presenting a work product (SDD, architecture document, design spec, implementation plan, or other deliverable) for user approval, run this structured self-review checklist. Self-review improves the work product but does not replace executable or externally grounded validation:
 
 1. **Cross-reference claims** — Verify each factual claim against its source (docs, code, reference implementations) rather than relying on memory.
 2. **Check for ambiguity** — Flag any "consider", "optional", "may", or otherwise non-decisive language and make it decisive.

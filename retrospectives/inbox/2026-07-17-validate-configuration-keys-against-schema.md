@@ -1,7 +1,7 @@
-# Retrospective: Validate configuration keys against product schemas
+# Retrospective: Verification must independently falsify claims
 
 - Date: 2026-07-17
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Correcting an installer setting after live integration testing falsified the first implementation
 
@@ -27,22 +27,22 @@ A self-consistent installer and checker can produce a convincing false pass when
 - Rationale: Exact configuration-key validation applies across unrelated editors, CLIs, extensions, SDKs, and deployment tools whenever automation writes product-owned configuration.
 - Project Layer considered: The failure concerns a general installer and validation method, not behavior unique to one project.
 
-## Proposed User-Wide Target
+## Durable Lesson
 
-A future promotion should update installer or coding guidance to require:
+Verification requires evidence capable of disproving the claim. When deterministic checks exist, agents must run them and establish expected results from a contract or evidence independent of the implementation under test. Re-reading a changed artifact or checking output against the same assumptions that produced it is self-review, not verification.
 
-- verification of exact keys, types, and scope against an authoritative schema or source;
-- a health check whose expected contract is independently established rather than copied from installer output; and
-- a behavioral dogfood check for configuration that changes external product behavior.
+The configuration incident is one concrete instance: exact keys, types, and scope must come from an authoritative schema or source, and a health check cannot establish correctness merely by finding what its installer chose to write.
 
-Likely targets are `instructions/coding.instructions.md` or a focused installer-validation playbook.
+## Promoted User-Wide Target
+
+- `instructions/coding.instructions.md` — requires independent, falsifiable deterministic validation when available and distinguishes self-review from verification.
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Pending triage
-- Rationale: The lesson is evidence-backed and reusable, but the narrowest durable target and wording have not been reviewed through the promotion workflow.
+- Status: Promoted
+- Decision: Promoted to existing guidance
+- Rationale: The failure mode is broader than product configuration and belongs in the already-routed default coding standard. A focused rule is sufficient; a new playbook would duplicate the existing TDD requirement for falsifying checks.
 
 ## Promotion Links
 
-- None yet.
+- [Coding instructions](../../instructions/coding.instructions.md)
