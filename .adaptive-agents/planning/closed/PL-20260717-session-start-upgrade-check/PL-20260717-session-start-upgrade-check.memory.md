@@ -2,7 +2,7 @@
 
 - Work Unit: PL-20260717-session-start-upgrade-check
 - Activated: 2026-07-17
-- Status: Active
+- Status: Closed — Completed (2026-07-17)
 
 ## Starting State
 
@@ -33,13 +33,6 @@ No existing upgrade mechanism exists. Sessions never check for upstream changes.
 | `scripts/install-claude-code.sh` | Claude Code installer |
 | `scripts/install-opencode.sh` | OpenCode installer |
 | `scripts/install-antigravity.sh` | Antigravity 2.0 installer |
-
-## Open Questions
-
-1. How should the agent represent the once-per-session guard? A session variable, a context flag, or a note in working memory?
-2. What is the exact re-read mechanism for each tool? For VS Code/Copilot: `read_file` on AGENTS.md, INDEX.md, and the applicable instructions files. For CLI tools: same approach via their read tool.
-3. Should `git log --oneline` output be summarized or shown raw in the changelog prompt option?
-4. How does the detection avoid being noisy in a multi-root workspace where the Adaptive Agents repo is not the primary workspace?
 
 ## Implementation Progress
 
