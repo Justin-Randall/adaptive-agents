@@ -5,13 +5,37 @@
 # layout (all statuses mixed in inbox/) to a sibling-directory layout where
 # each note lives in the directory matching its status.
 #
-# Usage: bash scripts/migrate-project-layer-retrospectives.sh [project-layer-root]
+# Usage: bash scripts/migrate-project-layer-retrospectives.sh [--target <project-root>]
 #
-# If project-layer-root is omitted, defaults to $PWD/.adaptive-agents
+# Examples:
+#   bash scripts/migrate-project-layer-retrospectives.sh --target /path/to/project
+#   bash scripts/migrate-project-layer-retrospectives.sh /path/to/project
+#
+# If no target is given, defaults to $PWD/.adaptive-agents
 
 set -euo pipefail
 
-LAYER_ROOT="${1:-$PWD/.adaptive-agents}"
+LAYER_ROOT=""
+PROJECT_ROOT=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --target)
+      PROJECT_ROOT="${2:-}"
+      shift 2
+      ;;
+    *)
+      PROJECT_ROOT="$1"
+      shift
+      ;;
+  esac
+done
+
+if [[ -n "$PROJECT_ROOT" ]]; then
+  LAYER_ROOT="$PROJECT_ROOT/.adaptive-agents"
+else
+  LAYER_ROOT="$PWD/.adaptive-agents"
+fi
 RETRO_DIR="$LAYER_ROOT/retrospectives"
 MOVED=0
 CREATED=0
