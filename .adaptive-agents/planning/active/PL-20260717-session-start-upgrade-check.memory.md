@@ -13,12 +13,13 @@ No existing upgrade mechanism exists. Sessions never check for upstream changes.
 | Date | Decision | Rationale |
 | ---- | -------- | --------- |
 | 2026-07-17 | Detection runs at session start, not on a timer | Session-start is a natural, low-frequency trigger. No polling or background work needed. |
-| 2026-07-17 | Once-per-session guard is in-memory | A file or config key would persist across sessions incorrectly — each fresh session should check once. |
+| 2026-07-17 | Refusal guard uses commit hash file at `~/.cache/adaptive-agents/refused-upgrade-hash` | Crash-safe, no session concept needed. Same hash = already declined. New hash = re-prompt. User's decline is persistent across restarts until the remote advances. |
+| 2026-07-17 | Once-per-conversation enforcement is the agent's responsibility | No filesystem marker. The model remembers. Correct behavior: new conversation checks again, ongoing conversation does not. |
+| 2026-07-17 | No native session-start hook in VS Code Copilot | Confirmed from upstream contribution-point docs. The only mechanism is agent instructions in `global.instructions.md`. |
 | 2026-07-17 | Detection uses `git -C <repo-root>` not `cd` | The agent is typically not in the repo directory; `-C` lets git operate on any repo from any working directory. |
 | 2026-07-17 | Repo root discovered from loaded instruction context or tool config | Loaded instruction files declare the repo path explicitly; `@` references embed it; tool settings like `additionalReadAccessPaths` store it. |
 | 2026-07-17 | `git pull --ff-only` for upgrade | Prevents merge commits and history rewrites; fails cleanly if local and upstream have diverged. |
-| 2026-07-17 | Applicable installer detection uses existing integration signals | Avoids maintaining a separate registry that could become stale. |
-| 2026-07-17 | Re-read entry point after upgrade | Loads updated guidance into current session context without requiring a full session restart. |
+| 2026-07-17 | Umbrella `install.sh` re-run after pull | Detects installed tools and runs sub-installers idempotently. |
 
 ## Repository Layout (relevant files)
 

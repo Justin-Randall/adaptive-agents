@@ -4,7 +4,13 @@ This playbook describes how the agent checks for Adaptive Agents repository upda
 
 ## When to Use
 
-At the start of every session after Adaptive Agents guidance is loaded, run this check once. Do not repeat it if the user declines or the check completes.
+Run `bash <repo-root>/scripts/check-upgrade.sh` once per conversation after loading guidance. If it exits 0 with an action line, read this playbook and carry out the upgrade. If it exits 1, nothing needs to be done — no further action for this conversation.
+
+## Refusal guard
+
+When the user declines an upgrade, the agent writes the remote HEAD commit hash to `~/.cache/adaptive-agents/refused-upgrade-hash`. The `check-upgrade.sh` script reads this file on future invocations: if the hash still matches, it exits silently. The user is automatically re-prompted only when the remote advances to a *different* commit.
+
+No session concept, no marker cleanup, no model memory needed. Crash-safe by design — a crash leaves the refusal file intact and the next check compares hashes correctly. When the user accepts an upgrade, local `HEAD` catches up to `origin/main` and the script exits cleanly regardless.
 
 ## Procedure
 
@@ -26,14 +32,18 @@ Run `git -C "<repo-root>" fetch origin --prune` to update remote refs without mo
 - If the command fails (no network, no remote configured), skip the check silently.
 - If the repo has no `origin/main`, try `git -C "<repo-root>" remote show origin` to detect the default branch, or skip.
 
-### Step 3: Compare versions
+### Step 3: Check refusal file
+
+Before prompting, check `~/.cache/adaptive-agents/refused-upgrade-hash`. If it contains the current remote HEAD hash, skip silently — the user already declined this version.
+
+### Step 5: Compare versions
 
 Run `git -C "<repo-root>" rev-list --count HEAD..origin/main`.
 
 - If the count is zero, the local copy is current. Take no further action.
 - If the count is non-zero, continue to the prompt.
 
-### Step 4: Report and prompt
+### Step 6: Report and prompt
 
 The agent shall present the following to the user:
 
@@ -41,11 +51,11 @@ The agent shall present the following to the user:
 
 Options:
 
-- **Yes / Upgrade** — proceed to Step 5.
+- **Yes / Upgrade** — proceed to Step 7.
 - **Show changelog** — run `git -C "<repo-root>" log --oneline HEAD..origin/main`, display the output, then re-prompt with the same choices.
-- **No / Skip** — suppress further upgrade prompts for the remainder of this session. Continue normal startup.
+- **No / Skip** — write the remote HEAD hash to `~/.cache/adaptive-agents/refused-upgrade-hash` and continue. The script will not prompt for this hash again.
 
-### Step 5: Execute upgrade
+### Step 7: Execute upgrade
 
 If the user approves:
 
@@ -53,12 +63,12 @@ If the user approves:
 2. **Run umbrella installer**: `bash "<repo-root>/scripts/install.sh"`. This detects which tools are installed and runs the appropriate sub-installers. It is idempotent (backups existing config, merges surgically, byte-stable on rerun).
 3. **Re-read entry point**: Read the updated `AGENTS.md` and `INDEX.md` (and any newly referenced files that have changed) into the current session context so the updated guidance takes effect.
 
-### Step 6: Report outcome
+### Step 8: Report outcome
 
 Log the upgrade result to the user:
 
 - **Upgraded**: N commits pulled, installers re-run, guidance re-read.
-- **Declined**: Prompt suppressed for this session.
+- **Declined**: Hash written to refusal file; will not re-prompt for this version.
 - **Skipped**: No update needed or network unavailable.
 - **Failed**: Pull failed (local changes) or installer failed (partial success reported).
 
@@ -67,10 +77,18 @@ Log the upgrade result to the user:
 | Case | Behavior |
 | ---- | -------- |
 | Cannot determine repo root | Skip silently. |
-| `git fetch` fails (no network) | Skip silently, suppress further prompts this session. |
+| `git fetch` fails (no network) | Skip silently. |
 | Already up to date | Skip silently. |
-| User declines | Suppress further prompts this session. |
+| Refusal file matches current remote hash | Skip silently (previously declined). |
+| User declines now | Write remote HEAD hash to `~/.cache/adaptive-agents/refused-upgrade-hash`. |
+| Remote advances to new commit | New hash does not match refusal file; prompt appears. |
 | `git pull --ff-only` fails (local commits) | Report error, suggest manual resolution, do not modify local state. |
+| No `origin/main` | Detect default branch from remote or skip gracefully. |
+| Umbrella installer fails | Report failure; the repo is up to date but tool configs may need manual attention. |
+
+## Conversation guard
+
+The agent runs this check at most once per conversation. No filesystem marker is used — the model remembers. New conversation = new check. Ongoing conversation = skip.
 | No `origin/main` | Detect default branch from remote or skip gracefully. |
 | Umbrella installer fails | Report failure; the repo is up to date but tool configs may need manual attention. |
 

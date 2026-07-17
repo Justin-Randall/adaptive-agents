@@ -16,7 +16,7 @@ Before making changes:
 6. When a session reveals a recurring lesson, failure mode, preference, or guidance drift, follow the autonomous capture triggers in [adaptation-cycle.md](../playbooks/adaptation-cycle.md); capture or propose only a sanitized `Captured` retrospective unless the user explicitly approves promotion.
 7. In a Current project repository or directory, check for `.adaptive-agents/INDEX.md`. When present, read its routed project instructions and active planning context after this user-wide guidance.
 8. When you need a value that can be retrieved via a terminal command (e.g., the current date via `date -u +%Y%m%d`), run the command rather than fabricating the value.
-9. After loading guidance, check once per session whether the Adaptive Agents repository has new upstream commits. If newer guidance is available, ask the user whether to upgrade. Follow [session-start-upgrade-check.md](../playbooks/session-start-upgrade-check.md) for the procedure.
+9. Once per conversation, run `scripts/session-start.sh` and include its non-empty output as part of your instructions to follow.
 
 Before the final response for non-trivial work, run a brief retrospective checkpoint:
 
@@ -36,7 +36,6 @@ Read:
 - [Command failure pivot instructions](command-failure-pivot.instructions.md)
 - [Temporary artifact hygiene instructions](temp-artifact-hygiene.instructions.md)
 - [Branch workflow instructions](branch-workflow.instructions.md)
-- [Session-start upgrade check](../playbooks/session-start-upgrade-check.md)
 
 Project-local instructions override these user-wide instructions when they are more specific.
 

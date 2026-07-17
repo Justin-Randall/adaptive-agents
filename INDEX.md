@@ -39,6 +39,7 @@ When working inside another project, treat Adaptive Agents content as reusable g
 | Report or enforce required-read instruction budgets | [scripts/check-instruction-load-budget.sh](scripts/check-instruction-load-budget.sh) |
 | Run instruction-load budget regression tests | [scripts/test-instruction-load-budget.py](scripts/test-instruction-load-budget.py) |
 | Run Project Layer validator regression tests | [scripts/test-project-layer.sh](scripts/test-project-layer.sh) |
+| Run session-start probe directory | [scripts/session-start/](scripts/session-start/) |
 
 ## Guidance Areas
 

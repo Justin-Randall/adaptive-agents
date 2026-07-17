@@ -42,9 +42,11 @@ Once the repo root is known:
 3. If the count is zero, the local copy is current — no further action.
 4. If the count is non-zero, report the number of new commits and prompt the user.
 
-#### 3. Once-per-session guard
+#### 3. Refusal guard (deterministic, crash-safe)
 
-The upgrade check must run at most once per session. After the first check (regardless of outcome or user decision), suppress further checks for the remainder of the session. Use a session-level flag (variable or context note) rather than writing to disk.
+When the user declines an upgrade for a specific version, the agent writes the remote HEAD commit hash to `~/.cache/adaptive-agents/refused-upgrade-hash`. The check script sees the hash still matches and exits silently. The user is automatically re-prompted only when the remote moves to a *different* commit — a new hash that does not match the refusal file.
+
+No session concept is needed. No marker file cleanup is required. A crash leaves the refusal file intact — the next check still compares hashes correctly. When the user accepts an upgrade, local `HEAD` catches up to `origin/main` and the script exits cleanly regardless of the refusal file.
 
 #### 4. User prompt
 
@@ -55,7 +57,7 @@ When new commits are detected, present a concise, single-choice prompt:
 Options:
 
 - **Yes / Upgrade** — proceed with pull, installer re-run, and re-read.
-- **No / Skip** — defer. Suppress further prompts for this session.
+- **No / Skip** — write the remote HEAD hash to `~/.cache/adaptive-agents/refused-upgrade-hash` and skip. The script will not re-prompt for this version.
 - **Show changelog** — show `git -C "<repo-root>" log --oneline HEAD..origin/main` before deciding.
 
 #### 5. Upgrade action
@@ -63,12 +65,63 @@ Options:
 If the user approves:
 
 1. **Pull**: `git -C "<repo-root>" pull --ff-only origin main`. If the pull fails (local commits would require a merge), report the error and stop — the user has local changes that need manual resolution.
-2. **Run umbrella installer**: `bash "<repo-root>/scripts/install.sh"`. This script already detects which tools are installed and runs the appropriate sub-installers for each. It is idempotent (backs up configs, merges surgically, byte-stable on rerun), so re-running is safe.
-3. **Re-read the entry point**: After pulling and installing, read the updated `AGENTS.md` and `INDEX.md` (and any newly referenced files that have changed) into the current session context so the updated guidance takes effect immediately.
+2. **Clear refusal file**: `rm -f ~/.cache/adaptive-agents/refused-upgrade-hash` (optional; local HEAD now matches origin/main so the check exits cleanly either way).
+3. **Run umbrella installer**: `bash "<repo-root>/scripts/install.sh"`. This script already detects which tools are installed and runs the appropriate sub-installers for each. It is idempotent (backs up configs, merges surgically, byte-stable on rerun), so re-running is safe.
+4. **Re-read the entry point**: After pulling and installing, read the updated `AGENTS.md` and `INDEX.md` (and any newly referenced files that have changed) into the current session context so the updated guidance takes effect immediately.
 
 ### Interface / Contract Spec
 
-No new CLI or API surface for this feature. The upgrade workflow is invoked by the agent during session startup. The detection and upgrade steps use existing git commands and installer scripts.
+**`scripts/session-start.sh`** — the single entry point. Iterates over `scripts/session-start/*.sh`, runs each one in lexicographic order, and collects all stdout. Always exits 0. Empty stdout means nothing to do. Non-empty stdout becomes instructions in context.
+
+**`scripts/session-start/check-upgrade.sh`** — the upgrade probe (moved from `scripts/check-upgrade.sh`). Runs as part of `session-start.sh`. Always exits 0.
+
+Adding new startup probes: create a new `.sh` file in `scripts/session-start/`. No other files need changing.
+
+**Output format:** sections delimited by `--- SECTION` headers. Each section contains natural-language instructions the model follows directly. No parsing or interpretation needed. Sections are:
+
+| Section | Content |
+| --- | --- |
+| `--- PROMPT` | Say this verbatim to the user. |
+| `--- CHANGELOG` | Show this if the user asks what changed. |
+| `--- ON APPROVE` | Run these steps ONLY when the user approves. |
+
+Example:
+
+```text
+--- PROMPT
+The Adaptive Agents repository has 3 new commits. Ask the user if they would like to upgrade now.
+
+--- CHANGELOG
+If the user asks what has changed, show these recent commits:
+  ad2e9a3 PL-20260717-session-start-upgrade-check: spec and memory
+  f2055e4 promote independent-falsification verification rule
+  686f653 PL-20260717-vscode-td-permissions: fix external read access
+
+--- ON APPROVE
+Run these steps ONLY when the user approves:
+  1. git -C "<repo-root>" pull --ff-only origin main
+  2. bash "<repo-root>/scripts/install.sh"
+```
+
+When the user declines, write the remote HEAD hash to `~/.cache/adaptive-agents/refused-upgrade-hash`.
+
+**Refusal file:** `~/.cache/adaptive-agents/refused-upgrade-hash` — written by the agent when the user declines. The script reads it to avoid re-prompting for the same version. Never written by the script itself.
+
+### Behavioral changes to session-start instructions in global.instructions.md
+
+The trigger instruction in `global.instructions.md` is a single line:
+
+> Once per conversation, run `scripts/session-start.sh` and include its non-empty output as part of your instructions to follow.
+
+That is the full instruction. The script's output sections (`--- PROMPT`, `--- CHANGELOG`, `--- ON APPROVE`) are self-describing — the model interprets them naturally as part of its loaded guidance for that turn.
+
+### Once-per-conversation enforcement
+
+The agent runs `session-start.sh` at most once per conversation. The model remembers. New conversation = new check. Ongoing conversation = skip. No filesystem state needed for the guard.
+
+### Integration mechanism
+
+No native session-start hook exists in VS Code Copilot Chat (confirmed via upstream documentation). The only mechanism is agent instructions. The trigger in `global.instructions.md` is: once per conversation, run `session-start.sh` and include its non-empty output as instructions.
 
 ### Behavioral Spec
 
@@ -76,18 +129,21 @@ No new CLI or API surface for this feature. The upgrade workflow is invoked by t
 
 | Case | Expected behavior |
 | ---- | ---------------- |
-| Cannot determine repo root (no path found in context) | Skip check silently for this session. |
-| No network / `git fetch` fails | Log the failure silently, suppress further checks for this session, continue normal startup. Do not prompt. |
+| Cannot determine repo root (no path found in context) | Skip check silently. |
+| No network / `git fetch` fails | Skip silently. |
 | Already up to date | Skip silently. |
-| User declines upgrade | Suppress further prompts for this session. |
-| `git pull --ff-only` fails (local commits) | Report the error clearly, do not modify local state, suggest manual resolution. The user has local work that needs to be merged or stashed first. |
+| Refusal file contains current remote hash | Skip silently (previously declined). |
+| User declines now | Write remote HEAD hash to `~/.cache/adaptive-agents/refused-upgrade-hash`. No re-prompt for this version. |
+| Remote advances to new commit | New hash does not match refusal file; prompt appears. |
+| `git pull --ff-only` fails (local commits) | Report the error clearly, do not modify local state, suggest manual resolution. |
 | First run — no `origin/main` | Compare against `origin` default branch from `git -C "<repo-root>" remote show origin` or skip gracefully. |
 | Umbrella installer fails | Report the failure; the pull already succeeded so the repo is up to date, but tool configs may need manual re-installation. |
-| Current session is already on the latest commit (user pulled manually) | Detection returns zero commits; no prompt. |
+| Same conversation, already checked | Agent skips re-running the script (conversation-level awareness). |
 
 **Idempotency and safety:**
 
 - The check is read-only until the user approves the upgrade.
+- The script's stdout is a proposal — the agent presents choices to the user and waits for approval before executing.
 - The pull uses `--ff-only` so it never creates a merge commit or rewrites history.
 - Each installer is designed to be idempotent (creates backups, merges config, byte-stable rerun).
 - The re-read step is advisory — it loads the updated files into the current context but cannot guarantee every runtime behavior picks up changes. Document this limitation.
@@ -100,19 +156,21 @@ No new CLI or API surface for this feature. The upgrade workflow is invoked by t
 
 ## Scope
 
-1. ✅ **Detection prompt**: git fetch, rev-list comparison, user prompt with show-changelog option.
-2. ✅ **Upgrade execution**: git pull, umbrella installer re-run, re-read entry point.
-3. ✅ **Once-per-session guard**: suppress repeated checks in the same session.
-4. ✅ **Logging**: report outcomes (skipped, upgraded, declined, failed) for user awareness.
+1. ✅ **`scripts/session-start.sh`**: iterates `scripts/session-start/*.sh`, always exits 0. Empty stdout = nothing to do.
+2. ✅ **`scripts/session-start/check-upgrade.sh`**: upgrade probe using `git fetch` + `rev-list --count` + refusal hash check.
+3. ✅ **Refusal guard**: `~/.cache/adaptive-agents/refused-upgrade-hash` prevents re-prompting for the same version.
+4. ✅ **Stdout as instructions**: script emits actionable instructions directly; no separate playbook loading by the agent.
 5. ⬜ **Testing**: manual dogfood from a session that detects new commits.
 
 ## Out of Scope
 
+- Probes beyond upgrade check (future work units).
 - Scheduled / background checks (session-start only).
 - Auto-upgrade without user approval.
 - Non-git update mechanisms (npm, submodules, etc.).
 - Pushing local changes as part of upgrade.
-- Updating the existing closed-work plan artifacts.
+- Session marker files — the hash refusal file is self-maintaining.
+- The playbook as agent-loadable context (it is human documentation only).
 
 ## Acceptance Criteria
 
@@ -129,11 +187,15 @@ No new CLI or API surface for this feature. The upgrade workflow is invoked by t
 
 ## Decisions
 
-- Detection runs at session start, not on a timer. No background checking.
+- `scripts/session-start.sh` iterates over `scripts/session-start/*.sh`. Always exits 0. Empty stdout = nothing to do.
+- `scripts/session-start/check-upgrade.sh` is the upgrade probe. New probes are new `.sh` files in the same directory.
+- Stdout is treated as instructions when non-empty. Sections are self-describing (`--- PROMPT`, `--- CHANGELOG`, `--- ON APPROVE`).
 - `git fetch` over `git pull` for detection to avoid accidental merge.
 - `--ff-only` for pull to enforce no history rewriting.
-- Session guard is in-memory, not a file or config key.
+- Refusal hash file at `~/.cache/adaptive-agents/refused-upgrade-hash` is crash-safe and self-maintaining.
+- Once-per-conversation guard is in-memory (model remembers).
 - Applicable installer detection uses existing integration artifacts rather than a new registry.
+- `playbooks/session-start-upgrade-check.md` is human documentation only — the agent follows stdout instructions directly.
 
 ## Verification
 
