@@ -50,3 +50,7 @@ Where in the canonical Adaptive Agents repository might this belong if promoted?
 Add Markdown links to changed durable guidance files if promoted.
 
 - None yet.
+
+---
+
+*After triage, move this note to `promoted/`, `deferred/`, or `rejected/` and update its status and promotion links.*

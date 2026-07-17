@@ -168,7 +168,7 @@ cat > "$invalid_scope/retrospectives/inbox/2026-07-10-wrong-scope.md" <<'EOF'
 - Session or task: Validator fixture
 EOF
 printf '\n- [Wrong scope](2026-07-10-wrong-scope.md)\n' >> "$invalid_scope/retrospectives/inbox/README.md"
-expect_failure "$invalid_scope" "invalid project retrospective scope in 2026-07-10-wrong-scope.md: Invalid"
+expect_failure "$invalid_scope" "invalid project retrospective scope in retrospectives/inbox/2026-07-10-wrong-scope.md: Invalid"
 
 invalid_status="$(new_fixture invalid-retrospective-status)"
 cat > "$invalid_status/retrospectives/inbox/2026-07-10-wrong-status.md" <<'EOF'
@@ -180,7 +180,7 @@ cat > "$invalid_status/retrospectives/inbox/2026-07-10-wrong-status.md" <<'EOF'
 - Session or task: Validator fixture
 EOF
 printf '\n- [Wrong status](2026-07-10-wrong-status.md)\n' >> "$invalid_status/retrospectives/inbox/README.md"
-expect_failure "$invalid_status" "invalid project retrospective status in 2026-07-10-wrong-status.md: Pending"
+expect_failure "$invalid_status" "invalid project retrospective status in retrospectives/inbox/2026-07-10-wrong-status.md: Pending"
 
 printf 'Project Layer validator tests: %d passed, %d failure(s)\n' "$PASSES" "$FAILURES"
 if [[ "$FAILURES" -gt 0 ]]; then

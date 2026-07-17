@@ -149,20 +149,30 @@ for plan_id, locations in sorted(plan_locations.items()):
 retrospective_statuses = {"Captured", "Deferred", "Promoted", "Rejected"}
 retrospective_scopes = {"Project Layer", "Undetermined", "User-wide"}
 retrospective_name = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$")
-for retrospective in sorted((root / "retrospectives/inbox").glob("*.md")):
-    if retrospective.name in {"README.md", "template.md"}:
-        continue
-    if not retrospective_name.fullmatch(retrospective.name):
-        failures.append(f"invalid retrospective filename: {retrospective.name}")
-    text = retrospective.read_text(encoding="utf-8")
-    status_match = re.search(r"^- Status: (.+)$", text, re.MULTILINE)
-    scope_match = re.search(r"^- Scope: (.+)$", text, re.MULTILINE)
-    status = status_match.group(1).strip() if status_match else ""
-    scope = scope_match.group(1).strip() if scope_match else ""
-    if status not in retrospective_statuses:
-        failures.append(f"invalid project retrospective status in {retrospective.name}: {status or 'missing'}")
-    if scope not in retrospective_scopes:
-        failures.append(f"invalid project retrospective scope in {retrospective.name}: {scope or 'missing'}")
+retro_dirs_status = {
+    "retrospectives/inbox": "Captured",
+    "retrospectives/promoted": "Promoted",
+    "retrospectives/deferred": "Deferred",
+    "retrospectives/rejected": "Rejected",
+}
+for retro_dir, expected_status in sorted(retro_dirs_status.items()):
+    for retrospective in sorted((root / retro_dir).glob("*.md")):
+        if retrospective.name in {"README.md", "template.md", "INDEX.md"}:
+            continue
+        rel = retrospective.relative_to(root).as_posix()
+        if not retrospective_name.fullmatch(retrospective.name):
+            failures.append(f"invalid retrospective filename: {rel}")
+        text = retrospective.read_text(encoding="utf-8")
+        status_match = re.search(r"^- Status: (.+)$", text, re.MULTILINE)
+        scope_match = re.search(r"^- Scope: (.+)$", text, re.MULTILINE)
+        status = status_match.group(1).strip() if status_match else ""
+        scope = scope_match.group(1).strip() if scope_match else ""
+        if status not in retrospective_statuses:
+            failures.append(f"invalid project retrospective status in {rel}: {status or 'missing'}")
+        if status and status != expected_status:
+            failures.append(f"{rel}: expected status {expected_status} for {retro_dir} directory, got {status}")
+        if scope not in retrospective_scopes:
+            failures.append(f"invalid project retrospective scope in {rel}: {scope or 'missing'}")
 
 if failures:
     for failure in failures:

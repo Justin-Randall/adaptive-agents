@@ -167,7 +167,7 @@ Expected behavior:
 Dogfood check:
 
 - Generate a report from the inbox.
-- Confirm [2026-07-09-stale-project-readme.md](../retrospectives/inbox/2026-07-09-stale-project-readme.md) is evaluated as a candidate without editing `README.md` or durable guidance.
+- Confirm [2026-07-09-stale-project-readme.md](../retrospectives/promoted/2026-07-09-stale-project-readme.md) is evaluated as a candidate without editing `README.md` or durable guidance.
 - Use it to choose the next manual promotion.
 
 Dogfood result:

@@ -1,6 +1,13 @@
 # Retrospectives Inbox
 
-This directory stores sanitized, user-wide observations and session learning before they become durable Adaptive Agents guidance.
+This directory stores sanitized, user-wide observations and session learning awaiting initial triage. Once triaged, notes are moved to a sibling directory matching their disposition.
+
+| Directory | Status | Purpose |
+| --- | --- | --- |
+| [inbox/](./) | Captured | Awaiting initial triage (here) |
+| [promoted/](../promoted/) | Promoted | Lesson applied to durable guidance |
+| [deferred/](../deferred/) | Deferred | Set aside for later re-evaluation |
+| [rejected/](../rejected/) | Rejected | Considered and declined |
 
 Inbox notes are not instructions. They are reviewable decision records used to decide whether a lesson should be promoted into `memory/`, `instructions/`, `skills/`, `playbooks/`, or another checked-in guidance area.
 
@@ -38,6 +45,6 @@ Do not use inbox notes for:
 3. Record sanitized evidence and impact from the session.
 4. Leave the status as `Captured` until triaged.
 5. Use [adaptation-cycle.md](../../playbooks/adaptation-cycle.md) when deciding whether to promote it.
-6. Update the note with promotion status and links to changed files.
+6. After triage, move the note to the matching sibling directory (`promoted/`, `deferred/`, or `rejected/`) and update its status and promotion links.
 
 When in doubt, capture a retrospective instead of modifying durable guidance directly.

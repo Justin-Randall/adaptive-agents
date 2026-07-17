@@ -138,6 +138,9 @@ check_required_paths() {
     prompts
     memory
     retrospectives/inbox
+    retrospectives/promoted
+    retrospectives/deferred
+    retrospectives/rejected
     schemas
     agents
     scripts
@@ -530,61 +533,75 @@ check_antigravity() {
 }
 
 check_retrospectives() {
-  local retro_file
-  local status
-  local scope
-  shopt -s nullglob
-  local retro_files=(retrospectives/inbox/*.md)
-  shopt -u nullglob
-
-  for retro_file in "${retro_files[@]}"; do
-    case "$retro_file" in
-      retrospectives/inbox/README.md|retrospectives/inbox/template.md)
+  local retro_file status scope expected_status dir
+  local -a retro_files
+  for dir in retrospectives/inbox retrospectives/promoted retrospectives/deferred retrospectives/rejected; do
+    case "$dir" in
+      retrospectives/inbox)     expected_status="Captured" ;;
+      retrospectives/promoted)  expected_status="Promoted" ;;
+      retrospectives/deferred)  expected_status="Deferred" ;;
+      retrospectives/rejected)  expected_status="Rejected" ;;
+    esac
+    shopt -s nullglob
+    retro_files=("$dir"/*.md)
+    shopt -u nullglob
+    for retro_file in "${retro_files[@]}"; do
+      case "$retro_file" in
+        retrospectives/inbox/README.md|retrospectives/inbox/template.md)
+          continue
+          ;;
+      esac
+      if [[ "$(basename "$retro_file")" == "INDEX.md" ]]; then
         continue
-        ;;
-    esac
-
-    if [[ ! "$(basename "$retro_file")" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9-]+\.md$ ]]; then
-      fail "$retro_file does not match YYYY-MM-DD-short-title.md"
-    else
-      pass "$retro_file filename matches convention"
-    fi
-
-    status="$(extract_top_status "$retro_file" || true)"
-    case "$status" in
-      Captured|Deferred|Promoted|Rejected)
-        pass "$retro_file uses known status: $status"
-        ;;
-      "")
-        fail "$retro_file is missing top-level status"
-        ;;
-      *)
-        fail "$retro_file uses unknown status: $status"
-        ;;
-    esac
-
-    scope="$(extract_top_scope "$retro_file" || true)"
-    if [[ "$scope" == "User-wide" ]]; then
-      pass "$retro_file uses canonical scope: User-wide"
-    elif [[ -z "$scope" ]]; then
-      fail "$retro_file is missing top-level scope"
-    else
-      fail "$retro_file uses invalid canonical scope: $scope"
-    fi
-
-    if [[ "$status" == "Promoted" ]]; then
-      if has_promotion_link "$retro_file"; then
-        pass "$retro_file has promotion link"
-      else
-        fail "$retro_file is promoted but has no promotion link"
       fi
-    fi
+
+      if [[ ! "$(basename "$retro_file")" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9-]+\.md$ ]]; then
+        fail "$retro_file does not match YYYY-MM-DD-short-title.md"
+      else
+        pass "$retro_file filename matches convention"
+      fi
+
+      status="$(extract_top_status "$retro_file" || true)"
+      case "$status" in
+        Captured|Deferred|Promoted|Rejected)
+          pass "$retro_file uses known status: $status"
+          ;;
+        "")
+          fail "$retro_file is missing top-level status"
+          ;;
+        *)
+          fail "$retro_file uses unknown status: $status"
+          ;;
+      esac
+
+      # Status-directory invariant: status must match parent directory
+      if [[ "$status" != "$expected_status" ]]; then
+        fail "$retro_file in ${dir#retrospectives/}/ has status $status but must be $expected_status"
+      fi
+
+      scope="$(extract_top_scope "$retro_file" || true)"
+      if [[ "$scope" == "User-wide" ]]; then
+        pass "$retro_file uses canonical scope: User-wide"
+      elif [[ -z "$scope" ]]; then
+        fail "$retro_file is missing top-level scope"
+      else
+        fail "$retro_file uses invalid canonical scope: $scope"
+      fi
+
+      if [[ "$status" == "Promoted" ]]; then
+        if has_promotion_link "$retro_file"; then
+          pass "$retro_file has promotion link"
+        else
+          fail "$retro_file is promoted but has no promotion link"
+        fi
+      fi
+    done
   done
 }
 
 check_retrospective_private_patterns() {
   local matches
-  matches="$(grep -RInE 'vscode-file://|workbench\.html|vscode://|[A-Za-z]:\\\\|/Users/|/home/[^ )]+' retrospectives/inbox --include='*.md' || true)"
+  matches="$(grep -RInE 'vscode-file://|workbench\.html|vscode://|[A-Za-z]:\\\\|/Users/|/home/[^ )]+' retrospectives --include='*.md' || true)"
 
   if [[ -n "$matches" ]]; then
     fail "Checked-in retrospectives contain blocked private/raw link patterns:"
