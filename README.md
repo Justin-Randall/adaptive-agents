@@ -12,6 +12,8 @@ bash scripts/install.sh
 
 The installer detects supported tools already present on the machine and configures their native Adaptive Agents entrypoints.
 
+For VS Code, installation also adds a user-profile terminal approval for the exact command `bash "<repo-root>/scripts/session-start.sh"`. Saying "I want to install Adaptive Agents" includes consent for this narrowly scoped approval because the session-start framework is part of the installed integration. The rule does not approve generic Bash commands or Adaptive Agents upgrades.
+
 Requirements: Git, Bash, and Python 3. On Windows, use Git Bash or WSL.
 
 Preview changes or install for one tool only:
@@ -182,13 +184,17 @@ What the installer does:
 - updates VS Code user `settings.json` additively
 - registers the repository guidance location for chat instructions
 - enables instruction loading/apply settings
+- approves the exact Adaptive Agents session-start command at user/profile scope
 - creates a timestamped backup before editing settings
+
+The terminal approval trusts `scripts/session-start.sh` and every probe under `scripts/session-start/`, including probes added by future Adaptive Agents updates. Session-start probes may inspect state and propose actions, but upgrade mutation remains separately gated: the agent must wait for explicit user approval before following an `--- ON APPROVE` section.
 
 What it does not do:
 
 - modify unrelated project repositories
 - copy Adaptive Agents structure into other repositories
 - store secrets
+- approve generic shell commands or upgrades
 
 Note: the current checked-in installer is Bash (`scripts/install-vscode.sh`).
 

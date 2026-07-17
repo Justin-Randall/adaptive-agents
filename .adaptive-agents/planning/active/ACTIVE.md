@@ -143,6 +143,9 @@ No native session-start hook exists in VS Code Copilot Chat (confirmed via upstr
 **Idempotency and safety:**
 
 - The check is read-only until the user approves the upgrade.
+- Installing the VS Code integration adds a user/profile-scoped `chat.tools.terminal.autoApprove` rule for the exact command `bash "<repo-root>/scripts/session-start.sh"`. Installation consent includes this operational permission.
+- The exact command approval trusts the startup runner and all probes under `scripts/session-start/`; it does not approve generic Bash commands.
+- Terminal approval only permits the startup framework to run. It does not authorize `git pull`, installer reruns, or any other mutation described by `--- ON APPROVE`.
 - The script's stdout is a proposal — the agent presents choices to the user and waits for approval before executing.
 - The pull uses `--ff-only` so it never creates a merge commit or rewrites history.
 - Each installer is designed to be idempotent (creates backups, merges config, byte-stable rerun).
@@ -160,7 +163,8 @@ No native session-start hook exists in VS Code Copilot Chat (confirmed via upstr
 2. ✅ **`scripts/session-start/check-upgrade.sh`**: upgrade probe using `git fetch` + `rev-list --count` + refusal hash check.
 3. ✅ **Refusal guard**: `~/.cache/adaptive-agents/refused-upgrade-hash` prevents re-prompting for the same version.
 4. ✅ **Stdout as instructions**: script emits actionable instructions directly; no separate playbook loading by the agent.
-5. ⬜ **Testing**: manual dogfood from a session that detects new commits.
+5. ✅ **Testing**: manual dogfood confirmed update detection and proactive prompt-free startup from a fresh unrelated-workspace session.
+6. ✅ **VS Code terminal approval**: installer persistently approves only the canonical session-start command line.
 
 ## Out of Scope
 
@@ -184,6 +188,8 @@ No native session-start hook exists in VS Code Copilot Chat (confirmed via upstr
 | AC6 | User declines → no more prompts this session. | Second trigger within same session does not prompt. |
 | AC7 | Pull fails → error reported, local state unchanged. | No modified files from failed pull. |
 | AC8 | Installer failure → reported but does not block other installers. | Other installers complete despite one failure. |
+| AC9 | VS Code installation → canonical session-start command is persistently approved without broad shell approval. | User settings contain one anchored full-command rule with `matchCommandLine: true`; existing allow and deny rules remain intact. |
+| AC10 | Fresh unrelated-workspace session → startup runs proactively without a terminal confirmation. | Before answering the first request, including trivial and sentinel requests, the canonical command executes once under Default Approvals while upgrade mutation still waits for explicit approval. |
 
 ## Decisions
 
@@ -196,7 +202,15 @@ No native session-start hook exists in VS Code Copilot Chat (confirmed via upstr
 - Once-per-conversation guard is in-memory (model remembers).
 - Applicable installer detection uses existing integration artifacts rather than a new registry.
 - `playbooks/session-start-upgrade-check.md` is human documentation only — the agent follows stdout instructions directly.
+- Installing Adaptive Agents implies consent to the exact user/profile-scoped terminal rule required to operate its session-start framework; no separate opt-in is required.
+- The canonical VS Code invocation is `bash "<repo-root>/scripts/session-start.sh"` and uses an anchored full-command approval with `matchCommandLine: true`.
+- The approval trusts the runner and its probe directory but never substitutes for explicit approval of `--- ON APPROVE` mutations.
+- The generated VS Code bootstrap repeats the resolved startup command directly because referenced guidance may not be loaded before an agent answers the first request.
 
 ## Verification
 
-Not yet run.
+- `bash scripts/test-install-vscode.sh`: 14 passed, 0 failures. Covers exact full-command matching, proactive first-response bootstrap generation, suffix rejection, stale-rule migration, existing rule preservation, malformed settings, caller-CWD independence, and regex-special repository paths.
+- `bash scripts/check-adaptive-agents.sh`: 168 passed, 0 failures, 1 existing Antigravity permission warning.
+- `bash .adaptive-agents/scripts/check-project-layer.sh`: 0 failures.
+- Real VS Code installation: exactly one canonical session-start rule added; all 10 pre-existing terminal approval rules remained unchanged.
+- Fresh unrelated-workspace dogfood under Default Approvals: the agent ran the required bootstrap before answering the sentinel request, received empty output, and responded without a terminal confirmation or additional startup noise.

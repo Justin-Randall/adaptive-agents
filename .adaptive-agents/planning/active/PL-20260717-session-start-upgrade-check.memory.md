@@ -20,6 +20,10 @@ No existing upgrade mechanism exists. Sessions never check for upstream changes.
 | 2026-07-17 | Repo root discovered from loaded instruction context or tool config | Loaded instruction files declare the repo path explicitly; `@` references embed it; tool settings like `additionalReadAccessPaths` store it. |
 | 2026-07-17 | `git pull --ff-only` for upgrade | Prevents merge commits and history rewrites; fails cleanly if local and upstream have diverged. |
 | 2026-07-17 | Umbrella `install.sh` re-run after pull | Detects installed tools and runs sub-installers idempotently. |
+| 2026-07-17 | VS Code installation includes the exact session-start terminal approval | The user considers approval implied by "install Adaptive Agents." The installer writes one anchored, user/profile-scoped `chat.tools.terminal.autoApprove` rule with `matchCommandLine: true`. |
+| 2026-07-17 | Terminal startup approval does not authorize upgrades | The exact rule permits only `bash "<repo-root>/scripts/session-start.sh"`; mutation emitted under `--- ON APPROVE` still requires explicit user approval. |
+| 2026-07-17 | Session-start approval trusts the probe directory | The runner dispatches every script under `scripts/session-start/`, so installation documentation must disclose that current and future probes share the runner's approval. |
+| 2026-07-17 | Repeat the exact startup command in the generated VS Code bootstrap | Dogfood showed an agent could answer sentinel requests before loading referenced `global.instructions.md`. The first-loaded bootstrap must require startup before the first response, including trivial requests. |
 
 ## Repository Layout (relevant files)
 
@@ -43,8 +47,11 @@ No existing upgrade mechanism exists. Sessions never check for upstream changes.
 | ----- | ------ | ------- |
 | Spec | ✅ Complete | Full SDD in ACTIVE.md |
 | Implementation | ✅ Complete | Playbook, global.instructions.md hook, and INDEX.md routing deployed. |
-| Dogfood | ⬜ Pending | Requires a subsequent push to origin/main and a fresh session. |
+| Dogfood | ✅ Complete | Upgrade detection worked after fixing installer CWD dependence and executable modes. A fresh unrelated-workspace session then ran the bootstrap proactively before its sentinel response, without a terminal confirmation. |
 
-## Deferred Discoveries
+## Research Evidence
 
-- None yet.
+- VS Code stores persistent per-command rules in the public `chat.tools.terminal.autoApprove` setting.
+- Regex keys support object values with `approve` and `matchCommandLine`; full-line matching is appropriate for the canonical startup invocation.
+- Existing "Always Allow" choices are persisted in user settings, confirming user/profile scope rather than extension-private workspace storage.
+- Official references: <https://code.visualstudio.com/docs/agents/approvals> and <https://code.visualstudio.com/docs/agents/reference/ai-settings>.
