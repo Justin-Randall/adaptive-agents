@@ -68,13 +68,26 @@ command_exists() {
 }
 
 detect_repo_root() {
-  if command_exists git && git rev-parse --show-toplevel >/dev/null 2>&1; then
-    git rev-parse --show-toplevel
-    return
-  fi
+  # Derive from this script's own location (scripts/ -> repo root).
+  # This works regardless of the current working directory.
   local script_dir
   script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  cd "$script_dir/.." && pwd
+  local candidate="$script_dir/.."
+  if [[ -f "$candidate/AGENTS.md" && -f "$candidate/INDEX.md" ]]; then
+    cd "$candidate" && pwd
+    return
+  fi
+  # Fallback: git rev-parse (works when cwd is inside the repo).
+  if command_exists git && git rev-parse --show-toplevel >/dev/null 2>&1; then
+    local top
+    top="$(git rev-parse --show-toplevel)"
+    if [[ -f "$top/AGENTS.md" && -f "$top/INDEX.md" ]]; then
+      echo "$top"
+      return
+    fi
+  fi
+  echo "ERROR: Could not determine Adaptive Agents repository root." >&2
+  exit 1
 }
 
 REPO_ROOT="$(detect_repo_root)"
