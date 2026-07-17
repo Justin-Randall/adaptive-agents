@@ -8,6 +8,7 @@ Read this index before opening detailed plans or proposing a new item. Keep entr
 
 | ID | Plan | Outcome | Readiness |
 | --- | --- | --- | --- |
+| PL-20260717 | [Adaptive Agents Markdown Browser](PL-20260717-markdown-browser.md) | **ACTIVE** — Standalone browser-based markdown viewer with file-tree navigation, back/forward, image rendering, and real-time reactivity via watchdog + SSE. | Active |
 | PL-20260717 | [Executable Scripts as Dynamic Instruction Sources](PL-20260717-executable-scripts-as-instructions.md) | Research whether script stdout can serve as dynamic instructions, replacing the playbook-loading pattern. | Research |
 | PL-20260711 | [Multi-Tool Agent Coding Support](PL-20260711-multi-tool-agent-support.md) | Umbrella tracker for supporting 8 major AI coding agent tools — each with an idempotent installer implementing the two-part pattern: native entry point + read/write trusted-directories grant. | Ready |
 | PL-20260711 | [Codex CLI Support](PL-20260711-codex-cli-support.md) | Single-entrypoint installer: verified native user-wide AGENTS.md loading mechanism (not a prose directive) plus read/write trust grant. No plugin manifests, chronicle seeding, or exec scripts — the repo is the source of truth. | Ready |
