@@ -1,14 +1,18 @@
-const PREVIEW=document.getElementById('preview'),CONTENT=document.getElementById('content'),WELCOME=document.getElementById('welcome'),TREE=document.getElementById('tree'),STATUS=document.getElementById('status');let currentPath=null;
-marked.use({breaks:true,gfm:true});
-function showStatus(msg,duration){STATUS.textContent=msg;STATUS.classList.remove('hidden');clearTimeout(STATUS._timer);if(duration)STATUS._timer=setTimeout(()=>STATUS.classList.add('hidden'),duration)}
+const C=document.getElementById('content'),S=document.getElementById('status');let currentPath=null;
+function ready(fn){if(typeof marked!=='undefined'&&marked){fn()}else setTimeout(()=>ready(fn),50)}
+function showStatus(msg,duration){S.textContent=msg;S.classList.remove('hidden');clearTimeout(S._timer);if(duration)S._timer=setTimeout(()=>S.classList.add('hidden'),duration)}
 function escapeHtml(t){const e=document.createElement('div');e.textContent=t;return e.innerHTML}
-async function loadTree(){const r=await fetch('/api/tree'),t=await r.json();TREE.innerHTML=renderTree(t);if(currentPath){const e=TREE.querySelector(`[data-path="${CSS.escape(currentPath)}"]`);if(e)e.classList.add('active')}}
-function renderTree(n){if(n.type==='file')return `<li class="file" data-path="${escapeHtml(n.path)}" onclick="navigateTo('${escapeHtml(n.path)}')"><span class="icon">\ud83d\udcc4<\/span>${escapeHtml(n.name.replace(/\.md$/,''))}<\/li>`;const c=(n.children||[]).map(renderTree).join('');if(!n.path)return `<ul>${c}<\/ul>`;return `<li class="dir"><div class="toggle" onclick="toggleDir(this)"><span class="icon">\ud83d\udcc1<\/span>${escapeHtml(n.name)}<\/div><ul class="children">${c}<\/ul><\/li>`}
-function toggleDir(e){e.parentElement.querySelector('.children').classList.toggle('open')}
-function navigateTo(pushState){const path=arguments[0];if(path===currentPath)return;currentPath=path;loadFile(path);TREE.querySelectorAll('.active').forEach(e=>e.classList.remove('active'));const e=TREE.querySelector(`[data-path="${CSS.escape(path)}"]`);if(e)e.classList.add('active');if(pushState!==false){const url='/view?path='+encodeURIComponent(path);history.pushState({path},'',url)}}
-async function loadFile(path){try{const r=await fetch('/api/file?path='+encodeURIComponent(path));if(!r.ok)throw new Error('HTTP '+r.status);const t=await r.text(),h=marked.parse(t);CONTENT.innerHTML=h;CONTENT.style.display='block';WELCOME.style.display='none';CONTENT.querySelectorAll('a[href]').forEach(anchorHandler);showStatus('Loaded: '+path,2000)}catch(e){CONTENT.innerHTML='<p style="color:red">Error loading <code>'+escapeHtml(path)+'<\/code>: '+escapeHtml(e.message)+'<\/p>';CONTENT.style.display='block';WELCOME.style.display='none'}}
-function anchorHandler(a){const h=a.getAttribute('href');if(!h)return;if(h.startsWith('http://')||h.startsWith('https://')||h.startsWith('mailto:')||h.startsWith('#'))return;if(h.endsWith('.md')){a.addEventListener('click',e=>{e.preventDefault();const r=resolvePath(currentPath||'',h);navigateTo(r)})}}
-function resolvePath(base,target){if(target.startsWith('/'))return target.replace(/^\//,'');const parts=base.split('/').slice(0,-1).concat(target.split('/')),result=[];for(const p of parts){if(p==='.'||p==='')continue;if(p==='..'){result.pop();continue}result.push(p)}return result.join('/')}
-window.addEventListener('popstate',e=>{const p=new URLSearchParams(location.search).get('path')||(e.state&&e.state.path)||null;if(p)navigateTo(p,false);else{currentPath=null;CONTENT.style.display='none';WELCOME.style.display='block'}})
-function connectSSE(){const s=new EventSource('/events');s.addEventListener('file_changed',e=>{const d=JSON.parse(e.data);if(d.path===currentPath)loadFile(currentPath)});s.addEventListener('tree_changed',()=>{const p=currentPath;loadTree();showStatus('Files changed - tree updated',2000)});s.onerror=()=>showStatus('SSE reconnecting...',3000)}
-loadTree();connectSSE();const ip=new URLSearchParams(location.search).get('path');if(ip)navigateTo(ip);
+function navigateTo(path,pushState){
+ if(path===currentPath)return;currentPath=path;loadFile(path);
+ if(pushState!==false){const url='/view?path='+encodeURIComponent(path);history.pushState({path},'',url)}
+}
+async function loadFile(path){
+ try{const r=await fetch('/api/file?path='+encodeURIComponent(path));if(!r.ok)throw new Error('HTTP '+r.status);const t=await r.text(),h=marked.parse(t);C.innerHTML=h;showStatus('Loaded: '+path,2000);C.querySelectorAll('a[href]').forEach(anchorHandler)}
+ catch(e){C.innerHTML='<p style="color:red">Error loading <code>'+escapeHtml(path)+'</code>: '+escapeHtml(e.message)+'</p>'}
+}
+function anchorHandler(a){const h=a.getAttribute('href');if(!h)return;if(h.startsWith('http://')||h.startsWith('https://')||h.startsWith('mailto:')||h.startsWith('#'))return;if(h.endsWith('.md')){a.addEventListener('click',e=>{e.preventDefault();navigateTo(resolvePath(currentPath||'',h))})}}
+function resolvePath(base,target){if(target.startsWith('/'))return target.slice(1);const parts=base.split('/').slice(0,-1).concat(target.split('/')),result=[];for(const p of parts){if(p==='.'||p==='')continue;if(p==='..'){result.pop();continue}result.push(p)}return result.join('/')}
+window.addEventListener('popstate',e=>{const p=new URLSearchParams(location.search).get('path')||(e.state&&e.state.path)||null;if(p)navigateTo(p,false);else navigateTo('.adaptive-agents/INDEX.md',false)})
+function connectSSE(){const s=new EventSource('/events');s.addEventListener('file_changed',e=>{const d=JSON.parse(e.data);if(d.path===currentPath)loadFile(currentPath)});s.onerror=()=>showStatus('SSE reconnecting...',3000)}
+ready(()=>{marked.use({breaks:true,gfm:true});connectSSE();const ip=new URLSearchParams(location.search).get('path');if(ip)navigateTo(ip,false);else navigateTo('.adaptive-agents/INDEX.md',false)})
+

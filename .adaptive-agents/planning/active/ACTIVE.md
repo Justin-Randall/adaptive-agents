@@ -183,7 +183,11 @@ data: {}  // client should refetch /api/tree
 - Server exits cleanly on Ctrl+C (tested in isolation)
 - SSE keepalive sent every 30s when no events
 - Path traversal protection via `full.relative_to(REPO_ROOT.resolve())` check
-- Playwright tests: 10/10 passing (navigate, render, API, SSE, back/forward)
+- Playwright tests: 8/8 passing (INDEX.md start, navigation, back/forward, link interception, SSE, API)
+- URL-encoded paths (%%2F) handled correctly via `urllib.parse.parse_qs`
+- Sidebar removed — app starts on `.adaptive-agents/INDEX.md` as home page
+- `ThreadingHTTPServer` handles SSE + regular requests concurrently
+- No Python warnings on startup (escaped regex fixed to `slice(1)`)
 - All tests pass from in-process server test harness
 
 ## Supporting Documents

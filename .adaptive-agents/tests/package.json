@@ -1,14 +1,14 @@
 {
-  "name": "adaptive-agents-ui-tests",
-  "private": true,
-  "devDependencies": {
-    "playwright": "^1.61.0"
-  },
-  "scripts": {
-    "test": "npx playwright test",
-    "install-browsers": "npx playwright install chromium"
-  },
-  "dependencies": {
-    "@playwright/test": "^1.61.1"
-  }
+	"name": "adaptive-agents-ui-tests",
+	"private": true,
+	"devDependencies": {
+		"playwright": "^1.61.0"
+	},
+	"scripts": {
+		"test": "npx playwright test",
+		"install-browsers": "npx playwright install chromium"
+	},
+	"dependencies": {
+		"@playwright/test": "^1.61.1"
+	}
 }
