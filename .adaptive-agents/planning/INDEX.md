@@ -2,7 +2,7 @@
 
 ## Current Work
 
-Active: No active plan ([ACTIVE.md](active/ACTIVE.md)).
+Active: None. See [active planning state](active/ACTIVE.md).
 
 ## Queues
 

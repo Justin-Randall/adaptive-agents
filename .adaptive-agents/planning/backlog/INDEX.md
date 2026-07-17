@@ -17,7 +17,7 @@ Read this index before opening detailed plans or proposing a new item. Keep entr
 
 Detailed plans use `PL-YYYYMMDD-descriptive-slug.md` (or legacy `PL-YYYYMMDDTHHMMSSZ-...`, `PL-####-...`). Backlog items are lightweight — an Objective, Problem Spec, and one-line Scope suffice. The full SDD specification is written into `ACTIVE.md` during activation, not before. Updating an existing plan or creating a new one requires user approval.
 
-### Epic / Child Conventions
+## Epic / Child Conventions
 
 When a backlog item grows too large for a single activation (its scope spans multiple independent deliverables), split it into an epic with children:
 

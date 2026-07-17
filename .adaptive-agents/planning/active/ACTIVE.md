@@ -1,3 +1,3 @@
 # No Active Plan
 
-Activate a backlog item, or begin exploratory, debugging, maintenance, or implementation work. Approval is required before activation.
+No work is currently active. Select a backlog item or approve direct work before creating a new plan.

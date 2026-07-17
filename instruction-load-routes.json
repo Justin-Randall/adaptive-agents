@@ -94,11 +94,6 @@
 					"path": ".adaptive-agents/planning/active/ACTIVE.md",
 					"classification": "profile",
 					"reason": "Planning router identifies this file as the current work specification."
-				},
-				{
-					"path": ".adaptive-agents/planning/active/PL-20260711-instruction-load-budget.memory.md",
-					"classification": "conditional",
-					"reason": "The active SDD links this exact work-unit memory for the current active plan."
 				}
 			]
 		},
