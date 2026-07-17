@@ -17,6 +17,7 @@ Reorganize the `retrospectives/` directory so the `inbox/` folder contains only 
 The current `retrospectives/inbox/` contained a mix of all statuses — 14 `Promoted`, 9 `Captured`, 1 `Deferred`, 0 `Rejected` (as of 2026-07-17). A quick glance at the directory did not distinguish between "items that still need triage" and "items that have already been resolved." This made prioritization, review, and inbox shipping harder than necessary.
 
 Queue-separation principle established:
+
 - **`inbox/`** = needs initial triage only (`Captured` status)
 - **`deferred/`** = triaged, set aside for later re-evaluation (`Deferred` status — an explicit user decision to revisit)
 - **`promoted/`** = lesson has been applied to durable guidance (`Promoted` status)
