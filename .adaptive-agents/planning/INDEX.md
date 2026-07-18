@@ -2,7 +2,7 @@
 
 ## Current Work
 
-Active: [PL-20260717 — Adaptive Agents Markdown Browser](active/ACTIVE.md) ([memory](active/PL-20260717-markdown-browser.memory.md)).
+No active plan ([active slot](active/ACTIVE.md)).
 
 ## Queues
 

@@ -2,7 +2,7 @@
 
 - Work Unit: PL-20260717-markdown-browser
 - Activated: 2026-07-17
-- Status: Active
+- Status: Completed
 
 ## Trigger
 
@@ -37,3 +37,7 @@ IDE markdown preview lacks navigation (no back/forward, no history). Users need 
 ## Decisions
 
 See ACTIVE.md Decisions table.
+
+## Closure
+
+Completed and approved on 2026-07-18. MVP delivered as a system-owned Adaptive Agents Markdown Browser, committed as `745134c`, and pushed to `origin/pl-20260717-markdown-browser` with upstream tracking.
