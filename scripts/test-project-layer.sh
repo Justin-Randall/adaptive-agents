@@ -58,10 +58,11 @@ expected_memory="$baseline/planning/active/$expected_work_unit.memory.md"
 if [[ -f "$expected_memory" ]] \
   && grep -Fq -- "- Work Unit: $expected_work_unit" "$baseline/planning/active/ACTIVE.md" \
   && grep -Fq -- "[$expected_work_unit memory]($expected_work_unit.memory.md)" "$baseline/planning/active/ACTIVE.md" \
+  && grep -Fq -- '"adaptiveAgentsHome"' "$baseline/project-layer.json" \
   && [[ ! -e "$baseline/planning/active/MEMORY.md" ]]; then
   pass
 else
-  fail "Bootstrap should create work-unit-first active memory"
+  fail "Bootstrap should create work-unit-first active memory and record Adaptive Agents home"
 fi
 
 baseline_target="$(dirname "$baseline")"

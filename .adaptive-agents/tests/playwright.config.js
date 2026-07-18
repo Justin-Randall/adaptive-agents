@@ -6,7 +6,7 @@ module.exports = defineConfig({
   timeout: 15000,
   retries: 0,
   use: {
-    baseURL: 'http://localhost:8099',
+    baseURL: process.env.BROWSER_BASE_URL || 'http://localhost:8099',
     headless: true,
   },
   // Only chromium for MVP — no need for cross-browser

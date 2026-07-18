@@ -1,9 +1,16 @@
 {
-	"templateVersion": "0.5.0",
+	"templateVersion": "0.5.1",
+	"versionPolicy": {
+		"scheme": "SemVer-style pre-1.0: 0.<minor>.<patch>",
+		"patch": "Additive template docs, validation refinements, metadata additions, and bug fixes that do not require project-owned content changes.",
+		"minor": "New Project Layer capabilities, new required files, migrations, or structural changes that need upgrade review.",
+		"major": "Reserved for the first stable 1.0 Project Layer contract."
+	},
 	"layerDirectory": ".adaptive-agents",
 	"placeholders": {
 		"TEMPLATE_VERSION": "Project Layer template version",
 		"PROJECT_NAME": "Project name",
+		"ADAPTIVE_AGENTS_HOME": "Canonical Adaptive Agents repository path",
 		"ACTIVE_PLAN_ID": "Initial plan ID in PL-YYYYMMDD format",
 		"ACTIVE_PLAN_TITLE": "Initial active plan title",
 		"ACTIVE_WORK_ID": "Canonical active work-unit ID in PL-YYYYMMDD-descriptive-slug format"

@@ -1,4 +1,5 @@
 {
 	"templateVersion": "{{TEMPLATE_VERSION}}",
-	"projectName": "{{PROJECT_NAME}}"
+	"projectName": "{{PROJECT_NAME}}",
+	"adaptiveAgentsHome": "{{ADAPTIVE_AGENTS_HOME}}"
 }

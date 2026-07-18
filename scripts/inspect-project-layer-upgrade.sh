@@ -110,7 +110,7 @@ for source in sorted(path for path in source_root.rglob("*") if path.is_file()):
         rendered_relative = rendered_relative.replace(placeholder, value)
     target = layer_root / rendered_relative
     if not target.exists():
-      missing.append(rendered_relative)
+        missing.append(rendered_relative)
         continue
     if source.suffix not in {".md", ".json", ".sh"}:
         continue

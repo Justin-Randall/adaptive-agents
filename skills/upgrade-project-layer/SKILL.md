@@ -48,4 +48,14 @@ bash scripts/migrate-project-layer-retrospectives.sh --target "<project-root>"
 4. Run `.adaptive-agents/scripts/check-project-layer.sh`.
 5. Report preserved customizations and any intentionally deferred template differences.
 
+## Versioning
+
+Project Layer template versions use SemVer-style pre-1.0 numbering: `0.<minor>.<patch>`.
+
+- Patch releases cover additive documentation, metadata, validation refinements, and bug fixes that do not require project-owned content changes.
+- Minor releases cover new capabilities, new required files, migrations, or structural changes that need upgrade review.
+- `1.0.0` is reserved for the first stable Project Layer contract.
+
+Do not interpret versions as decimals; `0.5.12` is newer than `0.5.1` and does not imply proximity to `1.0.0`.
+
 Never recopy the canonical template over an existing Project Layer or treat project-only paths as obsolete by default.

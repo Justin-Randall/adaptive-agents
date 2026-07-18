@@ -123,6 +123,7 @@ if [[ "$DRY_RUN" -eq 1 ]]; then
   echo "[dry-run] Would create: $LAYER_ROOT"
   echo "[dry-run] Template version: $(python -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["templateVersion"])' "$TEMPLATE_ROOT/template.json" 2>/dev/null || echo unknown)"
   echo "[dry-run] Project: $PROJECT_NAME"
+  echo "[dry-run] Adaptive Agents home: $REPO_ROOT"
   echo "[dry-run] Active plan: $ACTIVE_PLAN_ID: $ACTIVE_TITLE"
   case "$PERSISTENCE" in
     tracked)
@@ -153,7 +154,7 @@ find_python() {
 
 find_python
 
-"${PYTHON_CMD[@]}" - "$TEMPLATE_ROOT" "$TARGET" "$PROJECT_NAME" "$ACTIVE_PLAN_ID" "$ACTIVE_TITLE" <<'PY'
+"${PYTHON_CMD[@]}" - "$TEMPLATE_ROOT" "$TARGET" "$PROJECT_NAME" "$ACTIVE_PLAN_ID" "$ACTIVE_TITLE" "$REPO_ROOT" <<'PY'
 import json
 import re
 import shutil
@@ -162,10 +163,11 @@ from pathlib import Path
 
 template_root = Path(sys.argv[1])
 target = Path(sys.argv[2])
-project_name, active_plan_id, active_title = sys.argv[3:6]
+project_name, active_plan_id, active_title, adaptive_agents_home_arg = sys.argv[3:7]
 manifest = json.loads((template_root / "template.json").read_text(encoding="utf-8"))
 source = template_root / manifest["layerDirectory"]
 destination = target / manifest["layerDirectory"]
+adaptive_agents_home = Path(adaptive_agents_home_arg).resolve().as_posix()
 
 active_slug = re.sub(r"[^a-z0-9]+", "-", active_title.lower()).strip("-")
 if not active_slug:
@@ -176,6 +178,7 @@ active_work_id = f"{active_plan_id}-{active_slug}"
 replacements = {
     "{{TEMPLATE_VERSION}}": manifest["templateVersion"],
     "{{PROJECT_NAME}}": project_name,
+    "{{ADAPTIVE_AGENTS_HOME}}": adaptive_agents_home,
     "{{ACTIVE_PLAN_ID}}": active_plan_id,
     "{{ACTIVE_PLAN_TITLE}}": active_title,
     "{{ACTIVE_WORK_ID}}": active_work_id,

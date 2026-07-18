@@ -21,6 +21,7 @@ When working inside another project, treat Adaptive Agents content as reusable g
 | Promoting retrospectives or updating Adaptive Agents guidance | [skills/update-adaptive-agents/SKILL.md](skills/update-adaptive-agents/SKILL.md) |
 | Bootstrapping project-specific guidance and indexed planning | [skills/bootstrap-project-layer/SKILL.md](skills/bootstrap-project-layer/SKILL.md) |
 | Reviewing structural upgrades for an existing Project Layer | [skills/upgrade-project-layer/SKILL.md](skills/upgrade-project-layer/SKILL.md) |
+| Starting the Adaptive Agents Markdown Browser for a project | [skills/start-markdown-browser/SKILL.md](skills/start-markdown-browser/SKILL.md) |
 | Reusable Project Layer source | [templates/project-layer/template.json](templates/project-layer/template.json) and [template routing root](templates/project-layer/.adaptive-agents/INDEX.md) |
 | Running the adaptation lifecycle | [playbooks/adaptation-cycle.md](playbooks/adaptation-cycle.md) |
 | Checking for upgrades at session start | [playbooks/session-start-upgrade-check.md](playbooks/session-start-upgrade-check.md) |
@@ -47,15 +48,16 @@ These areas are expected to grow over time. Some directories may not exist yet w
 
 | Area | Purpose |
 | --- | --- |
-| `instructions/` | Durable user-wide rules and coding preferences for agents. |
-| `skills/` | Task-specific workflows and domain knowledge that agents can load on demand. |
-| `agents/` | Specialized agent definitions or role descriptions. |
-| `prompts/` | Reusable prompt templates and task starters. |
-| `memory/` | Promoted, durable lessons and preferences that apply across projects. |
-| `playbooks/` | Repeatable engineering workflows and operational procedures. |
-| `retrospectives/` | Raw observations and session learnings before promotion into durable guidance. |
-| `schemas/` | Shared schemas for structured guidance, metadata, or validation. |
-| `templates/` | Canonical reusable source trees for explicitly bootstrapped project-owned features. |
+| [instructions/](instructions/INDEX.md) | Durable user-wide rules and coding preferences for agents. |
+| [skills/](skills/INDEX.md) | Task-specific workflows and domain knowledge that agents can load on demand. |
+| [agents/](agents/INDEX.md) | Specialized agent definitions or role descriptions. |
+| [prompts/](prompts/INDEX.md) | Reusable prompt templates and task starters. |
+| [memory/](memory/INDEX.md) | Promoted, durable lessons and preferences that apply across projects. |
+| [playbooks/](playbooks/INDEX.md) | Repeatable engineering workflows and operational procedures. |
+| [retrospectives/](retrospectives/INDEX.md) | Raw observations and session learnings before promotion into durable guidance. |
+| [schemas/](schemas/INDEX.md) | Shared schemas for structured guidance, metadata, or validation. |
+| [templates/](templates/INDEX.md) | Canonical reusable source trees for explicitly bootstrapped project-owned features. |
+| [scripts/](scripts/INDEX.md) | Deterministic setup, validation, inspection, installation, and migration scripts. |
 
 ## Default Instructions
 
@@ -87,6 +89,10 @@ For creating a project-owned `.adaptive-agents/` Project Layer, load:
 For comparing an existing Project Layer with a newer canonical template, load:
 
 - [skills/upgrade-project-layer/SKILL.md](skills/upgrade-project-layer/SKILL.md)
+
+For starting the system-owned Markdown Browser for the current project or another target project, load:
+
+- [skills/start-markdown-browser/SKILL.md](skills/start-markdown-browser/SKILL.md)
 
 This skill covers promoting retrospectives, choosing durable guidance targets, using Markdown links between checked-in documents, and keeping tool adapters minimal.
 
