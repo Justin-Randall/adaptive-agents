@@ -19,3 +19,8 @@ This directory stores retrospective notes whose lesson has been applied to durab
 | [script-reads-from-unvalidated-path](2026-07-17-script-reads-from-unvalidated-path.md) | 2026-07-17 | `instructions/` |
 | [silent-error-suppression](2026-07-17-silent-error-suppression.md) | 2026-07-17 | `instructions/` |
 | [validate-configuration-keys-against-schema](2026-07-17-validate-configuration-keys-against-schema.md) | 2026-07-17 | `instructions/` |
+| [broadcast-versus-work-queue](2026-07-17-broadcast-versus-work-queue.md) | 2026-07-17 | `playbooks/` |
+| [intermittent-template-compliance](2026-07-17-intermittent-template-compliance.md) | 2026-07-17 | `instructions/`, `templates/` |
+| [crlf-lf-diff-normalization](2026-07-31-crlf-lf-diff-normalization.md) | 2026-07-31 | `skills/` |
+| [retrospective-promotion-apply-errors](2026-07-31-retrospective-promotion-apply-errors.md) | 2026-07-31 | `prompts/` |
+| [version-gated-validator-requirements](2026-07-31-version-gated-validator-requirements.md) | 2026-07-31 | `skills/`, `templates/`, `scripts/` |

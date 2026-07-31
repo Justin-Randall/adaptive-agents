@@ -27,6 +27,7 @@ When working inside another project, treat Adaptive Agents content as reusable g
 | Checking for upgrades at session start | [playbooks/session-start-upgrade-check.md](playbooks/session-start-upgrade-check.md) |
 | Selecting shells for Windows command execution | [playbooks/windows-shell-selection.md](playbooks/windows-shell-selection.md) |
 | Using temporary diagnostics with searchable IDs and cleanup gates | [playbooks/temporary-diagnostic-logging.md](playbooks/temporary-diagnostic-logging.md) |
+| Diagnosing unreliable multi-client event delivery | [playbooks/event-delivery-diagnostics.md](playbooks/event-delivery-diagnostics.md) |
 | Planning adaptive automation layers | [playbooks/adaptive-automation-roadmap.md](playbooks/adaptive-automation-roadmap.md) |
 | Capturing raw session learning | [retrospectives/inbox/README.md](retrospectives/inbox/README.md) |
 | Capturing a retrospective from a session observation | [prompts/capture-retrospective.prompt.md](prompts/capture-retrospective.prompt.md) |
@@ -106,6 +107,7 @@ For the end-to-end learning loop, use:
 - [playbooks/temporary-diagnostic-logging.md](playbooks/temporary-diagnostic-logging.md)
 - [playbooks/adaptive-automation-roadmap.md](playbooks/adaptive-automation-roadmap.md)
 - [playbooks/temp-artifact-hygiene.md](playbooks/temp-artifact-hygiene.md)
+- [playbooks/event-delivery-diagnostics.md](playbooks/event-delivery-diagnostics.md)
 - [retrospectives/inbox/README.md](retrospectives/inbox/README.md)
 - [retrospectives/inbox/template.md](retrospectives/inbox/template.md)
 

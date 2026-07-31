@@ -19,6 +19,14 @@ bash scripts/inspect-project-layer-upgrade.sh --target "<project-root>"
 
 4. Read only the reported missing or changed canonical files and the nearby project-owned files needed to understand conflicts.
 
+5. Normalize line endings before concluding a file differs or was rewritten. Canonical template files may ship CRLF while local layer files use LF, which makes a raw `diff` report a full-file rewrite and hides the real content change. Compare with a normalized diff, for example:
+
+```bash
+diff <(tr -d '\r' < "local-file") <(tr -d '\r' < "template-file")
+```
+
+Do not copy a file wholesale to "match the template" when only line endings differ — that silently flips the tree's line endings and creates noisy future diffs. Preserve the layer's existing line endings unless the user explicitly asks to change them.
+
 ## Propose
 
 1. Separate structural template improvements from intentional project customization.

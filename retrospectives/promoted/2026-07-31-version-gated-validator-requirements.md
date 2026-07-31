@@ -1,7 +1,7 @@
 # Retrospective: Version-gate validator requirements for backward compatibility
 
 - Date: 2026-07-31
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Making tests part of planning guidance; verifying Project Layer upgrade compatibility
 
@@ -31,10 +31,10 @@ Template-driven validators must remain backward-compatible with lower-version la
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Pending triage
-- Rationale: The gate and its documentation are implemented; a durable promotion into the skill or a playbook has not been reviewed.
+- Status: Promoted
+- Decision: Promoted to existing guidance
+- Rationale: The version gate, its documentation, and regression tests already exist (check-project-layer.sh `>= 0.5.2` gate, upgrade-project-layer skill Backward Compatibility section, and backward-compat fixtures in test-project-layer.sh). No new durable update is needed.
 
 ## Promotion Links
 
-- None yet.
+- [Upgrade Project Layer skill](../../skills/upgrade-project-layer/SKILL.md) (Backward Compatibility section)

@@ -40,6 +40,8 @@ Approval must be specific to the patch being applied in the current context. If 
 - If a patch appears to promote private specifics into durable guidance, stop and ask one concise clarification question instead of applying it.
 - If the patch no longer matches current file contents, stop and explain the mismatch instead of improvising.
 - If the approved patch updates durable guidance, also update the retrospective status and promotion links only when that update is included in the approved patch or explicitly approved by the user.
+- When a promotion patch updates a retrospective's status, update the single frontmatter `- Status:` line near the top of the document — the line the health checker reads — so it matches the destination directory's expected status. Do not change only the `## Promotion Decision` status and leave the frontmatter line stale.
+- Compute promotion-link relative paths from the destination directory, not the source. A note moved from `retrospectives/inbox/` to `retrospectives/promoted/` sits one directory deeper, so links to `instructions/`, `playbooks/`, or `skills/` must use `../../` (for example `../../instructions/...`), not `../`.
 - After a Project Layer patch, run `bash .adaptive-agents/scripts/check-project-layer.sh`.
 - After a user-wide patch, run `bash scripts/check-adaptive-agents.sh` when the script exists.
 - If an explicitly approved escalation changes both scopes, run both validators.

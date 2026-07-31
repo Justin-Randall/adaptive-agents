@@ -1,7 +1,7 @@
 # Retrospective: Normalize line endings before diffing template and layer files
 
 - Date: 2026-07-31
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Review-based Project Layer upgrade 0.5.1 → 0.5.2
 
@@ -31,10 +31,10 @@ Agents comparing canonical guidance/template files against project copies on Win
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Pending triage
-- Rationale: The diagnostic is verified this session but has not been reviewed for durable placement.
+- Status: Promoted
+- Decision: Promoted to upgrade-project-layer skill
+- Rationale: Evidence-backed, verified diagnostic; line-ending normalization before diffing is the correct first step in template-vs-instance comparison and belongs in the owning upgrade skill's Inspect step.
 
 ## Promotion Links
 
-- None yet.
+- [Upgrade Project Layer skill](../../skills/upgrade-project-layer/SKILL.md) (Inspect step: normalize line endings before diffing)

@@ -1,7 +1,7 @@
 # Process friction: SDD scope drift during active development
 
 - Date: 2026-07-12
-- Status: Captured
+- Status: Rejected
 - Scope: User-wide
 - Work Unit: PL-20260712-branch-development-guidance
 
@@ -20,3 +20,9 @@ When writing an SDD for a new durable instruction, don't prematurely constrain s
 ## Durable Guidance Impact
 
 None directly. The `instructions/branch-workflow.instructions.md` is already user-wide. The insight is about SDD-writing practice, which may merit a note in `manage-planning/SKILL.md` or the SDD template if it repeats.
+
+## Promotion Decision
+
+- Status: Rejected
+- Decision: Not promoted to durable guidance.
+- Rationale: Single-occurrence evidence, and the note itself conditioned any durable note on recurrence ("if it repeats"). The existing self-review checklist in `coding.instructions.md` already covers general spec-precision review before presentation. No focused guidance change is justified at this time; re-propose with a second instance of SDD scope drift if it recurs.

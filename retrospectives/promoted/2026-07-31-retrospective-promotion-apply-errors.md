@@ -1,7 +1,7 @@
 # Retrospective: Retrospective promotion apply errors recurred twice
 
 - Date: 2026-07-31
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Triaging and promoting inbox retrospectives (two sequential promotions)
 
@@ -37,10 +37,10 @@ The promotion apply flow has two deterministic failure modes that the health che
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Pending triage
-- Rationale: Recurred twice in one session with a deterministic fix; needs triage to decide the exact durable home.
+- Status: Promoted
+- Decision: Promoted to apply-approved-promotion prompt
+- Rationale: Recurred twice (and a third time in a subsequent session) with a deterministic fix; the two mechanical rules now live in the owning apply prompt's Rules section.
 
 ## Promotion Links
 
-- None yet.
+- [Apply Approved Promotion Patch](../../prompts/apply-approved-promotion.patch.prompt.md) (frontmatter status + destination-relative link rules)

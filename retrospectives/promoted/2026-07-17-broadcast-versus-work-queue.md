@@ -1,7 +1,7 @@
 # Retrospective: Broadcast versus work queue semantics
 
 - Date: 2026-07-17
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Diagnosing unreliable live updates in a multi-client event stream
 
@@ -30,14 +30,10 @@ Confusing work distribution with event broadcast creates nondeterministic behavi
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Await triage before proposing durable guidance.
-- Rationale: The observation is evidence-backed and reusable, but capture does not establish whether it belongs in default diagnostic instructions or a focused event-delivery playbook.
+- Status: Promoted
+- Decision: Promoted to new playbook
+- Rationale: Evidence-backed, reusable diagnostic procedure; the broadcast/work-queue distinction and two-consumer verification map to a focused playbook.
 
 ## Promotion Links
 
-- None yet.
-
----
-
-*After triage, move this note to `promoted/`, `deferred/`, or `rejected/` and update its status and promotion links.*
+- [Event delivery diagnostics](../../playbooks/event-delivery-diagnostics.md)

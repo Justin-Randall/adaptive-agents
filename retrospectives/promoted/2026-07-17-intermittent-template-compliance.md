@@ -1,7 +1,7 @@
 # Retrospective: Intermittent SDD template compliance during plan activation
 
 - Date: 2026-07-17
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Activating the Markdown Browser backlog item
 
@@ -41,10 +41,11 @@ Inconsistent active plan structure means:
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision:
-- Rationale:
+- Status: Promoted
+- Decision: Promoted to existing guidance
+- Rationale: The canonical template was restructured (commit 71e785d) - Progress, Decisions, Verification, and Supporting Documents sections were removed, and a version-gated "## Test Plan" requirement was added to check-project-layer.sh (canonical template and live Project Layer copies). The lesson's intent (deterministic, version-gated enforcement of required ACTIVE.md sections) is now realized by that gate, and general template completeness remains covered by the coding.instructions.md self-review checklist.
 
 ## Promotion Links
 
-- None yet.
+- [check-project-layer.sh](../../templates/project-layer/.adaptive-agents/scripts/check-project-layer.sh) (version-gated `## Test Plan` requirement)
+- [Coding instructions](../../instructions/coding.instructions.md) (self-review completeness)

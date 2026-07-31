@@ -18,3 +18,4 @@ This directory stores retrospective notes that were considered and declined for 
 | Note | Date | Reason |
 | --- | --- | --- |
 | [claude-entrypoint-not-loaded](2026-07-11-claude-entrypoint-not-loaded.md) | 2026-07-11 | Converted to project backlog bug PL-20260731-claude-code-entrypoint-health-check; not promoted to durable guidance. |
+| [sdd-scope-drift-during-active-development](2026-07-12-sdd-scope-drift-during-active-development.md) | 2026-07-12 | Single-occurrence evidence; note conditioned durable guidance on recurrence; existing self-review checklist covers general spec-precision review. |

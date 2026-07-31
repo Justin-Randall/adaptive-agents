@@ -12,3 +12,4 @@ Use playbooks when the work is more procedural than a durable rule: adaptation l
 - [temporary-diagnostic-logging.md](temporary-diagnostic-logging.md)
 - [adaptive-automation-roadmap.md](adaptive-automation-roadmap.md)
 - [temp-artifact-hygiene.md](temp-artifact-hygiene.md)
+- [event-delivery-diagnostics.md](event-delivery-diagnostics.md)
