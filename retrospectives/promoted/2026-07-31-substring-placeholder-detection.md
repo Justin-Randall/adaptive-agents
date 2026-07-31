@@ -1,7 +1,7 @@
 # Retrospective: Substring placeholder detection is fragile
 
 - Date: 2026-07-31
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Making tests part of planning guidance; verifying Project Layer upgrade compatibility
 
@@ -31,10 +31,10 @@ Sentinel and placeholder detection must anchor on structural markers (first line
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Pending triage
-- Rationale: Fixed in the validator copies and inspector during this session; durable promotion into guidance has not been reviewed.
+- Status: Promoted
+- Decision: Promoted to instructions/coding.instructions.md
+- Rationale: Lesson is durable, evidence-backed, and user-wide; the anchored-detection rule is now part of the coding standards.
 
 ## Promotion Links
 
-- None yet.
+- [coding.instructions.md](../../instructions/coding.instructions.md)
