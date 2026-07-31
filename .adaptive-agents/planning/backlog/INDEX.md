@@ -16,7 +16,7 @@ Read this index before opening detailed plans or proposing a new item. Keep entr
 | PL-20260711 | [Cline Support](PL-20260711-cline-support.md) | Single-entrypoint installer: verified native user-wide rules mechanism loading repo AGENTS.md content, plus read/write trust grant. No .clineignore, skills/hooks mapping, or Kanban integration — fan-out handles everything. | Ready |
 | PL-20260711 | [Windsurf Support](PL-20260711-windsurf-support.md) | Single-entrypoint installer: verified native user-wide rules mechanism loading repo AGENTS.md content, plus read/write trust grant. No separate rule files. | Ready |
 
-Detailed plans use `PL-YYYYMMDD-descriptive-slug.md` (or legacy `PL-YYYYMMDDTHHMMSSZ-...`, `PL-####-...`). Backlog items are lightweight — an Objective, Problem Spec, and one-line Scope suffice. The full SDD specification is written into `ACTIVE.md` during activation, not before. Updating an existing plan or creating a new one requires user approval.
+Detailed plans use `PL-YYYYMMDD-descriptive-slug.md` (or legacy `PL-YYYYMMDDTHHMMSSZ-...`, `PL-####-...`). Backlog items are lightweight — an Objective, Problem Spec, and one-line Scope suffice. Each item also carries a one-line `Test approach` (research items: `research — no tests`). The full SDD specification is written into `ACTIVE.md` during activation, not before. Updating an existing plan or creating a new one requires user approval.
 
 ## Epic / Child Conventions
 

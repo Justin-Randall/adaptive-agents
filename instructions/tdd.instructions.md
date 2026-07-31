@@ -4,7 +4,11 @@ description: "Use when: changing production behavior, adding tests, fixing bugs,
 
 # TDD Instructions
 
+The authoritative testing contract is [Testing instructions](testing.instructions.md).
+
 Prefer test-driven development for production code changes.
+
+Plans must define the test approach before implementation: a `Test approach` line in the backlog item and a `## Test Plan` in ACTIVE.md.
 
 For non-trivial behavior changes:
 

@@ -59,3 +59,13 @@ Project Layer template versions use SemVer-style pre-1.0 numbering: `0.<minor>.<
 Do not interpret versions as decimals; `0.5.12` is newer than `0.5.1` and does not imply proximity to `1.0.0`.
 
 Never recopy the canonical template over an existing Project Layer or treat project-only paths as obsolete by default.
+
+## Backward Compatibility
+
+The Project Layer validator is version-gated: a requirement introduced in a template version (for example, the `## Test Plan` section required at `0.5.2`) activates only for layers whose `project-layer.json` `templateVersion` is at or above that version. Older layers keep validating even if they adopt a newer validator, and a missing or unparseable `templateVersion` is treated as an older layer.
+
+When a template version adds active-plan content requirements:
+
+1. The upgrade patch must add the required content to `ACTIVE.md` (or the documented research exemption) before bumping `project-layer.json`.
+2. Bump the version only after all required structural changes for that version are present.
+3. Never adopt a newer validator into an older layer without completing the content step — doing so would break that layer's own validator.

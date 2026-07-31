@@ -17,6 +17,7 @@ Use [Planning](../../planning/INDEX.md) as the authoritative planning router.
 6. **When activating a backlog item**, use its Objective, Problem Spec, Scope, and other details as source material for the SDD sections. If the backlog does not cover a required section, ask rather than inventing. Never overwrite the backlog item.
    - **If the item is an Epic** (`Status: Epic`), it cannot be activated directly. Identify which child to activate based on the current request and the epic's children index. Load the epic for architecture context and the child for the specific scope and AC.
    - **If the item is a child** (lives in an epic subdirectory), load its parent epic for architecture decisions and then the child for its Objective, Scope, and AC. Load both into the active plan context.
+   - **Write the `## Test Plan`** from the backlog's `Test approach` line per the testing contract; ask if missing.
 7. **When a backlog item grows too large during spec review** (its scope spans multiple independent deliverables that won't fit one session), propose splitting it into an epic with children. Create the epic directory, move the original spec into `PL-YYYYMMDD-slug.md`, and create focused child files. Update INDEX.md.
 8. **When reopening prior work**, assign a new work-unit ID. Link the prior closed SDD and memory from the new plan, then seed new memory with only still-valid facts, unresolved issues, and restart context. Never modify or restore the closed memory wholesale.
 9. Never activate work silently.
@@ -46,11 +47,13 @@ Before executing work, load the project's relevant rules and apply them.
 - **Capture the relevant rules into the plan.** Add or update a `## Applicable Guidance` section in `ACTIVE.md` with short descriptions of each rule and a reference (file path, instruction name, or skill name) to its authoritative source. This makes the rules visible to anyone executing the plan without requiring re-discovery.
 - The rules that apply depend on the project, not on this skill. Check what exists rather than assuming specific practices.
 - Satisfy the acceptance criteria by fulfilling the spec; do not over-scope.
+- **Check for CI.** If the current project has no CI system, ask whether to include CI in scope or defer it to the backlog.
 
 ### Apply the Spec (SDD)
 
 - The `## Specifications` section defines *what* must be built. Let it drive implementation order.
 - When a spec item is ambiguous, stop and ask rather than inventing.
+- **Write focused failing tests first** per the testing contract (`instructions/testing.instructions.md`); record seams, mocks, and injection needs surfaced by test-writing in `## Decisions` and adjust strategy early.
 
 ### Verification Discipline
 

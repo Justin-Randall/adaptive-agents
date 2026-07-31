@@ -71,7 +71,7 @@ layer_root = Path(sys.argv[2]).resolve()
 manifest = json.loads((template_root / "template.json").read_text(encoding="utf-8"))
 metadata = json.loads((layer_root / "project-layer.json").read_text(encoding="utf-8"))
 active_text = (layer_root / "planning/active/ACTIVE.md").read_text(encoding="utf-8")
-if "No Active Plan" in active_text:
+if active_text.startswith("# No Active Plan"):
     print("Active plan is empty (no active work). Upgrade will proceed without active plan content.")
     active_match = None
 else:

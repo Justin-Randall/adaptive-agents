@@ -4,6 +4,7 @@
 - Readiness: Research
 - Created: 2026-07-17
 - Tags: research, instructions, skills, playbooks, architecture
+- Test approach: research — no tests
 
 ## Objective
 

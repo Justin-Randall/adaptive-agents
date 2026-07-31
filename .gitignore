@@ -27,3 +27,6 @@ __pycache__/
 
 # For those using Obsidian to view all the markdown files in this repo, ignore the following:
 .obsidian/
+
+# Generated graphify knowledge-graph output (rebuild with `graphify update .`)
+graphify-out/

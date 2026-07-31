@@ -20,6 +20,7 @@ find_python() {
 find_python
 
 "${PYTHON_CMD[@]}" - "$LAYER_ROOT" <<'PY'
+import json
 import re
 import sys
 from collections import deque
@@ -28,6 +29,20 @@ from pathlib import Path
 root = Path(sys.argv[1]).resolve()
 failures = []
 ignored_directories = {"node_modules", "playwright-report", "test-results"}
+
+
+def _template_version_tuple():
+    """Return the layer's templateVersion as an int tuple; safe (0, 0, 0) when missing or unparseable."""
+    try:
+        metadata = json.loads((root / "project-layer.json").read_text(encoding="utf-8"))
+        parts = [int(part) for part in str(metadata.get("templateVersion", "")).split(".") if part.isdigit()][:3]
+        while len(parts) < 3:
+            parts.append(0)
+        return tuple(parts)
+    except (OSError, ValueError):
+        return (0, 0, 0)
+
+
 required = (
     "INDEX.md",
     "README.md",
@@ -96,11 +111,11 @@ for markdown in markdown_files:
 
 active_text = (root / "planning/active/ACTIVE.md").read_text(encoding="utf-8") if (root / "planning/active/ACTIVE.md").exists() else ""
 active_match = re.search(r"^# ((?:PL-[0-9]{8}|PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4})|\{\{ACTIVE_PLAN_ID\}\}): (.+)$", active_text, re.MULTILINE)
-if not active_match and "No Active Plan" not in active_text:
+if not active_match and not active_text.startswith("# No Active Plan"):
     failures.append("planning/active/ACTIVE.md must start with '# PL-YYYYMMDD: descriptive title' (or legacy PL-YYYYMMDDTHHMMSSZ, PL-####)")
 
 work_unit_match = re.search(r"^- Work Unit: ((?:PL-[0-9]{8}|PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4})-[a-z0-9]+(?:-[a-z0-9]+)*|\{\{ACTIVE_WORK_ID\}\})$", active_text, re.MULTILINE)
-if active_match and "No Active Plan" not in active_text and not work_unit_match:
+if active_match and not active_text.startswith("# No Active Plan") and not work_unit_match:
     failures.append("planning/active/ACTIVE.md must declare '- Work Unit: PL-YYYYMMDD-descriptive-slug'")
 elif work_unit_match:
     work_unit = work_unit_match.group(1)
@@ -110,10 +125,13 @@ elif work_unit_match:
     elif active_memory.resolve() not in graph.get((root / "planning/active/ACTIVE.md").resolve(), set()):
         failures.append(f"ACTIVE.md must link to active memory: {work_unit}.memory.md")
 
+if active_match and not active_text.startswith("# No Active Plan") and _template_version_tuple() >= (0, 5, 2) and not re.search(r"^## Test Plan\b", active_text, re.MULTILINE):
+    failures.append("planning/active/ACTIVE.md must include a '## Test Plan' section")
+
 for support_file in sorted((root / "planning/active").glob("*.md")):
     if support_file.name == "ACTIVE.md":
         continue
-    if "No Active Plan" in active_text:
+    if active_text.startswith("# No Active Plan"):
         break
     if support_file.resolve() not in graph.get((root / "planning/active/ACTIVE.md").resolve(), set()):
         failures.append(f"active supporting document is not linked from ACTIVE.md: {support_file.name}")

@@ -38,6 +38,16 @@ Reference the project rules that govern execution of this plan. List each with a
 
 - `path/to/rule` — one-line description of what it requires.
 
+## Test Plan
+
+Define the tests that prove this plan's specs, written before implementation per the `instructions/testing.instructions.md` test contract:
+
+- Methodology and tooling for the project's language (discovered, not prescribed).
+- Focused tests written first — each falsifiable, covering happy and failure paths.
+- Coverage: 100% of the code written to satisfy the tests, enforced by a CI coverage gate.
+- Run command for the focused loop.
+- Research plans: `research — no tests`.
+
 ## Scope
 
 - Define the bounded work to perform.

@@ -127,6 +127,50 @@ missing_required="$(new_fixture missing-required)"
 rm "$missing_required/planning/active/PL-20260710-validate-project-layer.memory.md"
 expect_failure "$missing_required" "missing active memory for work unit: PL-20260710-validate-project-layer.memory.md"
 
+if grep -Fq -- "## Test Plan" "$baseline/planning/active/ACTIVE.md"; then
+  pass
+else
+  fail "Bootstrap should include a ## Test Plan section in ACTIVE.md"
+fi
+
+missing_test_plan="$(new_fixture missing-test-plan)"
+sed -i '/^## Test Plan$/,/^## Scope$/ { /^## Test Plan$/d; /^## Scope$/!d }' "$missing_test_plan/planning/active/ACTIVE.md"
+expect_failure "$missing_test_plan" "planning/active/ACTIVE.md must include a '## Test Plan' section"
+
+old_layer_no_test_plan="$(new_fixture old-layer-no-test-plan)"
+python -c "import json,sys; p=sys.argv[1]; d=json.load(open(p,encoding='utf-8')); d['templateVersion']='0.5.1'; json.dump(d,open(p,'w',encoding='utf-8'),indent='\t'); open(p,'a').write('\n')" "$old_layer_no_test_plan/project-layer.json"
+sed -i '/^## Test Plan$/,/^## Scope$/ { /^## Test Plan$/d; /^## Scope$/!d }' "$old_layer_no_test_plan/planning/active/ACTIVE.md"
+if bash "$old_layer_no_test_plan/scripts/check-project-layer.sh" >/dev/null; then
+  pass
+else
+  fail "A 0.5.1 layer without a ## Test Plan section should still validate"
+fi
+
+old_layer_no_version="$(new_fixture old-layer-no-version)"
+python -c "import json,sys; p=sys.argv[1]; d=json.load(open(p,encoding='utf-8')); d.pop('templateVersion',None); json.dump(d,open(p,'w',encoding='utf-8'),indent='\t'); open(p,'a').write('\n')" "$old_layer_no_version/project-layer.json"
+sed -i '/^## Test Plan$/,/^## Scope$/ { /^## Test Plan$/d; /^## Scope$/!d }' "$old_layer_no_version/planning/active/ACTIVE.md"
+if bash "$old_layer_no_version/scripts/check-project-layer.sh" >/dev/null; then
+  pass
+else
+  fail "A layer without a templateVersion should default safely and validate without a ## Test Plan section"
+fi
+
+no_active_plan="$(new_fixture no-active-plan)"
+cat > "$no_active_plan/planning/active/ACTIVE.md" <<'EOF'
+# No Active Plan
+
+There is no active Project Layer work unit.
+
+Use [Planning](../INDEX.md) to select backlog work or review closed work.
+EOF
+rm -f "$no_active_plan/planning/active/PL-20260710-validate-project-layer.memory.md"
+sed -i '\|active/PL-20260710-validate-project-layer.memory.md|d' "$no_active_plan/planning/INDEX.md"
+if bash "$no_active_plan/scripts/check-project-layer.sh" >/dev/null; then
+  pass
+else
+  fail "No Active Plan placeholder should not require a ## Test Plan section"
+fi
+
 canonical_closed="$(new_fixture canonical-closed)"
 canonical_packet="$canonical_closed/planning/closed/PL-20260712-preserved-context"
 mkdir -p "$canonical_packet"

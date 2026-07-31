@@ -3,6 +3,7 @@
 - Status: Backlog
 - Readiness: Ready
 - Created: 2026-07-11
+- Test approach: research — no tests
 
 ## Objective
 

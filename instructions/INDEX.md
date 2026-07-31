@@ -10,6 +10,8 @@ Use instruction files for behavior that should apply predictably across sessions
 - [repository-boundaries.instructions.md](repository-boundaries.instructions.md) defines Adaptive Agents versus current-project ownership.
 - [coding.instructions.md](coding.instructions.md) defines implementation standards.
 - [tdd.instructions.md](tdd.instructions.md) defines behavior-change validation expectations.
+- [testing.instructions.md](testing.instructions.md) defines the test contract: falsifiability, failure paths, test-first, coverage, speed, methodology, and CI.
+- [planning-conventions.md](planning-conventions.md) defines planning, backlog, and test-planning conventions for Project Layers.
 - [command-failure-pivot.instructions.md](command-failure-pivot.instructions.md) defines shell failure retry discipline.
 - [temp-artifact-hygiene.instructions.md](temp-artifact-hygiene.instructions.md) defines diagnostic artifact cleanup expectations.
 - [branch-workflow.instructions.md](branch-workflow.instructions.md) defines branch and commit workflow preferences.

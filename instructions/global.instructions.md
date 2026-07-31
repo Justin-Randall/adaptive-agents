@@ -33,6 +33,7 @@ Read:
 - [Repository boundary instructions](repository-boundaries.instructions.md)
 - [Coding instructions](coding.instructions.md)
 - [TDD instructions](tdd.instructions.md)
+- [Testing instructions](testing.instructions.md)
 - [Command failure pivot instructions](command-failure-pivot.instructions.md)
 - [Temporary artifact hygiene instructions](temp-artifact-hygiene.instructions.md)
 - [Branch workflow instructions](branch-workflow.instructions.md)

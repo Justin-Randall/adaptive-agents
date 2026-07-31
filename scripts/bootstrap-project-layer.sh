@@ -191,7 +191,8 @@ for path in destination.rglob("*"):
     text = path.read_text(encoding="utf-8")
     for placeholder, value in replacements.items():
         text = text.replace(placeholder, value)
-    path.write_text(text, encoding="utf-8", newline="\n")
+    with open(str(path), "w", encoding="utf-8", newline="\n") as f:
+        f.write(text)
 
 for path in sorted(path for path in destination.rglob("*") if path.is_file()):
     rendered_name = path.name

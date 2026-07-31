@@ -10,6 +10,16 @@ A backlog item should be sized so the agent can close it in a single activation.
 
 If the estimated size exceeds this threshold, the item is a candidate for splitting into smaller work units (see "Epic / Child Pattern" below).
 
+## Test Planning
+
+Tests are planned, not discovered mid-implementation. The [Testing instructions](testing.instructions.md) define the authoritative contract.
+
+- Backlog items carry a one-line `Test approach` (falsifiable checks, failure paths, coverage, CI — or `research — no tests`).
+- Activation expands the `Test approach` line into a `## Test Plan` section in `ACTIVE.md` per the testing contract.
+- Epic children each define their own `Test approach`.
+- Test work counts toward the single-activation sizing budget above.
+- `check-project-layer.sh` requires the `## Test Plan` heading in active plans (research plans use `research — no tests`).
+
 ## Epic / Child Pattern
 
 When a backlog item grows too large for a single activation, split it into an epic with children:

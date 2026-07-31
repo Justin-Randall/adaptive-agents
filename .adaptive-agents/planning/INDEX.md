@@ -2,7 +2,8 @@
 
 ## Current Work
 
-No active plan ([active slot](active/ACTIVE.md)).
+- Active plan: [PL-20260731: Make Tests Part of Planning Guidance](active/ACTIVE.md)
+- Working memory: [PL-20260731-make-tests-part-of-planning memory](active/PL-20260731-make-tests-part-of-planning.memory.md)
 
 ## Queues
 
