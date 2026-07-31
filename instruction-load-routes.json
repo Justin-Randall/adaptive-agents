@@ -99,11 +99,6 @@
 					"path": ".adaptive-agents/planning/active/ACTIVE.md",
 					"classification": "profile",
 					"reason": "Planning router identifies this file as the current work specification."
-				},
-				{
-					"path": ".adaptive-agents/planning/active/PL-20260731-make-tests-part-of-planning.memory.md",
-					"classification": "profile",
-					"reason": "Active plan links this file as the work-unit working memory."
 				}
 			]
 		},

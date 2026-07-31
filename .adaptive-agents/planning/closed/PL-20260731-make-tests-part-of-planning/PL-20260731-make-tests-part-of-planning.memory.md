@@ -2,7 +2,7 @@
 
 - Work Unit: PL-20260731-make-tests-part-of-planning
 - Activated: 2026-07-31
-- Status: Active
+- Status: Completed
 
 ## Trigger
 
