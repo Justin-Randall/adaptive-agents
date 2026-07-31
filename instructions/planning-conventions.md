@@ -10,6 +10,20 @@ A backlog item should be sized so the agent can close it in a single activation.
 
 If the estimated size exceeds this threshold, the item is a candidate for splitting into smaller work units (see "Epic / Child Pattern" below).
 
+## Backlog Item Readiness
+
+Every backlog item has a Readiness value in the `INDEX.md` table column. Readiness uses the pattern `<state>: <reason>` — the state prefix makes the column scannable, and the reason provides context without opening the file.
+
+| State | Meaning |
+|---|---|
+| `Not Ready: <reason>` | The item should not be activated. Common reasons: scope still emerging, dependency not yet met, insufficient information. |
+| `Needs Review: <reason>` | The item has enough detail for a user to evaluate, but has not been approved. Common reasons: spec draft written, architecture decision pending, waiting on user input. |
+| `Ready: <reason>` | The item is approved and actionable. Common reasons: concepts stable, architecture decisions locked, dependencies satisfied. |
+
+The `backlogReadiness` field in `templates/project-layer/template.json` mirrors these states. Both sources of truth should be kept in sync.
+
+Backlog items follow the template at `templates/project-layer/.adaptive-agents/planning/backlog/PL-YYYYMMDD-descriptive-slug.md`.
+
 ## Test Planning
 
 Tests are planned, not discovered mid-implementation. The [Testing instructions](testing.instructions.md) define the authoritative contract.

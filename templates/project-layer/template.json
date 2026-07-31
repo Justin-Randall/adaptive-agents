@@ -20,9 +20,9 @@
 	"planIdPatternLegacyLegacy": "^PL-[0-9]{4}$",
 	"planIdDescription": "Primary: PL-YYYYMMDD. Legacy (validator-accepted): PL-YYYYMMDDTHHMMSSZ, PL-####.",
 	"backlogReadiness": [
-		"Ready",
-		"Needs refinement",
-		"Blocked"
+		"Ready: <reason>",
+		"Needs Review: <reason>",
+		"Not Ready: <reason>"
 	],
 	"closedDispositions": [
 		"Completed",
