@@ -22,7 +22,7 @@ Every backlog item has a Readiness value in the `INDEX.md` table column. Readine
 
 The `backlogReadiness` field in `templates/project-layer/template.json` mirrors these states. Both sources of truth should be kept in sync.
 
-Backlog items follow the template at `templates/project-layer/.adaptive-agents/planning/backlog/PL-YYYYMMDD-descriptive-slug.md`.
+Backlog items follow the template at `templates/project-layer/.adaptive-agents/planning/backlog/backlog-item-template.md`.
 
 ## Test Planning
 
