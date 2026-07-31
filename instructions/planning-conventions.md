@@ -15,7 +15,7 @@ If the estimated size exceeds this threshold, the item is a candidate for splitt
 Every backlog item has a Readiness value in the `INDEX.md` table column. Readiness uses the pattern `<state>: <reason>` — the state prefix makes the column scannable, and the reason provides context without opening the file.
 
 | State | Meaning |
-|---|---|
+| --- | --- |
 | `Not Ready: <reason>` | The item should not be activated. Common reasons: scope still emerging, dependency not yet met, insufficient information. |
 | `Needs Review: <reason>` | The item has enough detail for a user to evaluate, but has not been approved. Common reasons: spec draft written, architecture decision pending, waiting on user input. |
 | `Ready: <reason>` | The item is approved and actionable. Common reasons: concepts stable, architecture decisions locked, dependencies satisfied. |
