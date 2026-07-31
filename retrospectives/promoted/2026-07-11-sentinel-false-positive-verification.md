@@ -1,7 +1,7 @@
 # Retrospective: Sentinel checks can false-positive when installers copy guidance
 
 - Date: 2026-07-11
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Reworking the OpenCode installer after a completed-then-reopened integration
 
@@ -32,10 +32,11 @@ A false "verified" state persisted through plan closure and required a reopen. V
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Pending triage
-- Rationale: The three-probe protocol and installer duties were already applied to the backlog contract and README during the plan; a durable promotion into instructions or a playbook has not been reviewed.
+- Status: Promoted
+- Decision: Promoted to existing guidance
+- Rationale: The three-probe protocol and the no-sentinel-redefinition rule are already durable in the backlog contract header and README verification section.
 
 ## Promotion Links
 
-- None yet.
+- [backlog contract header](../../.adaptive-agents/planning/backlog/INDEX.md)
+- [README verification](../../README.md)
