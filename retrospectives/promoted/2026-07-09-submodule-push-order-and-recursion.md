@@ -1,7 +1,7 @@
 # Retrospective: Submodule push order and recursion traps
 
 - Date: 2026-07-09
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Publishing a parent repository and nested submodules after local implementation and testability commits
 
@@ -31,15 +31,13 @@ Where might this belong if promoted?
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Not promoted yet.
-- Rationale: The lesson appears durable, but it should be validated across at least one additional multi-submodule publication session before codifying global push-order rules.
+- Status: Promoted
+- Decision: Promoted to instructions/branch-workflow.instructions.md
+- Rationale: Recurrence observed in a second multi-submodule publication; the lesson is durable and user-wide.
 
 ## Promotion Links
 
-Add Markdown links to changed durable guidance files if promoted.
-
-- None yet.
+- [branch-workflow.instructions.md](../../instructions/branch-workflow.instructions.md)
 
 ## Dogfood Check
 

@@ -48,6 +48,11 @@ Before starting work that will create or modify tracked files, determine branch 
 - **Only the feature delivery reaches the primary branch.** Before raising a PR/MR, squash into a single clean commit (or one per logical change). Message format: `PL-<work-unit-id>: <summary>` when a work unit exists.
 - **Push only when ready.** The branch is pushed only when the PR/MR is about to be created.
 
+### Submodule Publication
+
+- Push repositories in dependency order (each submodule before its parent), not via recursive push.
+- When recursive push fails on misaligned nested refs, push with recursion disabled for that operation (`git push --no-recurse-submodules`) instead of retrying recursive variants.
+
 ## Planning Artifact Lifecycle
 
 When a project layer (`.adaptive-agents/planning/`) is present:

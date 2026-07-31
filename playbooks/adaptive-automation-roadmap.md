@@ -118,7 +118,7 @@ Dogfood check:
 
 Dogfood result:
 
-- Successful: an end-of-session review from another workspace created [2026-07-09-submodule-push-order-and-recursion.md](../retrospectives/inbox/2026-07-09-submodule-push-order-and-recursion.md) as a single `Captured` retrospective with concrete evidence and a bounded dogfood check.
+- Successful: an end-of-session review from another workspace created [2026-07-09-submodule-push-order-and-recursion.md](../retrospectives/promoted/2026-07-09-submodule-push-order-and-recursion.md) as a single `Captured` retrospective with concrete evidence and a bounded dogfood check.
 - Boundary check: it did not promote the note or edit durable guidance.
 
 ### 5. Retrospective Queue Tooling
@@ -201,7 +201,7 @@ Dogfood check:
 
 Dogfood result:
 
-- Successful boundary: the prompt selected [2026-07-09-submodule-push-order-and-recursion.md](../retrospectives/inbox/2026-07-09-submodule-push-order-and-recursion.md), proposed a patch, and stopped for the user's decision instead of applying changes.
+- Successful boundary: the prompt selected [2026-07-09-submodule-push-order-and-recursion.md](../retrospectives/promoted/2026-07-09-submodule-push-order-and-recursion.md), proposed a patch, and stopped for the user's decision instead of applying changes.
 - User decision: the recommendation was deferred, and the retrospective status update was denied because the lesson needs more detailed treatment later.
 - Prompt hardening: the prompt now surfaces explicit retrospective rationale that calls for more validation before promotion, avoids treating a deferred user decision as approval to change retrospective status, and uses apply-patch style patch headers for new and existing files.
 
