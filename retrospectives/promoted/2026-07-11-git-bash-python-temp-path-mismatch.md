@@ -1,7 +1,7 @@
 # Retrospective: Git Bash test environment and Windows path mismatch
 
 - Date: 2026-07-11
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Testing and dogfooding cross-platform installers
 
@@ -56,10 +56,10 @@ When writing Bash test scripts that invoke Windows-native executables (Python, N
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Pending triage
-- Rationale: The combined failure is reusable across Windows installer tests, but no durable guidance change has been approved.
+- Status: Promoted
+- Decision: Promoted to playbooks/windows-shell-selection.md
+- Rationale: The combined cross-environment path lesson is durable, evidence-backed, and user-wide.
 
 ## Promotion Links
 
-- None yet.
+- [windows-shell-selection.md](../../playbooks/windows-shell-selection.md)

@@ -22,3 +22,11 @@ Run each command in a compatible shell on the first attempt and pivot quickly wh
 - Do not keep retrying equivalent commands in the same incompatible shell.
 - Keep shell selection scoped to the command category; do not force one shell for all workflows.
 - When Git Bash is unavailable, report the fallback shell and proceed with reduced confidence noted.
+
+## Cross-Environment Paths in Tests
+
+- Use a temp dir visible to both environments (`$LOCALAPPDATA/Temp`), not Git Bash's `mktemp -d` (`/tmp` is MSYS2-only).
+- Pass Windows paths to `python -c` with forward slashes (`\U` etc. otherwise raise unicode-escape errors).
+- Match test expectations to the path format the tool actually produces (Git Bash `/d/...` vs Windows `D:/...`).
+- Keep temporary `HOME`/`USERPROFILE` overrides scoped to the isolated subprocess; a leaked temp home makes valid-looking output against the wrong config.
+- Verify the real destination files, not just exit codes — the installer's reported directory can be wrong.
