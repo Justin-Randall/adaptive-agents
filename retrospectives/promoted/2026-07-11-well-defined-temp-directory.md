@@ -1,7 +1,7 @@
 # Retrospective: Well-defined temporary directory missing from artifact hygiene rules
 
 - Date: 2026-07-11
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: OpenCode cleanup follow-up; active plan implementation
 
@@ -36,10 +36,11 @@ Temporary and scratch files continue to appear in workspace source directories d
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision:
-- Rationale:
+- Status: Promoted
+- Decision: Promoted to instructions/temp-artifact-hygiene.instructions.md and playbooks/temp-artifact-hygiene.md
+- Rationale: A gitignored `./.tmp` project-local default closes the fallback gap without Windows long-path risks.
 
 ## Promotion Links
 
-- None yet.
+- [temp-artifact-hygiene.instructions.md](../../instructions/temp-artifact-hygiene.instructions.md)
+- [temp-artifact-hygiene playbook](../../playbooks/temp-artifact-hygiene.md)

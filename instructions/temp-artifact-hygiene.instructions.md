@@ -10,6 +10,7 @@ Route intentional intermediate outputs to the active workspace's approved scratc
 
 - Never write ad hoc artifacts into source directories when a workspace scratch/temp policy exists.
 - Prefer paths inside the workspace-approved scratch location (for example `Scratch/` when that is the local convention).
+- When no scratch location is documented, use `./.tmp` at the project root and ensure it is gitignored (add `/.tmp` to `.gitignore`); remove the files when done.
 - Use filenames that cannot be confused with reserved device names on the current OS.
 
 ## Cleanup Rules

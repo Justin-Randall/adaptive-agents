@@ -23,4 +23,4 @@ Keep source trees clean by routing intermediate outputs to the approved scratch 
 
 ## Escalation
 
-If the workspace has no documented scratch location, ask once for the preferred location before generating ad hoc files.
+If the workspace has no documented scratch location, create and gitignore `./.tmp` at the project root and use it as the default temp directory rather than source directories. Optionally ask once for a preferred location, but do not block on it.
