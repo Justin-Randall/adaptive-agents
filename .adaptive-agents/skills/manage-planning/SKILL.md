@@ -28,7 +28,8 @@ Use [Planning](../../planning/INDEX.md) as the authoritative planning router.
 2. Scan `planning/backlog/INDEX.md` before opening detailed backlog plans.
 3. Propose updating a matching detailed plan or creating a new `PL-YYYYMMDD-descriptive-slug.md` plan (or legacy `PL-YYYYMMDDTHHMMSSZ-...`, `PL-####-...`).
 4. **Keep backlog items lightweight.** A backlog entry needs only an Objective, a Problem Spec, and a one-line Scope. The full SDD specification is written into `ACTIVE.md` during activation, not before. This keeps the backlog easy to scan and reduces stale-spec risk.
-5. Wait for approval before changing the backlog index or detailed plans.
+5. **Do not mark an item Ready prematurely.** Lightweight does not mean under-specified: before setting Readiness to `Ready`, interview the user for scope detail (files, integration points, constraints, prior art), research the domain to reach file-level specificity, and keep the plan free of PII — no real names, usernames, personal directory paths (for example `C:/Users/<name>/...`), or other identifying details; generalize them.
+6. Wait for approval before changing the backlog index or detailed plans.
 
 ## Maintain Active Context
 

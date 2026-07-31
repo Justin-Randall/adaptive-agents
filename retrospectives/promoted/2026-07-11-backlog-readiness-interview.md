@@ -1,7 +1,7 @@
 # Retrospective: Backlog item added without sufficient detail/interview
 
 - Date: 2026-07-11
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Adding and activating OpenCode backlog item (PL-20260710)
 
@@ -36,3 +36,13 @@ When asked to add a backlog item with only a brief description:
 ## Proposed Project Target
 
 - `skills/manage-planning/SKILL.md` — add to backlog creation guidance: "Before setting a backlog item to Ready, interview the user for scope detail, research the domain, and ensure file-level specificity. Do not include PII."
+
+## Promotion Decision
+
+- Status: Promoted
+- Decision: Promoted to skills/manage-planning/SKILL.md
+- Rationale: The lesson is durable, evidence-backed, and user-wide; the Ready-gate and PII rules are now part of the manage-planning backlog guidance.
+
+## Promotion Links
+
+- [manage-planning/SKILL.md](../../.adaptive-agents/skills/manage-planning/SKILL.md)
