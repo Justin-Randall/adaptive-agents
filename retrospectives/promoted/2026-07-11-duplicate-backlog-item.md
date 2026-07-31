@@ -1,7 +1,7 @@
 # Retrospective: Duplicate backlog item created despite existing item
 
 - Date: 2026-07-11
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Adding OpenCode to backlog (PL-20260710)
 
@@ -30,3 +30,14 @@ When asked to create a new plan/feature/backlog item, scan existing items first.
 ## Proposed Project Target
 
 - `instructions/global.instructions.md` — add a concrete rule: "When asked to create a new plan, feature, backlog item, or similar artifact, check whether existing items already address the request. If overlap exists, present it to the user and ask before duplicating."
+
+## Promotion Decision
+
+- Status: Promoted
+- Decision: Promoted to skills/manage-planning/SKILL.md (overlap rule) and instructions/planning-conventions.md (Backlog Overlap)
+- Rationale: The lesson is durable, evidence-backed, and user-wide; the overlap stop-and-ask rule is now part of the manage-planning backlog guidance and planning conventions.
+
+## Promotion Links
+
+- [manage-planning/SKILL.md](../../.adaptive-agents/skills/manage-planning/SKILL.md)
+- [planning-conventions.md](../../instructions/planning-conventions.md)

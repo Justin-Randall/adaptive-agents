@@ -20,6 +20,10 @@ Tests are planned, not discovered mid-implementation. The [Testing instructions]
 - Test work counts toward the single-activation sizing budget above.
 - `check-project-layer.sh` requires the `## Test Plan` heading in active plans (research plans use `research — no tests`).
 
+## Backlog Overlap
+
+Before creating a backlog item, scan `planning/backlog/INDEX.md` for an item that already addresses the request. On any overlap — even partial, or where the existing item seems narrower or broader — present it to the user and ask whether to work with the existing item or create a new one rather than duplicating.
+
 ## Epic / Child Pattern
 
 When a backlog item grows too large for a single activation, split it into an epic with children:

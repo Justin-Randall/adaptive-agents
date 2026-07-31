@@ -26,10 +26,11 @@ Use [Planning](../../planning/INDEX.md) as the authoritative planning router.
 
 1. Keep out-of-scope discoveries in the active `<work-unit-id>.memory.md` while evaluating them.
 2. Scan `planning/backlog/INDEX.md` before opening detailed backlog plans.
-3. Propose updating a matching detailed plan or creating a new `PL-YYYYMMDD-descriptive-slug.md` plan (or legacy `PL-YYYYMMDDTHHMMSSZ-...`, `PL-####-...`).
-4. **Keep backlog items lightweight.** A backlog entry needs only an Objective, a Problem Spec, and a one-line Scope. The full SDD specification is written into `ACTIVE.md` during activation, not before. This keeps the backlog easy to scan and reduces stale-spec risk.
-5. **Do not mark an item Ready prematurely.** Lightweight does not mean under-specified: before setting Readiness to `Ready`, interview the user for scope detail (files, integration points, constraints, prior art), research the domain to reach file-level specificity, and keep the plan free of PII — no real names, usernames, personal directory paths (for example `C:/Users/<name>/...`), or other identifying details; generalize them.
-6. Wait for approval before changing the backlog index or detailed plans.
+3. **Check for overlap before creating anything new.** If an existing item addresses the request — even partially, or if it seems narrower or broader than the new request — stop, present the overlap to the user, and ask whether to work with the existing item or create a new one. Let the user decide.
+4. Propose updating a matching detailed plan or creating a new `PL-YYYYMMDD-descriptive-slug.md` plan (or legacy `PL-YYYYMMDDTHHMMSSZ-...`, `PL-####-...`).
+5. **Keep backlog items lightweight.** A backlog entry needs only an Objective, a Problem Spec, and a one-line Scope. The full SDD specification is written into `ACTIVE.md` during activation, not before. This keeps the backlog easy to scan and reduces stale-spec risk.
+6. **Do not mark an item Ready prematurely.** Lightweight does not mean under-specified: before setting Readiness to `Ready`, interview the user for scope detail (files, integration points, constraints, prior art), research the domain to reach file-level specificity, and keep the plan free of PII — no real names, usernames, personal directory paths (for example `C:/Users/<name>/...`), or other identifying details; generalize them.
+7. Wait for approval before changing the backlog index or detailed plans.
 
 ## Maintain Active Context
 
