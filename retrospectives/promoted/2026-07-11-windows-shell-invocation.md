@@ -1,6 +1,6 @@
 # 2026-07-11: Windows Shell Invocation Friction
 
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Captured: 2026-07-11
 
@@ -29,3 +29,13 @@ When running `.sh` workflows on Windows:
 - Three consecutive attempts to run `check-adaptive-agents.sh` via `&` produced zero output and zero error.
 - Each invocation appeared to succeed (exit code 0 in some shells) but the script never ran.
 - The `install-opencode.sh` and `install-vscode.sh` scripts likely have the same issue.
+
+## Promotion Decision
+
+- Status: Promoted
+- Decision: Promoted to playbooks/windows-shell-selection.md
+- Rationale: The explicit `.sh` invocation rule is durable, evidence-backed, and user-wide.
+
+## Promotion Links
+
+- [windows-shell-selection.md](../../playbooks/windows-shell-selection.md)

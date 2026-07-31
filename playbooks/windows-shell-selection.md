@@ -23,6 +23,11 @@ Run each command in a compatible shell on the first attempt and pivot quickly wh
 - Keep shell selection scoped to the command category; do not force one shell for all workflows.
 - When Git Bash is unavailable, report the fallback shell and proceed with reduced confidence noted.
 
+## Invoking .sh Scripts
+
+- Never invoke a `.sh` script with PowerShell's `&` operator — Windows opens the file's associated editor and the script never runs (the exit code can still be 0).
+- Invoke explicitly with `bash path/to/script.sh` and confirm Git Bash is on PATH first.
+
 ## Cross-Environment Paths in Tests
 
 - Use a temp dir visible to both environments (`$LOCALAPPDATA/Temp`), not Git Bash's `mktemp -d` (`/tmp` is MSYS2-only).
