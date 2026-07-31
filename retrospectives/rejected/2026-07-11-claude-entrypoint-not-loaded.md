@@ -1,7 +1,7 @@
 # Retrospective: Claude entrypoint was not loaded at startup
 
 - Date: 2026-07-11
-- Status: Captured
+- Status: Rejected
 - Scope: User-wide
 - Session or task: Dogfooding a user-wide Claude Code integration
 
@@ -32,9 +32,9 @@ Stronger prompt wording could not overcome a client-enforced filesystem boundary
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Pending triage
-- Rationale: The behavior is reproducible and supported by live verification, but no durable promotion has been approved.
+- Status: Rejected
+- Decision: Converted to project backlog bug PL-20260731-claude-entrypoint-health-check
+- Rationale: The lesson's actionable remainder — the live health check false-negatives on a correctly installed native import due to path-format mismatch — is tracked as a project backlog bug in this repository, not promoted to user-wide durable guidance.
 
 ## Promotion Links
 

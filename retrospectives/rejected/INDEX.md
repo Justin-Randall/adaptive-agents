@@ -15,4 +15,6 @@ This directory stores retrospective notes that were considered and declined for 
 
 ## Current Notes
 
-None yet.
+| Note | Date | Reason |
+| --- | --- | --- |
+| [claude-entrypoint-not-loaded](2026-07-11-claude-entrypoint-not-loaded.md) | 2026-07-11 | Converted to project backlog bug PL-20260731-claude-code-entrypoint-health-check; not promoted to durable guidance. |
