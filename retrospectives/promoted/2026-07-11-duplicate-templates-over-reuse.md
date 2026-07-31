@@ -1,6 +1,6 @@
 # 2026-07-11: Duplicate Templates Instead of Reusing Existing Files
 
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Captured: 2026-07-11
 
@@ -37,3 +37,13 @@ Before creating any new file in the Adaptive Agents repo, ask: does this informa
 - 7 backlog items had the sentinel inline in their installer templates — all had to be corrected to reference AGENTS.md instead
 - Health checker initially validated CLAUDE.md for the sentinel instead of AGENTS.md
 - The installer now generates rules dynamically from `instructions/*.instructions.md` instead of copying templates
+
+## Promotion Decision
+
+- Status: Promoted
+- Decision: Promoted to skills/update-adaptive-agents/SKILL.md
+- Rationale: The delegate-over-duplicate installer rule is durable, evidence-backed, and user-wide.
+
+## Promotion Links
+
+- [update-adaptive-agents/SKILL.md](../../skills/update-adaptive-agents/SKILL.md)
