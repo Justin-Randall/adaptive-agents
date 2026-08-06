@@ -4,7 +4,7 @@ Routing index for the retrospectives system. Each sibling directory holds notes 
 
 | Directory | Status | Count | Purpose |
 | --- | --- | --- | --- |
-| [inbox/](inbox/) | Captured | 10 | Notes awaiting initial triage |
+| [inbox/](inbox/) | Captured | 11 | Notes awaiting initial triage |
 | [promoted/](promoted/) | Promoted | 13 | Lessons applied to durable guidance |
 | [deferred/](deferred/) | Deferred | 1 | Triaged, set aside for re-evaluation |
 | [rejected/](rejected/) | Rejected | 0 | Considered and declined |
