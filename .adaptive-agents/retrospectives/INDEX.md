@@ -4,6 +4,7 @@ Project retrospectives capture learning whose intended behavior may be specific 
 
 - Read the [inbox rules](inbox/README.md).
 - Create notes from the [retrospective template](inbox/template.md).
+- Browse [promoted](promoted/INDEX.md), [deferred](deferred/INDEX.md), and [rejected](rejected/INDEX.md) notes by status.
 - Use [Manage retrospectives](../skills/manage-retrospectives/SKILL.md) before triage or promotion.
 
 Choose scope before target type. Promotion remains inside this Project Layer unless a separately approved, sanitized proposal establishes that the lesson belongs user-wide.

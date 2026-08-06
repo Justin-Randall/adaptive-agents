@@ -8,6 +8,8 @@
 
 > 🟡 **Phase:** Planning &nbsp;|&nbsp; 📈 **Completion:** 0%
 
+> Keep this TODO / Progress section current throughout the work: after each meaningful step, update the checklist, phase, and completion percentage before continuing.
+
 - ⬜ Confirm the initial implementation steps.
 - ⬜ Perform the work.
 - ⬜ Record verification evidence.
