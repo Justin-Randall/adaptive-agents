@@ -30,6 +30,8 @@ Tests are planned, not discovered mid-implementation. The [Testing instructions]
 
 - Backlog items carry a one-line `Test approach` (falsifiable checks, failure paths, coverage, CI — or `research — no tests`).
 - Activation expands the `Test approach` line into a `## Test Plan` section in `ACTIVE.md` per the testing contract.
+- For every implementation slice, the `Test Plan` must state the execution order: write the focused failing test first, run it to confirm the failure, make the smallest production change, rerun the focused test, and broaden validation only after the slice passes. Do not describe test additions only as post-implementation checklist items.
+- Each slice must name the behavior and focused check that falsify the intended result, along with the test files or commands needed to exercise them. If writing the test exposes missing seams, mocks, or injection points, record the resulting strategy change in the plan before implementation continues.
 - Epic children each define their own `Test approach`.
 - Test work counts toward the single-activation sizing budget above.
 - `check-project-layer.sh` requires the `## Test Plan` heading in active plans (research plans use `research — no tests`).

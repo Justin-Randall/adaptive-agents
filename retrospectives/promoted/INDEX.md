@@ -24,3 +24,4 @@ This directory stores retrospective notes whose lesson has been applied to durab
 | [crlf-lf-diff-normalization](2026-07-31-crlf-lf-diff-normalization.md) | 2026-07-31 | `skills/` |
 | [retrospective-promotion-apply-errors](2026-07-31-retrospective-promotion-apply-errors.md) | 2026-07-31 | `prompts/` |
 | [version-gated-validator-requirements](2026-07-31-version-gated-validator-requirements.md) | 2026-07-31 | `skills/`, `templates/`, `scripts/` |
+| [test-first-plan-language](2026-08-04-test-first-plan-language.md) | 2026-08-04 | `instructions/` |
