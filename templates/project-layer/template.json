@@ -1,5 +1,5 @@
 {
-	"templateVersion": "0.5.2",
+	"templateVersion": "0.5.3",
 	"versionPolicy": {
 		"scheme": "SemVer-style pre-1.0: 0.<minor>.<patch>",
 		"patch": "Additive template docs, validation refinements, metadata additions, and bug fixes that do not require project-owned content changes.",

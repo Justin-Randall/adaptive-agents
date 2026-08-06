@@ -4,6 +4,14 @@
 - Work Unit: {{ACTIVE_WORK_ID}}
 - Origin: Direct
 
+## 🧭 TODO / Progress
+
+> 🟡 **Phase:** Planning &nbsp;|&nbsp; 📈 **Completion:** 0%
+
+- ⬜ Confirm the initial implementation steps.
+- ⬜ Perform the work.
+- ⬜ Record verification evidence.
+
 ## Objective
 
 Establish the initial approved work for this Project Layer.
@@ -48,6 +56,19 @@ Define the tests that prove this plan's specs, written before implementation per
 - Run command for the focused loop.
 - Research plans: `research — no tests`.
 
+## DRY Assessment
+
+Record one assessment for every implementation slice before editing it. Follow the user-wide Planning Conventions for scan triggers and the distinction between a mandatory assessment and a risk-based jscpd scan.
+
+- Status: `Required` | `Not required` | `Existing baseline`
+- Scope: path or implementation slice being assessed.
+- Command: the project-approved jscpd command, if a scan is run.
+- Decision: why a scan is required or not required.
+- Result: clone summary, verification result, or reason deferred.
+- Intentional/deferred duplication: explain any reported duplication that remains.
+
+Research plans may record `DRY assessment — not applicable` when no implementation code is modified.
+
 ## Scope
 
 - Define the bounded work to perform.
@@ -57,13 +78,9 @@ Define the tests that prove this plan's specs, written before implementation per
 
 - [ ] The approved objective is complete.
 - [ ] Relevant validation succeeds.
+- [ ] Every implementation slice has a recorded DRY assessment.
+- [ ] Required duplication scans were run with the project-approved command, and accepted or deferred duplication is documented.
 - [ ] Deferred discoveries have been proposed for backlog handling.
-
-## Progress
-
-- [ ] Confirm the initial implementation steps.
-- [ ] Perform the work.
-- [ ] Record verification evidence.
 
 ## Decisions
 

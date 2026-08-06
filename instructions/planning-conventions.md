@@ -36,6 +36,19 @@ Tests are planned, not discovered mid-implementation. The [Testing instructions]
 - Test work counts toward the single-activation sizing budget above.
 - `check-project-layer.sh` requires the `## Test Plan` heading in active plans (research plans use `research — no tests`).
 
+## DRY Assessment
+
+Every active implementation plan must include a DRY assessment for each implementation slice. The assessment is mandatory evidence that the agent considered duplication; a full jscpd scan is risk-based rather than unconditional.
+
+- Mark a scan **Required** when the slice adds similar logic in multiple locations, changes multiple implementations of one behavior, introduces a new adapter/provider/handler/serializer/UI pattern beside an existing one, ports code across related formats, performs cleanup/consolidation/refactoring, changes a shared abstraction, or has an acceptance criterion about maintainability or duplication.
+- Mark a scan **Not required** for documentation-only, configuration-only, isolated one-file, or similarly low-risk slices, and record the concrete reason. A local DRY review still applies while reading the owning code.
+- Mark **Existing baseline** when the project already has an approved jscpd command or threshold; reuse that command and scope rather than inventing a second policy.
+- When a scan is required, load [jscpd](../skills/jscpd/SKILL.md), preserve the project's configured version and scope, and record the command, result, and any intentional or deferred duplication.
+- Load [dry-refactoring](../skills/dry-refactoring/SKILL.md) only when removing detected duplication is in scope. Detection does not require refactoring every reported clone.
+- After a duplication-reducing refactor, rerun the same scan and record the verification result. Do not add a threshold merely to make CI pass.
+
+Research plans may record `research — no tests` and `DRY assessment — not applicable` when they do not modify implementation code.
+
 ## Backlog Overlap
 
 Before creating a backlog item, scan `planning/backlog/INDEX.md` for an item that already addresses the request. On any overlap — even partial, or where the existing item seems narrower or broader — present it to the user and ask whether to work with the existing item or create a new one rather than duplicating.
@@ -49,7 +62,7 @@ When a backlog item grows too large for a single activation, split it into an ep
 
 ### Directory Structure
 
-```
+```text
 backlog/
   INDEX.md
   PL-YYYYMMDD-descriptive-slug.md                    ← epic file
@@ -87,7 +100,7 @@ When a child closes, it follows the standard end-work playbook — its ACTIVE.md
 
 When the last child closes, the epic itself is fully delivered. The entire hierarchy moves to `planning/closed/`, mirroring the backlog structure:
 
-```
+```text
 closed/
   PL-YYYYMMDD-descriptive-slug/
     PL-YYYYMMDD-descriptive-slug.sdd.md              ← epic epilogue
