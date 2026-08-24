@@ -169,6 +169,20 @@ for plan_id, locations in sorted(plan_locations.items()):
     if len(locations) > 1:
         failures.append(f"plan ID appears in multiple lifecycle locations: {plan_id}: {', '.join(locations)}")
 
+active_pointer = (root / "planning/active/ACTIVE.md").resolve()
+for source, targets in graph.items():
+    source_relative = source.relative_to(root).as_posix()
+    if source_relative.startswith(("planning/backlog/", "planning/closed/")):
+        for target in targets:
+            target_relative = target.relative_to(root).as_posix()
+            if target_relative.startswith("planning/active/"):
+                failures.append(
+                    f"{source_relative}: historical planning record links to moving active path: {target_relative}"
+                )
+
+if active_pointer in graph.get(active_pointer, set()):
+    failures.append("planning/active/ACTIVE.md must not link to itself")
+
 retrospective_statuses = {"Captured", "Deferred", "Promoted", "Rejected"}
 retrospective_scopes = {"Project Layer", "Undetermined", "User-wide"}
 retrospective_name = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$")

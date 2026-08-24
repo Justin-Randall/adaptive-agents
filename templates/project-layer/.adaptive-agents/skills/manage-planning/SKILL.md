@@ -22,6 +22,13 @@ Use [Planning](../../planning/INDEX.md) as the authoritative planning router.
 8. **When reopening prior work**, assign a new work-unit ID. Link the prior closed SDD and memory from the new plan, then seed new memory with only still-valid facts, unresolved issues, and restart context. Never modify or restore the closed memory wholesale.
 9. Never activate work silently.
 
+## Link Semantics
+
+- Treat `planning/active/ACTIVE.md` and other files under `planning/active/` as moving current-work pointers.
+- Use immutable work-unit documents under `planning/closed/<work-unit-id>/` for historical provenance, dependencies, closure records, and references that must remain stable after activation changes.
+- During activation and closure, retarget historical links away from `planning/active/`; do not preserve a link merely because its path still exists.
+- The planning index may link to `planning/active/ACTIVE.md` as the intentional current-work entrypoint. Backlog and closed-work records must not link to the moving active path.
+
 ## Record Deferred Work
 
 1. Keep out-of-scope discoveries in the active `<work-unit-id>.memory.md` while evaluating them.
