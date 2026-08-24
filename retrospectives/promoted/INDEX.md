@@ -25,3 +25,4 @@ This directory stores retrospective notes whose lesson has been applied to durab
 | [retrospective-promotion-apply-errors](2026-07-31-retrospective-promotion-apply-errors.md) | 2026-07-31 | `prompts/` |
 | [version-gated-validator-requirements](2026-07-31-version-gated-validator-requirements.md) | 2026-07-31 | `skills/`, `templates/`, `scripts/` |
 | [test-first-plan-language](2026-08-04-test-first-plan-language.md) | 2026-08-04 | `instructions/` |
+| [semantic-planning-link-drift](2026-08-24-semantic-planning-link-drift.md) | 2026-08-24 | `skills/`, `templates/`, `scripts/` |

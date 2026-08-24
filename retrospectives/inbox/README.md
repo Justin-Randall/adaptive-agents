@@ -38,6 +38,8 @@ Do not use inbox notes for:
 - project-specific facts that should live in the project repository
 - durable instructions that have already been promoted
 
+## Captured Notes
+
 ## Workflow
 
 1. Create a note from [template.md](template.md) using the filename format `YYYY-MM-DD-short-title.md`.
