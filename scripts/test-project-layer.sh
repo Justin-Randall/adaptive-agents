@@ -191,6 +191,35 @@ else
   fail "Validator should accept canonical closed work-unit artifacts"
 fi
 
+allowed_current_work="$(new_fixture allowed-current-work)"
+if bash "$allowed_current_work/scripts/check-project-layer.sh" >/dev/null; then
+  pass
+else
+  fail "Validator should allow planning/INDEX.md to link to the moving active plan"
+fi
+
+self_referential_active="$(new_fixture self-referential-active)"
+printf '\n- [Current plan](ACTIVE.md)\n' >> "$self_referential_active/planning/active/ACTIVE.md"
+expect_failure "$self_referential_active" \
+  "planning/active/ACTIVE.md must not link to itself"
+
+historical_active_link="$(new_fixture historical-active-link)"
+printf '\n- Depends on [current plan](../active/ACTIVE.md)\n' \
+  >> "$historical_active_link/planning/backlog/PL-20260710-validate-project-layer.md"
+expect_failure "$historical_active_link" \
+  "historical planning record links to moving active path"
+
+closed_historical_active_link="$(new_fixture closed-historical-active-link)"
+closed_packet="$closed_historical_active_link/planning/closed/PL-20260712-preserved-context"
+mkdir -p "$closed_packet"
+cat > "$closed_packet/PL-20260712-preserved-context.sdd.md" <<'EOF'
+# PL-20260712: Preserved Context
+EOF
+printf '\n- Previous work [plan](../../active/ACTIVE.md)\n' \
+  >> "$closed_packet/PL-20260712-preserved-context.sdd.md"
+expect_failure "$closed_historical_active_link" \
+  "historical planning record links to moving active path"
+
 missing_architecture_route="$TEMP_ROOT/missing-architecture-route"
 mkdir -p "$missing_architecture_route"
 cp -R "$REPO_ROOT/.adaptive-agents/." "$missing_architecture_route/"
