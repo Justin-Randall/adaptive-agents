@@ -1,7 +1,7 @@
 # Retrospective: Semantic Planning Link Drift
 
 - Date: 2026-08-24
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Activating a Project Layer plan and validating lifecycle links
 
@@ -48,9 +48,9 @@ A single user-wide validator centralizes fixes but requires every host to resolv
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Preserve as a captured user-wide retrospective and route it for explicit promotion review.
-- Rationale: The lesson is cross-project and sanitized, but durable guidance changes still require a focused proposed patch and explicit approval.
+- Status: Promoted
+- Decision: Applied the approved promotion patch to the planning guidance, Project Layer template validator, and regression tests.
+- Rationale: The recurring 19-file failure pattern was confirmed as a user-wide lifecycle issue, and the approved durable guidance and validation changes are now in place.
 
 ## Promotion Links
 
