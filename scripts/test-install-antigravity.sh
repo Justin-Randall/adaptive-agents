@@ -57,7 +57,7 @@ done
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-INSTALL_REPO_ROOT="$(git -C "$REPO_ROOT" rev-parse --show-toplevel 2>/dev/null || printf '%s' "$REPO_ROOT")"
+INSTALL_REPO_ROOT="$REPO_ROOT"
 
 if [[ -z "$INSTALLER_PATH" ]]; then
   INSTALLER_PATH="$SCRIPT_DIR/install-antigravity.sh"
@@ -110,6 +110,11 @@ mkdir -p "$MOCK_APP_DIR"
 touch "$MOCK_APP_DIR/Antigravity.exe"
 export LOCALAPPDATA="$TEST_HOME/appdata"
 
+UNRELATED_REPO="$TEST_HOME/unrelated-repo"
+mkdir -p "$UNRELATED_REPO"
+git -C "$UNRELATED_REPO" init -q
+cd "$UNRELATED_REPO"
+
 cleanup() {
   rm -rf "$TEST_HOME"
 }
@@ -122,7 +127,8 @@ echo "=== Test 1: Prerequisite check ==="
 # Hide the mock to test the failure path
 mv "$MOCK_APP_DIR/Antigravity.exe" "$MOCK_APP_DIR/Antigravity.exe.hidden"
 
-if bash "$INSTALLER_PATH" > "$TEST_HOME/install-output.txt" 2>&1; then
+if env LOCALAPPDATA="$TEST_HOME/missing-appdata" PROGRAMFILES="" PROGRAMFILES_X86="" PATH="/usr/bin:/bin" \
+  bash "$INSTALLER_PATH" > "$TEST_HOME/install-output.txt" 2>&1; then
   fail "Installer succeeded despite app not being detected"
 else
   if grep -qi "antigravity.*not.*installed\|download" "$TEST_HOME/install-output.txt" 2>/dev/null; then

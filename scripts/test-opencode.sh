@@ -72,6 +72,11 @@ fi
 TMP_ROOT="$(mktemp -d)"
 trap 'rm -rf "$TMP_ROOT"' EXIT
 
+UNRELATED_REPO="$TMP_ROOT/unrelated-repo"
+mkdir -p "$UNRELATED_REPO"
+git -C "$UNRELATED_REPO" init -q
+cd "$UNRELATED_REPO"
+
 # Run the installer against an isolated config path and isolated APPDATA so
 # the user's real configuration is never touched.
 run_installer() {

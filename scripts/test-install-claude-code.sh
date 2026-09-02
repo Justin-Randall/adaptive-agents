@@ -56,6 +56,7 @@ done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 INSTALL_REPO_ROOT="$(git -C "$REPO_ROOT" rev-parse --show-toplevel 2>/dev/null || printf '%s' "$REPO_ROOT")"
+IMPORT_REPO_ROOT="$REPO_ROOT"
 
 if [[ -z "$INSTALLER_PATH" ]]; then
   INSTALLER_PATH="$SCRIPT_DIR/install-claude-code.sh"
@@ -84,6 +85,11 @@ create_temp_dir() {
 TEST_HOME="$(create_temp_dir)"
 export HOME="$TEST_HOME"
 export USERPROFILE="$TEST_HOME"
+
+UNRELATED_REPO="$TEST_HOME/unrelated-repo"
+mkdir -p "$UNRELATED_REPO"
+git -C "$UNRELATED_REPO" init -q
+cd "$UNRELATED_REPO"
 
 cleanup() {
   rm -rf "$TEST_HOME"
@@ -140,7 +146,7 @@ else
   fail "CLAUDE.md missing ADAPTIVE_AGENTS_END marker"
 fi
 
-if grep -Fxq "@$INSTALL_REPO_ROOT/AGENTS.md" "$TEST_HOME/.claude/CLAUDE.md" 2>/dev/null; then
+if grep -Fxq "@$IMPORT_REPO_ROOT/AGENTS.md" "$TEST_HOME/.claude/CLAUDE.md" 2>/dev/null; then
   pass "CLAUDE.md has a native absolute AGENTS.md import"
 else
   fail "CLAUDE.md missing native absolute AGENTS.md import"

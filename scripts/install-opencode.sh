@@ -94,11 +94,6 @@ to_unix_path() {
 }
 
 detect_repo_root() {
-  if command_exists git && git rev-parse --show-toplevel >/dev/null 2>&1; then
-    git rev-parse --show-toplevel
-    return
-  fi
-
   local script_dir
   script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   cd "$script_dir/.." && pwd

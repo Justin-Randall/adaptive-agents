@@ -10,6 +10,7 @@ Use the [backlog item template](backlog-item-template.md) when creating a new it
 
 | ID | Plan | Outcome | Readiness |
 | --- | --- | --- | --- |
+| PL-20260806 | [Migration Script Missing Promoted/Deferred Retrospective INDEX Files](PL-20260806-migration-script-retrospective-indexes.md) | migrate-project-layer-retrospectives.sh never creates promoted/INDEX.md or deferred/INDEX.md, so upgrades still report them missing after migration; fix the script and align the skill's "full conversion" claim. | Needs refinement |
 | PL-20260731 | [Claude Code Entrypoint Health Check False-Negative](PL-20260731-claude-code-entrypoint-health-check.md) | Health check warns "does not import" on a correctly installed native import due to Git-Bash vs Windows path-form mismatch; fix the check to be path-format tolerant. | Needs refinement |
 | PL-20260717 | [Executable Scripts as Dynamic Instruction Sources](PL-20260717-executable-scripts-as-instructions.md) | Research whether script stdout can serve as dynamic instructions, replacing the playbook-loading pattern. | Research |
 | PL-20260711 | [Multi-Tool Agent Coding Support](PL-20260711-multi-tool-agent-support.md) | Umbrella tracker for supporting 8 major AI coding agent tools — each with an idempotent installer implementing the two-part pattern: native entry point + read/write trusted-directories grant. | Ready |
