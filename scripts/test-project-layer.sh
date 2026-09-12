@@ -159,7 +159,9 @@ no_active_plan="$(new_fixture no-active-plan)"
 cat > "$no_active_plan/planning/active/ACTIVE.md" <<'EOF'
 # No Active Plan
 
-There is no active Project Layer work unit.
+## Context
+
+The next planning decision has not been selected.
 
 Use [Planning](../INDEX.md) to select backlog work or review closed work.
 EOF
@@ -170,6 +172,33 @@ if bash "$no_active_plan/scripts/check-project-layer.sh" >/dev/null; then
 else
   fail "No Active Plan placeholder should not require a ## Test Plan section"
 fi
+
+no_active_upgrade_report="$(bash "$REPO_ROOT/scripts/inspect-project-layer-upgrade.sh" --target "$(dirname "$no_active_plan")" 2>&1)"
+if grep -Fq -- "Missing canonical paths: 0" <<<"$no_active_upgrade_report"; then
+  pass
+else
+  fail "Upgrade inspection should not require active memory for an empty plan"
+fi
+
+stale_body_after_empty_marker="$(new_fixture stale-body-after-empty-marker)"
+cat > "$stale_body_after_empty_marker/planning/active/ACTIVE.md" <<'EOF'
+# No Active Plan
+
+## Objective
+
+This is stale content from a completed plan.
+EOF
+expect_failure "$stale_body_after_empty_marker" \
+  "empty active plan must not contain former plan sections"
+
+stale_work_unit_after_empty_marker="$(new_fixture stale-work-unit-after-empty-marker)"
+cat > "$stale_work_unit_after_empty_marker/planning/active/ACTIVE.md" <<'EOF'
+# No Active Plan
+
+- Work Unit: PL-20260912-closed-work
+EOF
+expect_failure "$stale_work_unit_after_empty_marker" \
+  "empty active plan must not contain active work-unit metadata"
 
 canonical_closed="$(new_fixture canonical-closed)"
 canonical_packet="$canonical_closed/planning/closed/PL-20260712-preserved-context"

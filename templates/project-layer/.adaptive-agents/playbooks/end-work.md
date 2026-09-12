@@ -15,7 +15,10 @@ Use this playbook when active work appears complete or must stop.
    - If the plan was activated from a backlog item, copy it into the same directory as `<work-unit-id>.backlog.md`.
    - Update `planning/closed/INDEX.md` with the new entry.
    - If the disposition is **Completed**, **Cancelled**, or **Superseded**, remove the backlog entry from `planning/backlog/INDEX.md` (the backlog file stays, only the index entry is removed). If the disposition is **Deferred**, leave the backlog entry in place.
-7. Create a fresh `planning/active/ACTIVE.md` and `<new-work-unit-id>.memory.md` only after the user chooses a backlog item or approves new direct exploratory, debugging, maintenance, or implementation work. For reopened work, link the prior closed SDD and memory and carry forward only still-valid context.
-8. Update `planning/INDEX.md` and run `scripts/check-project-layer.sh`.
+7. Verify the closed packet, including its required files and relative links, before changing the active slot.
+8. Replace `planning/active/ACTIVE.md` with an empty-state document whose first line is exactly `# No Active Plan`. Optional content may appear only under one `## Context` section; do not retain former plan sections, work-unit metadata, or active supporting-file links.
+9. Remove or verify removal of stale active supporting files.
+10. Create a fresh `planning/active/ACTIVE.md` and `<new-work-unit-id>.memory.md` only after the user chooses a backlog item or approves new direct exploratory, debugging, maintenance, or implementation work. For reopened work, link the prior closed SDD and memory and carry forward only still-valid context.
+11. Update `planning/INDEX.md` and run `scripts/check-project-layer.sh`.
 
 Never close work, alter the backlog, or select subsequent work without approval.

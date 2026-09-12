@@ -111,13 +111,32 @@ for markdown in markdown_files:
 
 active_text = (root / "planning/active/ACTIVE.md").read_text(encoding="utf-8") if (root / "planning/active/ACTIVE.md").exists() else ""
 active_match = re.search(r"^# ((?:PL-[0-9]{8}|PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4})|\{\{ACTIVE_PLAN_ID\}\}): (.+)$", active_text, re.MULTILINE)
-if not active_match and not active_text.startswith("# No Active Plan"):
+empty_active = active_text.startswith("# No Active Plan")
+if empty_active:
+    active_lines = active_text.splitlines()
+    if not active_lines or active_lines[0] != "# No Active Plan":
+        failures.append("empty active plan marker must be exactly '# No Active Plan'")
+    in_context = False
+    for line in active_lines[1:]:
+        if line.startswith("## "):
+            if line != "## Context" or in_context:
+                failures.append("empty active plan must not contain former plan sections")
+            in_context = line == "## Context"
+        elif line.startswith("#"):
+            failures.append("empty active plan must not contain additional headings")
+        elif line.startswith("- Work Unit:"):
+            failures.append("empty active plan must not contain active work-unit metadata")
+        elif "planning/active/" in line:
+            failures.append("empty active plan must not link to active supporting files")
+        elif line.strip() and not in_context:
+            failures.append("empty active plan content must be inside '## Context'")
+elif not active_match:
     failures.append("planning/active/ACTIVE.md must start with '# PL-YYYYMMDD: descriptive title' (or legacy PL-YYYYMMDDTHHMMSSZ, PL-####)")
 
 work_unit_match = re.search(r"^- Work Unit: ((?:PL-[0-9]{8}|PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4})-[a-z0-9]+(?:-[a-z0-9]+)*|\{\{ACTIVE_WORK_ID\}\})$", active_text, re.MULTILINE)
-if active_match and not active_text.startswith("# No Active Plan") and not work_unit_match:
+if active_match and not empty_active and not work_unit_match:
     failures.append("planning/active/ACTIVE.md must declare '- Work Unit: PL-YYYYMMDD-descriptive-slug'")
-elif work_unit_match:
+elif work_unit_match and not empty_active:
     work_unit = work_unit_match.group(1)
     active_memory = root / "planning/active" / f"{work_unit}.memory.md"
     if not active_memory.exists():
@@ -125,14 +144,15 @@ elif work_unit_match:
     elif active_memory.resolve() not in graph.get((root / "planning/active/ACTIVE.md").resolve(), set()):
         failures.append(f"ACTIVE.md must link to active memory: {work_unit}.memory.md")
 
-if active_match and not active_text.startswith("# No Active Plan") and _template_version_tuple() >= (0, 5, 2) and not re.search(r"^## Test Plan\b", active_text, re.MULTILINE):
+if active_match and not empty_active and _template_version_tuple() >= (0, 5, 2) and not re.search(r"^## Test Plan\b", active_text, re.MULTILINE):
     failures.append("planning/active/ACTIVE.md must include a '## Test Plan' section")
 
 for support_file in sorted((root / "planning/active").glob("*.md")):
     if support_file.name == "ACTIVE.md":
         continue
-    if active_text.startswith("# No Active Plan"):
-        break
+    if empty_active:
+        failures.append(f"empty active plan must not retain supporting file: {support_file.name}")
+        continue
     if support_file.resolve() not in graph.get((root / "planning/active/ACTIVE.md").resolve(), set()):
         failures.append(f"active supporting document is not linked from ACTIVE.md: {support_file.name}")
 

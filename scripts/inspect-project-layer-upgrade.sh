@@ -108,6 +108,8 @@ for source in sorted(path for path in source_root.rglob("*") if path.is_file()):
     rendered_relative = relative.as_posix()
     for placeholder, value in replacements.items():
         rendered_relative = rendered_relative.replace(placeholder, value)
+    if active_match is None and "{{ACTIVE_WORK_ID}}" in relative.as_posix():
+      continue
     target = layer_root / rendered_relative
     if not target.exists():
         missing.append(rendered_relative)
@@ -136,6 +138,10 @@ for target in sorted(path for path in layer_root.rglob("*") if path.is_file()):
 
 print(f"Installed template version: {metadata.get('templateVersion', 'unknown')}")
 print(f"Canonical template version: {manifest['templateVersion']}")
+if metadata.get("templateVersion") != manifest["templateVersion"]:
+  print("Upgrade available: yes")
+else:
+  print("Upgrade available: no")
 for label, paths in (("Missing canonical paths", missing), ("Content requiring review", changed), ("Project-only paths", project_only)):
     print(f"\n{label}: {len(paths)}")
     for path in paths:

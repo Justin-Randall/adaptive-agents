@@ -36,6 +36,10 @@ Tests are planned, not discovered mid-implementation. The [Testing instructions]
 - Test work counts toward the single-activation sizing budget above.
 - `check-project-layer.sh` requires the `## Test Plan` heading in active plans (research plans use `research — no tests`).
 
+## Empty Active-Plan State
+
+When no work is active, `planning/active/ACTIVE.md` is an empty-state document, not an archived plan. Its first line must be exactly `# No Active Plan`. Optional handoff context may follow only inside one `## Context` section. The empty state must not contain former plan sections, a `- Work Unit:` declaration, or links to active supporting files. Completed plan content belongs only in `planning/closed/<work-unit-id>/`.
+
 ## DRY Assessment
 
 Every active implementation plan must include a DRY assessment for each implementation slice. The assessment is mandatory evidence that the agent considered duplication; a full jscpd scan is risk-based rather than unconditional.
