@@ -147,6 +147,11 @@ elif work_unit_match and not empty_active:
 if active_match and not empty_active and _template_version_tuple() >= (0, 5, 2) and not re.search(r"^## Test Plan\b", active_text, re.MULTILINE):
     failures.append("planning/active/ACTIVE.md must include a '## Test Plan' section")
 
+if active_match and not empty_active and _template_version_tuple() >= (0, 7, 0):
+    progress_match = re.search(r"^## Progress\s*$([\s\S]*?)(?=^## |\Z)", active_text, re.MULTILINE)
+    if not progress_match or not re.search(r"^- \[[ xX]\] .+", progress_match.group(1), re.MULTILINE):
+        failures.append("planning/active/ACTIVE.md must include a '## Progress' section with checklist items")
+
 for support_file in sorted((root / "planning/active").glob("*.md")):
     if support_file.name == "ACTIVE.md":
         continue

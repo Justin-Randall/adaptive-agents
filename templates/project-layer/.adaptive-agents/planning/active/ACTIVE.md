@@ -4,15 +4,13 @@
 - Work Unit: {{ACTIVE_WORK_ID}}
 - Origin: Direct
 
-## 🧭 TODO / Progress
+## Progress
 
-> 🟡 **Phase:** Planning &nbsp;|&nbsp; 📈 **Completion:** 0%
+> Keep this checklist up to date as you work. After each meaningful change, check off completed stages, add newly discovered work, remove eliminated work, and adjust plan-specific items so it accurately reflects what remains to deliver.
 
-> Keep this TODO / Progress section current throughout the work: after each meaningful step, update the checklist, phase, and completion percentage before continuing.
-
-- ⬜ Confirm the initial implementation steps.
-- ⬜ Perform the work.
-- ⬜ Record verification evidence.
+- [ ] Confirm the initial implementation steps.
+- [ ] Perform the work.
+- [ ] Record verification evidence.
 
 ## Objective
 

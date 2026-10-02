@@ -77,3 +77,11 @@ When a template version adds active-plan content requirements:
 1. The upgrade patch must add the required content to `ACTIVE.md` (or the documented research exemption) before bumping `project-layer.json`.
 2. Bump the version only after all required structural changes for that version are present.
 3. Never adopt a newer validator into an older layer without completing the content step — doing so would break that layer's own validator.
+
+When an active plan fails a current progress-contract check, treat the failure as a migration request for that plan only:
+
+1. Read the existing plan and preserve its identity, intent, decisions, scope, evidence, and project-owned sections.
+2. Map equivalent existing progress information into a `## Progress` section containing Markdown task items; do not guess or rewrite substantive work.
+3. For legacy, unversioned, or custom-format plans, use the validator diagnostic to guide the repair rather than trying to infer historical template provenance.
+4. Re-run the installed validator after the repair and repeat only until the active plan conforms.
+5. Do not add version headers, provenance metadata, sidecars, or changes to unrelated active support files or closed records.

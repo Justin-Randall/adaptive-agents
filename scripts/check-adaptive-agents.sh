@@ -18,7 +18,7 @@ Options:
 Checks:
   - required root files and guidance directories exist
   - prompt files have required frontmatter and are routed from INDEX.md and README.md
-  - retrospective inbox notes use known status values
+  - retrospective notes use known status values
   - promoted retrospectives include promotion links
   - checked-in retrospectives avoid blocked private/raw link patterns
   - local Markdown links resolve
@@ -30,7 +30,6 @@ Checks:
   - VS Code integration has a valid deterministic SessionStart hook and read-access trust grant
   - OpenCode config satisfies the single-entrypoint contract
   - Claude Code integration has instructions loading and read-access grant
-  - Antigravity integration has instructions loading
 EOF
 }
 
@@ -141,6 +140,7 @@ check_required_paths() {
     retrospectives/promoted
     retrospectives/deferred
     retrospectives/rejected
+    retrospectives/resolved
     schemas
     agents
     scripts
@@ -488,59 +488,16 @@ check_vscode_integration() {
   return 0
 }
 
-check_antigravity() {
-  local context_file="$HOME/.gemini/GEMINI.md"
-
-  # Detect the Antigravity 2.0 desktop app (same logic as install-antigravity.sh)
-  local detected=""
-  if [[ -n "${LOCALAPPDATA:-}" ]] && [[ -f "$LOCALAPPDATA/Programs/Antigravity/Antigravity.exe" ]]; then
-    detected="$LOCALAPPDATA/Programs/Antigravity/Antigravity.exe"
-  elif [[ -n "${PROGRAMFILES:-}" ]] && [[ -f "$PROGRAMFILES/Antigravity/Antigravity.exe" ]]; then
-    detected="$PROGRAMFILES/Antigravity/Antigravity.exe"
-  elif [[ -n "${PROGRAMFILES_X86:-}" ]] && [[ -f "$PROGRAMFILES_X86/Antigravity/Antigravity.exe" ]]; then
-    detected="$PROGRAMFILES_X86/Antigravity/Antigravity.exe"
-  elif [[ -d "/Applications/Antigravity.app" ]]; then
-    detected="/Applications/Antigravity.app"
-  elif [[ -f "/opt/antigravity/antigravity" ]]; then
-    detected="/opt/antigravity/antigravity"
-  elif command_exists antigravity; then
-    detected="$(command -v antigravity)"
-  fi
-
-  if [[ -z "$detected" ]]; then
-    pass "Antigravity 2.0 is not installed (SKIP)"
-    return 0
-  fi
-
-  if [[ ! -f "$context_file" ]]; then
-    warn "Antigravity 2.0 — global context file (~/.gemini/GEMINI.md) does not exist"
-    return 0
-  fi
-
-  if grep -q "^#==ADAPTIVE_AGENTS_START==" "$context_file" 2>/dev/null; then
-    pass "Antigravity 2.0 — ~/.gemini/GEMINI.md has Adaptive Agents delegation section"
-  else
-    warn "Antigravity 2.0 — ~/.gemini/GEMINI.md exists but missing Adaptive Agents delegation section"
-  fi
-
-  if grep -Fxq "@$REPO_ROOT/AGENTS.md" "$context_file" 2>/dev/null; then
-    pass "Antigravity 2.0 — ~/.gemini/GEMINI.md imports the canonical AGENTS.md"
-  else
-    warn "Antigravity 2.0 — ~/.gemini/GEMINI.md does not import @$REPO_ROOT/AGENTS.md"
-  fi
-
-  warn "Antigravity 2.0 — File permissions must be granted via one-time dialog (select 'Yes, and always allow' on first access)"
-}
-
 check_retrospectives() {
   local retro_file status scope expected_status dir
   local -a retro_files
-  for dir in retrospectives/inbox retrospectives/promoted retrospectives/deferred retrospectives/rejected; do
+  for dir in retrospectives/inbox retrospectives/promoted retrospectives/deferred retrospectives/rejected retrospectives/resolved; do
     case "$dir" in
       retrospectives/inbox)     expected_status="Captured" ;;
       retrospectives/promoted)  expected_status="Promoted" ;;
       retrospectives/deferred)  expected_status="Deferred" ;;
       retrospectives/rejected)  expected_status="Rejected" ;;
+      retrospectives/resolved)  expected_status="Resolved" ;;
     esac
     shopt -s nullglob
     retro_files=("$dir"/*.md)
@@ -563,7 +520,7 @@ check_retrospectives() {
 
       status="$(extract_top_status "$retro_file" || true)"
       case "$status" in
-        Captured|Deferred|Promoted|Rejected)
+        Captured|Deferred|Promoted|Rejected|Resolved)
           pass "$retro_file uses known status: $status"
           ;;
         "")
@@ -711,6 +668,23 @@ PY
   fi
 }
 
+run_timed_check() {
+  local label="$1"
+  shift
+  local start_ms end_ms duration_ms status
+
+  start_ms="$(date +%s%3N)"
+  if "$@"; then
+    status=0
+  else
+    status=$?
+  fi
+  end_ms="$(date +%s%3N)"
+  duration_ms=$((end_ms - start_ms))
+  printf 'TIMING: %-42s %6sms\n' "$label" "$duration_ms"
+  return "$status"
+}
+
 check_project_layer_template() {
   local output
   if output="$(bash templates/project-layer/.adaptive-agents/scripts/check-project-layer.sh 2>&1)"; then
@@ -773,24 +747,23 @@ check_instruction_load_budget_tests() {
   fi
 }
 
-check_required_paths
-check_project_layer_template
-check_project_layer_tests
-check_dogfood_project_layer
+run_timed_check "required paths" check_required_paths
+run_timed_check "canonical Project Layer validator" check_project_layer_template
+run_timed_check "Project Layer regression tests" check_project_layer_tests
+run_timed_check "dogfood Project Layer validator" check_dogfood_project_layer
 if find_python; then
-  check_instruction_load_budget_tests
+  run_timed_check "instruction load budget tests" check_instruction_load_budget_tests
 else
   fail "Python 3 not found; cannot run instruction load budget regression tests"
 fi
-check_instruction_load_budget
-check_prompts
-check_opencode
-check_claude_code
-check_vscode_integration
-check_antigravity
-check_retrospectives
-check_retrospective_private_patterns
-check_markdown_links
+run_timed_check "instruction load budget" check_instruction_load_budget
+run_timed_check "prompt validation" check_prompts
+run_timed_check "OpenCode integration" check_opencode
+run_timed_check "Claude Code integration" check_claude_code
+run_timed_check "VS Code integration" check_vscode_integration
+run_timed_check "retrospective validation" check_retrospectives
+run_timed_check "retrospective privacy patterns" check_retrospective_private_patterns
+run_timed_check "Markdown links and reachability" check_markdown_links
 
 printf '\nAdaptive Agents check complete: %d passed, %d failure(s), %d warning(s).\n' "$PASSES" "$FAILURES" "$WARNINGS"
 

@@ -8,6 +8,7 @@ trap 'rm -rf "$TEMP_ROOT"' EXIT
 
 PASSES=0
 FAILURES=0
+BASELINE_FIXTURE=""
 
 pass() {
   PASSES=$((PASSES + 1))
@@ -22,6 +23,11 @@ new_fixture() {
   local name="$1"
   local target="$TEMP_ROOT/$name"
   mkdir -p "$target"
+  if [[ -n "$BASELINE_FIXTURE" ]]; then
+    cp -R "$BASELINE_FIXTURE" "$target/.adaptive-agents"
+    printf '%s\n' "$target/.adaptive-agents"
+    return
+  fi
   bash "$REPO_ROOT/scripts/bootstrap-project-layer.sh" \
     --target "$target" \
     --project-name "Validator fixture" \
@@ -47,6 +53,7 @@ expect_failure() {
 }
 
 baseline="$(new_fixture baseline)"
+BASELINE_FIXTURE="$baseline"
 if bash "$baseline/scripts/check-project-layer.sh" >/dev/null; then
   pass
 else
@@ -78,6 +85,23 @@ if [[ "$before_rerun" == "$after_rerun" ]]; then
   pass
 else
   fail "Bootstrap rerun should preserve active work-unit files"
+fi
+
+upgrade_review="$(new_fixture upgrade-review)"
+python -c "import json,sys; p=sys.argv[1]; d=json.load(open(p,encoding='utf-8')); d['templateVersion']='0.7.1'; json.dump(d,open(p,'w',encoding='utf-8'),indent='\t'); open(p,'a').write('\n')" \
+  "$upgrade_review/project-layer.json"
+sed -i '/^> Keep this checklist up to date as you work\./d' \
+  "$upgrade_review/planning/active/ACTIVE.md"
+upgrade_report="$(bash "$REPO_ROOT/scripts/inspect-project-layer-upgrade.sh" --target "$(dirname "$upgrade_review")")"
+if grep -Fq -- "Upgrade available: yes" <<<"$upgrade_report" \
+  && grep -Fq -- "Content requiring review: 2" <<<"$upgrade_report" \
+  && grep -Fq -- "- planning/active/ACTIVE.md" <<<"$upgrade_report" \
+  && grep -Fq -- "- project-layer.json" <<<"$upgrade_report" \
+  && grep -Fq -- "Missing canonical paths: 0" <<<"$upgrade_report"; then
+  pass
+else
+  fail "Upgrade inspection should flag the 0.7.1 progress guidance change for review"
+  printf '%s\n' "$upgrade_report"
 fi
 
 orphan="$(new_fixture orphan)"
@@ -131,6 +155,53 @@ if grep -Fq -- "## Test Plan" "$baseline/planning/active/ACTIVE.md"; then
   pass
 else
   fail "Bootstrap should include a ## Test Plan section in ACTIVE.md"
+fi
+
+if grep -Fq -- "## Progress" "$baseline/planning/active/ACTIVE.md" \
+  && grep -Eq -- '^- \[[ xX]\] ' "$baseline/planning/active/ACTIVE.md"; then
+  pass
+else
+  fail "Bootstrap should include a ## Progress checklist in ACTIVE.md"
+fi
+if grep -Fq -- "Keep this checklist up to date as you work" "$baseline/planning/active/ACTIVE.md" \
+  && grep -Fq -- "add newly discovered work" "$baseline/planning/active/ACTIVE.md" \
+  && grep -Fq -- "remove eliminated work" "$baseline/planning/active/ACTIVE.md"; then
+  pass
+else
+  fail "Bootstrap should instruct models to keep the progress checklist up to date"
+fi
+
+missing_progress="$(new_fixture missing-progress)"
+sed -i '/^## Progress$/,/^## Objective$/ { /^## Progress$/d; /^## Objective$/!d }' \
+  "$missing_progress/planning/active/ACTIVE.md"
+expect_failure "$missing_progress" \
+  "planning/active/ACTIVE.md must include a '## Progress' section with checklist items"
+
+custom_progress="$(new_fixture custom-progress)"
+sed -i 's/^## Progress$/## Delivery Notes/' "$custom_progress/planning/active/ACTIVE.md"
+expect_failure "$custom_progress" \
+  "planning/active/ACTIVE.md must include a '## Progress' section with checklist items"
+
+legacy_no_progress="$(new_fixture legacy-no-progress)"
+python -c "import json,sys; p=sys.argv[1]; d=json.load(open(p,encoding='utf-8')); d['templateVersion']='0.6.0'; json.dump(d,open(p,'w',encoding='utf-8'),indent='\t'); open(p,'a').write('\n')" \
+  "$legacy_no_progress/project-layer.json"
+sed -i '/^## Progress$/,/^## Objective$/ { /^## Progress$/d; /^## Objective$/!d }' \
+  "$legacy_no_progress/planning/active/ACTIVE.md"
+if bash "$legacy_no_progress/scripts/check-project-layer.sh" >/dev/null; then
+  pass
+else
+  fail "A 0.6.0 layer without a ## Progress section should still validate"
+fi
+
+unversioned_no_progress="$(new_fixture unversioned-no-progress)"
+python -c "import json,sys; p=sys.argv[1]; d=json.load(open(p,encoding='utf-8')); d.pop('templateVersion',None); json.dump(d,open(p,'w',encoding='utf-8'),indent='\t'); open(p,'a').write('\n')" \
+  "$unversioned_no_progress/project-layer.json"
+sed -i '/^## Progress$/,/^## Objective$/ { /^## Progress$/d; /^## Objective$/!d }' \
+  "$unversioned_no_progress/planning/active/ACTIVE.md"
+if bash "$unversioned_no_progress/scripts/check-project-layer.sh" >/dev/null; then
+  pass
+else
+  fail "An unversioned layer without a ## Progress section should still validate"
 fi
 
 missing_test_plan="$(new_fixture missing-test-plan)"
@@ -251,7 +322,14 @@ expect_failure "$closed_historical_active_link" \
 
 missing_architecture_route="$TEMP_ROOT/missing-architecture-route"
 mkdir -p "$missing_architecture_route"
-cp -R "$REPO_ROOT/.adaptive-agents/." "$missing_architecture_route/"
+tar \
+  --exclude='./tests/node_modules' \
+  --exclude='*/__pycache__' \
+  --exclude='./tests/test-results' \
+  --exclude='./tests/playwright-report' \
+  -cf - \
+  -C "$REPO_ROOT/.adaptive-agents" . \
+  | tar -xf - -C "$missing_architecture_route"
 sed -i '\|\[Architecture contract\](../ARCHITECTURE.md)|d' "$missing_architecture_route/instructions/project.instructions.md"
 expect_failure "$missing_architecture_route" "project.instructions.md must link to ../ARCHITECTURE.md"
 

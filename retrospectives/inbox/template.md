@@ -51,6 +51,11 @@ Add Markdown links to changed durable guidance files if promoted.
 
 - None yet.
 
+## Resolution
+
+- Status: Pending verification
+- Evidence: None yet.
+
 ---
 
 *After triage, move this note to `promoted/`, `deferred/`, or `rejected/` and update its status and promotion links.*

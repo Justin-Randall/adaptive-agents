@@ -8,6 +8,7 @@ This directory stores sanitized, user-wide observations and session learning awa
 | [promoted/](../promoted/) | Promoted | Lesson applied to durable guidance |
 | [deferred/](../deferred/) | Deferred | Set aside for later re-evaluation |
 | [rejected/](../rejected/) | Rejected | Considered and declined |
+| [resolved/](../resolved/) | Resolved | Problem addressed and verified |
 
 Inbox notes are not instructions. They are reviewable decision records used to decide whether a lesson should be promoted into `memory/`, `instructions/`, `skills/`, `playbooks/`, or another checked-in guidance area.
 
@@ -40,6 +41,8 @@ Do not use inbox notes for:
 
 ## Captured Notes
 
+- No pending notes.
+
 ## Workflow
 
 1. Create a note from [template.md](template.md) using the filename format `YYYY-MM-DD-short-title.md`.
@@ -47,6 +50,6 @@ Do not use inbox notes for:
 3. Record sanitized evidence and impact from the session.
 4. Leave the status as `Captured` until triaged.
 5. Use [adaptation-cycle.md](../../playbooks/adaptation-cycle.md) when deciding whether to promote it.
-6. After triage, move the note to the matching sibling directory (`promoted/`, `deferred/`, or `rejected/`) and update its status and promotion links.
+6. After triage or implementation verification, move the note to the matching sibling directory (`promoted/`, `deferred/`, `rejected/`, or `resolved/`) and update its status. A resolved note should include resolution evidence.
 
 When in doubt, capture a retrospective instead of modifying durable guidance directly.

@@ -15,6 +15,7 @@ session observation
   -> focused update
   -> routing update if needed
   -> validation
+  -> implementation verification (when a backlog item addresses the observation)
 ```
 
 ## 1. Capture
@@ -139,6 +140,16 @@ After promotion:
 - Confirm new durable files are reachable from `INDEX.md` or an appropriate entrypoint.
 - Confirm the retrospective still explains the original observation and promotion status.
 
+## 6. Resolve An Implemented Observation
+
+When a backlog item or other implementation directly addresses a captured observation, do not leave the retrospective permanently in `Captured` after the work is verified:
+
+1. Re-check the original observation against the implemented behavior.
+2. Record the verification result and link the relevant active or closed plan under a `## Resolution` section.
+3. If the problem is solved but no broader durable guidance was adopted, move the note to `retrospectives/resolved/` and set `Status: Resolved`.
+4. If durable guidance was adopted, move the note to `retrospectives/promoted/` and set `Status: Promoted`; include both promotion and resolution evidence.
+5. If verification fails, keep the note captured or return it to the backlog for follow-up rather than marking it resolved.
+
 ## Promotion Status
 
 Retrospective notes should use one of these statuses:
@@ -147,5 +158,6 @@ Retrospective notes should use one of these statuses:
 - `Deferred`: plausible but not enough evidence
 - `Promoted`: durable guidance was updated
 - `Rejected`: not useful or not reusable
+- `Resolved`: the observed problem was addressed and verified, without broader promotion
 
 Do not delete rejected or deferred notes unless the user asks; they preserve decision history.

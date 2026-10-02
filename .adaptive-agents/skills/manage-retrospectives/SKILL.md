@@ -42,4 +42,13 @@ Escalation is a separate promotion decision:
 4. Ask for explicit approval before editing the canonical Adaptive Agents repository.
 5. Preserve a link or summary in the project retrospective when both repositories can reference it safely.
 
-Run `bash .adaptive-agents/scripts/check-project-layer.sh` after retrospective structure or status changes.
+## Resolve After Implementation
+
+When an approved backlog item addresses the observation, verify the behavior before closing the retrospective:
+
+- Move a solved note to `retrospectives/resolved/` with `Status: Resolved` when no broader durable guidance was adopted.
+- Move it to `retrospectives/promoted/` with `Status: Promoted` when durable guidance was also updated.
+- In either case, add a `## Resolution` section with the verification result and a Markdown link to the relevant plan or closed work packet.
+- If verification fails, leave the note `Captured` or record the remaining work instead of closing it.
+
+Run `bash .adaptive-agents/scripts/check-project-layer.sh` after Project Layer retrospective changes and `bash scripts/check-adaptive-agents.sh` after canonical retrospective structure or status changes.
