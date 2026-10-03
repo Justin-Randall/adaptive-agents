@@ -19,6 +19,18 @@ fail() {
   FAILURES=$((FAILURES + 1))
 }
 
+empty_plan_closure_rule="If no replacement work is requested, write the empty-state marker"
+for closure_guidance_file in \
+  "$REPO_ROOT/instructions/planning-conventions.md" \
+  "$REPO_ROOT/skills/manage-planning/SKILL.md" \
+  "$REPO_ROOT/templates/project-layer/.adaptive-agents/playbooks/end-work.md"; do
+  if grep -Fq -- "$empty_plan_closure_rule" "$closure_guidance_file"; then
+    pass
+  else
+    fail "Closure guidance must state the no-replacement empty-plan rule: $closure_guidance_file"
+  fi
+done
+
 new_fixture() {
   local name="$1"
   local target="$TEMP_ROOT/$name"

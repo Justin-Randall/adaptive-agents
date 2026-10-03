@@ -1,24 +1,23 @@
-# Retrospective: Closed Active Plans Must Archive and Leave an Empty Active Marker
+# Retrospective: Closing Without Replacement Must Leave No Plan
 
 - Date: 2026-09-12
 - Status: Promoted
 - Scope: User-wide
-- Session or task: Closing a completed project-layer plan and setting the next active state to No plan
+- Session or task: Closing a completed project-layer plan without selecting replacement backlog work
 
-## Observation
+## Required Behavior
 
-A closure can leave either stale completed content in the active plan file or remove the active file without creating an explicit empty-state marker. In both cases, the project layer cannot reliably represent the current state. The correct closure operation is to archive the completed packet and replace the active pointer with only the minimal canonical empty-state marker, with no stale plan content remaining and no missing active state.
+When the user closes the active plan without asking for a new active plan, set `planning/active/ACTIVE.md` to exactly:
 
-## Evidence
+```markdown
+# No Active Plan
+```
 
-- A project-layer validation pass initially accepted the file shape only after the empty-state heading was added, but the file still contained the completed plan body.
-- The user identified the stale content and explicitly requested a delete-style closure so a future active plan, including No plan, cannot inherit old content.
-- An earlier captured retrospective records the same failure mode, establishing recurrence rather than a one-off formatting mistake.
-- A later closure archived the completed packet and removed the active plan file but did not create the canonical empty-state replacement, leaving the active planning directory empty and its no-plan state undiscoverable.
+Archive the completed plan separately in `planning/closed/<work-unit-id>/`. Do not leave the completed plan, a partial plan, or active supporting-file links in `planning/active/`.
 
-## Impact
+## Failure Observed
 
-Agents can create contradictory or ambiguous planning state: indexes can say no plan is active while the active file appears to contain a live plan, or the active planning directory can be empty with no discoverable no-plan state. Closure workflows must archive the completed packet, then replace the active pointer with only the canonical empty marker, and validate that the marker contains no plan sections, objectives, or historical content.
+Previous closures either left the completed plan body under an empty heading or removed `ACTIVE.md` without creating the no-plan marker. Both outcomes made the active planning state incorrect or undiscoverable.
 
 ## Scope Decision
 

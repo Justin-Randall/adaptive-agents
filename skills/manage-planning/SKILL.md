@@ -60,5 +60,6 @@ Use the Project Layer's end-work procedure when available. Before closure:
 - ask for user approval before closing, archiving, or creating follow-up backlog work when the local workflow requires it.
 - Archive and verify the complete closed packet before replacing the active plan.
 - Replace `planning/active/ACTIVE.md`; do not edit only its heading or leave the completed plan body in place.
+- If no replacement work is requested, write the empty-state marker by replacing `planning/active/ACTIVE.md` with `# No Active Plan` after the closed packet is verified.
 - When no plan is active, the replacement must begin with `# No Active Plan` and may contain only the permitted empty-state context.
 - When reopening closed work, create a new work-unit identity and link the prior closed packet instead of restoring it wholesale.

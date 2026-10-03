@@ -39,6 +39,7 @@ Tests are planned, not discovered mid-implementation. The [Testing instructions]
 ## Empty Active-Plan State
 
 When no work is active, `planning/active/ACTIVE.md` is an empty-state document, not an archived plan. Its first line must be exactly `# No Active Plan`. Optional handoff context may follow only inside one `## Context` section. The empty state must not contain former plan sections, a `- Work Unit:` declaration, or links to active supporting files. Completed plan content belongs only in `planning/closed/<work-unit-id>/`.
+If no replacement work is requested, write the empty-state marker after archiving and verifying the closed packet; do not leave the completed plan body in the active slot.
 
 ## DRY Assessment
 
