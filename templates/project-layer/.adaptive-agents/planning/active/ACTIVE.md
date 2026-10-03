@@ -56,6 +56,18 @@ Define the tests that prove this plan's specs, written before implementation per
 - Run command for the focused loop.
 - Research plans: `research — no tests`.
 
+## User-Facing Surface
+
+- Browser surface: `<affected browser workflow or N/A>`
+- Playwright scenario: `<deployed user workflow or N/A with reason>`
+- Deployment endpoint: `Not run`
+
+## Browser Dogfood
+
+- Agent proof: `Pending`
+- Evidence: `<URL, scenario, observed result, and artifacts when available>`
+- User handoff: `Pending`
+
 ## DRY Assessment
 
 Record one assessment for every implementation slice before editing it. Follow the user-wide Planning Conventions for scan triggers and the distinction between a mandatory assessment and a risk-based jscpd scan.

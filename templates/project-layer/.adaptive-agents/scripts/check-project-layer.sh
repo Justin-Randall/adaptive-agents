@@ -152,6 +152,12 @@ if active_match and not empty_active and _template_version_tuple() >= (0, 7, 0):
     if not progress_match or not re.search(r"^- \[[ xX]\] .+", progress_match.group(1), re.MULTILINE):
         failures.append("planning/active/ACTIVE.md must include a '## Progress' section with checklist items")
 
+if active_match and not empty_active and _template_version_tuple() >= (0, 8, 0):
+    if not re.search(r"^## User-Facing Surface\s*$", active_text, re.MULTILINE):
+        failures.append("planning/active/ACTIVE.md must include a '## User-Facing Surface' section")
+    if not re.search(r"^## Browser Dogfood\s*$", active_text, re.MULTILINE):
+        failures.append("planning/active/ACTIVE.md must include a '## Browser Dogfood' section")
+
 for support_file in sorted((root / "planning/active").glob("*.md")):
     if support_file.name == "ACTIVE.md":
         continue
