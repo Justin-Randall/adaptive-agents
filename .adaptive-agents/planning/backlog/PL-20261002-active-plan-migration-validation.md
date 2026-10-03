@@ -2,50 +2,43 @@
 
 Plan: PL-20261002-active-plan-conformance-migration
 
-Readiness: Needs Review: scope and migration contract require user approval
+Readiness: Needs refinement: narrow the item to repeat-migration idempotence before activation
 
-Test approach: add validator fixtures for conforming, old, unversioned, and partially migrated `ACTIVE.md` documents; verify precise failure diagnostics, model-repair target conformance, idempotent upgrade behavior, and preservation of project-owned content
+Test approach: add an executable repeat-migration check; verify byte-stable output, validator-gated conformance, and preservation of unrelated active support files and closed records
 
 ## Objective
 
-Define and implement a reusable validator-first framework that brings any older, unversioned, or custom-format active plan into the current `ACTIVE.md` contract through model-directed semantic repair, without embedding provenance or bookkeeping metadata in human-readable documents.
+Complete the deferred repeat-migration/idempotence proof for the existing validator-first active-plan migration workflow without introducing automatic semantic rewriting or provenance metadata.
 
 ## Problem Spec
 
-Active plans may lack newly required structural sections such as a progress checklist, or may express equivalent progress information in a project-specific format. The validator cannot reliably determine which historical template produced an unversioned document, and should not attempt semantic interpretation. Treating nonconforming documents as permanently exempt weakens the contract, while requiring document-level version metadata pollutes the Markdown and creates another source of truth. The responsible model should interpret the existing plan, map its meaning to the current structure, and use validator feedback to complete the migration.
+The active-plan conformance and migration framework is implemented, but its deferred repeat-migration guarantee is not executablely verified. A follow-up must prove that a conforming migrated plan remains byte-stable and that repeated validation or migration does not rewrite unrelated active support files or closed records.
 
 ## Scope
 
 In scope:
 
-- Define the current structural contract for active-plan progress tracking.
-- Define the migration boundary and repair loop for arbitrary legacy or project-specific `ACTIVE.md` formats.
-- Update the canonical `ACTIVE.md` template and applicable planning or upgrade guidance.
-- Make validation fail clearly when an active plan does not meet the current contract.
-- Ensure validator failures identify actionable missing sections or invariants for model repair.
-- Define model-directed migration behavior that maps existing intent, decisions, scope, identity, and evidence without silently changing substantive content.
-- Add regression fixtures for current, old, unversioned, partially migrated, and conforming active plans.
-- Verify migration is repeatable, validator-gated, and limited to the active plan being repaired.
+- Define an executable repeat-migration/idempotence check for the existing workflow.
+- Verify a conforming migrated `ACTIVE.md` remains byte-stable on repeat processing.
+- Verify repeated processing is validator-gated and limited to the active plan being repaired.
+- Verify unrelated active support files and closed records remain unchanged.
 
-Deferred:
+Out of scope:
 
-- Automatic rewriting of all older Markdown outside the active-plan workflow.
+- Reworking the already-implemented progress contract, validator diagnostics, migration guidance, or legacy/custom fixtures.
+- Automatic semantic rewriting of arbitrary Markdown.
 - Document-level version headers, footers, sidecars, or other provenance bookkeeping.
-- Guessing the historical template version of an unversioned document.
 - Automatic migration of unrelated project-owned files or closed historical records.
-- Silent changes to substantive scope, acceptance criteria, decisions, or evidence.
 
 ## Architectural Decisions
 
 | Decision | Choice | Rationale |
 | --- | --- | --- |
-| Migration authority | The responsible model performs semantic migration; the validator is the hard acceptance gate. | The model can preserve meaning while the validator provides deterministic conformance. |
-| Document metadata | Do not add provenance or template bookkeeping to human-readable Markdown. | Avoid polluting documents and creating competing sources of truth. |
-| Unknown history | Treat old or unversioned plans as migration inputs, not as permanently exempt documents. | Every active plan must eventually conform to the current contract. |
-| Migration feedback | Validator failures must name the missing structural requirement. | The model needs actionable feedback for bounded repair iterations. |
-| Historical content | Preserve closed records and project-owned customizations. | Upgrade must not rewrite history or erase intentional local structure. |
+| Migration boundary | The follow-up proves repeat processing only; semantic repair remains model-directed. | Keep the executable check from becoming an automatic Markdown rewriter. |
+| Idempotence evidence | Compare the active plan and protected neighboring records before and after repeat processing. | Demonstrate byte stability and preservation rather than infer it from a validator pass. |
+| Historical content | Preserve closed records and project-owned customizations. | The check must fail if repeat processing changes unrelated history. |
 
 ## Related Work
 
-- [Canonical retrospective](https://github.com/Justin-Randall/adaptive-agents/blob/main/retrospectives/resolved/2026-10-02-active-plan-progress-checklist.md)
+- [Prior closed plan](https://github.com/Justin-Randall/adaptive-agents/blob/main/.adaptive-agents/planning/closed/PL-20261002-active-plan-conformance-migration/PL-20261002-active-plan-conformance-migration.sdd.md)
 - [Canonical upgrade guidance](https://github.com/Justin-Randall/adaptive-agents/blob/main/skills/upgrade-project-layer/SKILL.md)

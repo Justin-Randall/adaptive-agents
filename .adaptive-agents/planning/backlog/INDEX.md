@@ -10,7 +10,7 @@ Use the [backlog item template](backlog-item-template.md) when creating a new it
 
 | ID | Plan | Outcome | Readiness |
 | --- | --- | --- | --- |
-| PL-20261002 | [Active Plan Conformance and Migration Framework](PL-20261002-active-plan-migration-validation.md) | Bring any legacy or custom-format active plan into the current structural contract through model-directed semantic migration and validator feedback, without embedding provenance bookkeeping in Markdown. | Needs Review |
+| PL-20261002 | [Repeat Migration Idempotence Validation](PL-20261002-active-plan-migration-validation.md) | Complete the deferred executable proof that repeat processing is byte-stable, validator-gated, and limited to the active plan without changing unrelated or closed records. | Needs refinement |
 | PL-20260806 | [Migration Script Missing Promoted/Deferred Retrospective INDEX Files](PL-20260806-migration-script-retrospective-indexes.md) | migrate-project-layer-retrospectives.sh never creates promoted/INDEX.md or deferred/INDEX.md, so upgrades still report them missing after migration; fix the script and align the skill's "full conversion" claim. | Needs refinement |
 | PL-20260731 | [Claude Code Entrypoint Health Check False-Negative](PL-20260731-claude-code-entrypoint-health-check.md) | Health check warns "does not import" on a correctly installed native import due to Git-Bash vs Windows path-form mismatch; fix the check to be path-format tolerant. | Needs refinement |
 | PL-20260717 | [Executable Scripts as Dynamic Instruction Sources](PL-20260717-executable-scripts-as-instructions.md) | Research whether script stdout can serve as dynamic instructions, replacing the playbook-loading pattern. | Research |
