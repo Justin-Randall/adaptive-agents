@@ -53,7 +53,11 @@ Before each implementation slice, complete the plan's `## DRY Assessment`. The a
 
 Use the Project Layer's end-work procedure when available. Before closure:
 
-- verify the acceptance criteria and record evidence;
+- perform and record a required completion review in the work-unit memory under `## Completion Review` (add the heading if the template has no equivalent). Record:
+  - review of the final diff and relevant outputs for correctness, regressions, and unintended scope;
+  - evidence for each acceptance criterion and any remaining gaps;
+  - an assessment of clarity, maintainability, discoverability, scope, and semantic duplication. Use available detection tools when appropriate, but judge duplication in context rather than optimizing a tool's score;
+  - fixes for in-scope issues and the disposition and rationale for unresolved or deferred findings. A blocking gap means the plan is not ready to close;
 - rerun the post-change jscpd scan when a duplication-reducing refactor occurred;
 - update the work-unit memory with handoff-critical facts, unresolved issues, and deferred scope;
 - preserve closed history rather than overwriting it;
