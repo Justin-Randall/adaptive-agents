@@ -44,7 +44,7 @@ Use [Planning](../../planning/INDEX.md) as the authoritative planning router.
 - Keep progress, acceptance criteria, decisions, and verification in `ACTIVE.md`.
 - Curate the active `<work-unit-id>.memory.md` for handoff-critical state; replace stale details instead of appending a session transcript.
 - Link every active supporting Markdown document from `ACTIVE.md`.
-- For a user-facing feature, keep `## User-Facing Surface` and `## Browser Dogfood` in `ACTIVE.md`. Record the affected browser surface, Playwright scenario, deployment endpoint, agent-run result, and user handoff status. For non-user-facing work, record why browser dogfooding is not applicable.
+- For a user-facing feature, keep `## User-Facing Surface` and `## User-Facing Validation` in `ACTIVE.md`. Record the affected surface, appropriate runtime scenario, endpoint or runtime, agent-run result, and user handoff status. Load stack-specific instructions for browser or native desktop validation. For non-user-facing work, record why dogfooding is not applicable.
 
 ## Execute Work
 
@@ -58,7 +58,7 @@ Before executing work, load the project's relevant rules and apply them.
 - The rules that apply depend on the project, not on this skill. Check what exists rather than assuming specific practices.
 - Satisfy the acceptance criteria by fulfilling the spec; do not over-scope.
 - **Check for CI.** If the current project has no CI system, ask whether to include CI in scope or defer it to the backlog.
-- For user-facing changes, run the planned Playwright dogfood scenario against the deployed application after automated validation and before handing the change to the user. Record concrete evidence in `ACTIVE.md`; the user's later validation is a second pass, not a substitute for the agent's proof.
+- For user-facing changes, run the planned dogfood scenario in the project's actual runtime after automated validation and before handing the change to the user. Follow stack-specific guidance for the scenario and evidence. Record concrete evidence in `ACTIVE.md`; the user's later validation is a second pass, not a substitute for the agent's proof.
 
 ### Apply the Spec (SDD)
 

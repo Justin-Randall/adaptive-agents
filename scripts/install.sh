@@ -12,7 +12,7 @@ set -euo pipefail
 #
 # Options:
 #   --dry-run     Show what would change without writing files.
-#   --tool TOOL   Install only for a specific tool (claude, opencode, vscode).
+#   --tool TOOL   Install only for a specific tool (claude, codex, opencode, vscode).
 #   -h, --help    Show this help.
 #
 # Examples:
@@ -30,7 +30,7 @@ Options:
   --tool TOOL   Install only for a specific tool.
   -h, --help    Show this help.
 
-Supported tools: claude, antigravity, opencode, vscode  ("antigravity" = Antigravity 2.0 desktop app; not the agy CLI)
+Supported tools: claude, codex, antigravity, opencode, vscode  ("antigravity" = Antigravity 2.0 desktop app; not the agy CLI)
 EOF
 }
 
@@ -120,6 +120,27 @@ if [[ -z "$TOOL_FILTER" || "$TOOL_FILTER" == "opencode" ]]; then
   fi
 fi
 
+# ChatGPT Codex (desktop app, CLI, and IDE clients share CODEX_HOME)
+if [[ -z "$TOOL_FILTER" || "$TOOL_FILTER" == "codex" ]]; then
+  codex_home="${CODEX_HOME:-}"
+  if [[ -z "$codex_home" ]]; then
+    case "$(uname -s 2>/dev/null || echo unknown)" in
+      MINGW*|MSYS*|CYGWIN*)
+        if [[ -n "${USERPROFILE:-}" ]] && command_exists cygpath; then
+          codex_home="$(cygpath -u "$USERPROFILE")/.codex"
+        fi
+        ;;
+    esac
+    codex_home="${codex_home:-$HOME/.codex}"
+  elif [[ "$codex_home" == [A-Za-z]:* ]] && command_exists cygpath; then
+    codex_home="$(cygpath -u "$codex_home")"
+  fi
+  if command_exists codex || [[ -d "$codex_home" ]]; then
+    echo "  [detected] ChatGPT Codex"
+    SUB_INSTALLERS+=("$REPO_ROOT/scripts/install-codex.sh")
+  fi
+fi
+
 # Antigravity 2.0 (desktop app)
 if [[ -z "$TOOL_FILTER" || "$TOOL_FILTER" == "antigravity" ]]; then
   detected=""
@@ -153,6 +174,7 @@ if [[ ${#SUB_INSTALLERS[@]} -eq 0 ]]; then
   echo
   echo "Supported tools:"
   echo "  Claude Code     — https://claude.ai/download"
+  echo "  ChatGPT Codex   — https://chatgpt.com/codex"
   echo "  Antigravity 2.0 — https://antigravity.google/download"
   echo "  OpenCode        — https://opencode.ai"
   echo "  VS Code         — https://code.visualstudio.com"

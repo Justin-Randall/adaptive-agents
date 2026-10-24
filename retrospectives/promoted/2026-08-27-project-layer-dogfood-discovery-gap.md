@@ -1,7 +1,7 @@
 # Retrospective: Project-layer dogfood instructions were present but not enforced
 
 - Date: 2026-08-27
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: User-facing provider-management regression
 
@@ -38,13 +38,15 @@ Where this might belong if promoted:
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Defer triage and promotion.
-- Rationale: The observation is high-confidence and explicitly user-wide, but the smallest durable fix is not yet selected. Triage should determine whether existing global discovery instructions and completion discipline need reinforcement, whether a deterministic session-start check is feasible, or whether both are required.
+- Status: Promoted
+- Decision: Add a user-wide fallback for selecting runtime dogfood when no project-specific or stack-specific validation guidance applies.
+- Rationale: Global instructions route agents through Project Layer guidance, the canonical Project Layer workflow requires user-facing runtime validation, and a cross-project fallback now covers user-facing work without applicable runtime instructions.
 
 ## Promotion Links
 
-- None yet.
+- [Coding instructions](../../instructions/coding.instructions.md) — defines the evidence-based runtime dogfood fallback and when to ask the user or leave validation pending.
+- [Global instructions](../../instructions/global.instructions.md) — routes agents to project-local instructions and planning context.
+- [Project Layer planning skill](../../templates/project-layer/.adaptive-agents/skills/manage-planning/SKILL.md) — requires runtime scenarios and evidence for user-facing changes.
 
 ---
 

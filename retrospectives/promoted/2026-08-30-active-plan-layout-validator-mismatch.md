@@ -1,7 +1,7 @@
 # Retrospective: Active Plan Layout and Validator Mismatch
 
 - Date: 2026-08-30
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Activating a project-layer plan while investigating a token-accounting regression
 
@@ -28,26 +28,22 @@ Agents can overfit to retired-plan directory examples or validator behavior and 
 
 ## Proposed User-Wide Target
 
-Where in the canonical Adaptive Agents repository might this belong if promoted?
+The lesson is implemented in:
 
-- `instructions/`
-- `skills/`
-- `playbooks/`
-- `memory/`
-- Not sure yet
+- `skills/manage-planning/SKILL.md`
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Defer triage and promotion until explicit review.
-- Rationale: The observation is concrete and user-confirmed, but the correct durable target and whether the validator convention should be generalized require review. Do not promote this raw note automatically.
+- Status: Promoted
+- Decision: Add a planning workflow for reconciling explicit user instructions with validator results.
+- Rationale: The skill now requires comparing the project contract, template version, and validator tests before recommending a change, and requires honest reporting when a user intentionally overrides a valid check.
 
 ## Promotion Links
 
-Add Markdown links to changed durable guidance files if promoted.
-
-- None yet.
+- [Manage planning skill](../../skills/manage-planning/SKILL.md) — directs agents to investigate and explain instruction/validator conflicts before changing project structure or the validator.
+- [Project Layer planning skill](../../templates/project-layer/.adaptive-agents/skills/manage-planning/SKILL.md) — documents the active-plan and memory-file contract involved in the originating mismatch.
+- [Project Layer validator](../../templates/project-layer/.adaptive-agents/scripts/check-project-layer.sh) — enforces the canonical active-plan and supporting-memory structure.
 
 ---
 
-*After triage, move this note to `promoted/`, `deferred/`, or `rejected/` and update its status and promotion links.*
+*Promoted after review; the conflict-resolution workflow is now part of planning guidance.*

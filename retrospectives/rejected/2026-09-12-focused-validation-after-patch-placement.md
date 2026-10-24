@@ -1,7 +1,7 @@
 # Retrospective: Focused Validation Catches Patch Placement Errors
 
 - Date: 2026-09-12
-- Status: Captured
+- Status: Rejected
 - Scope: User-wide
 - Session or task: Applying a multi-file maintenance change with regression coverage
 
@@ -37,9 +37,9 @@ Where this may belong after triage:
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Defer promotion pending review of whether this is durable guidance or ordinary implementation noise.
-- Rationale: The recovery pattern worked and is reusable, but the triggering patch-placement mistake may not justify a new permanent rule without more evidence of recurrence.
+- Status: Rejected
+- Decision: Retain as a record, but do not promote a separate rule.
+- Rationale: The existing TDD instruction already requires running the focused check after the first substantive edit, and that check exposed this isolated patch-placement error. No additional durable guidance is needed.
 
 ## Promotion Links
 

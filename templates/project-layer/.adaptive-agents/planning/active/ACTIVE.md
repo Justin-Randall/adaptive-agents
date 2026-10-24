@@ -58,14 +58,14 @@ Define the tests that prove this plan's specs, written before implementation per
 
 ## User-Facing Surface
 
-- Browser surface: `<affected browser workflow or N/A>`
-- Playwright scenario: `<deployed user workflow or N/A with reason>`
-- Deployment endpoint: `Not run`
+- Surface: `<affected user workflow or N/A>`
+- Runtime scenario: `<user workflow in the project's actual runtime or N/A with reason>`
+- Endpoint or runtime: `Not run`
 
-## Browser Dogfood
+## User-Facing Validation
 
 - Agent proof: `Pending`
-- Evidence: `<URL, scenario, observed result, and artifacts when available>`
+- Evidence: `<endpoint or runtime, scenario, observed result, and artifacts when available>`
 - User handoff: `Pending`
 
 ## DRY Assessment

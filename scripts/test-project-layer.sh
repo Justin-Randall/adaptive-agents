@@ -72,6 +72,39 @@ else
   fail "Canonical template baseline should pass"
 fi
 
+if grep -Fq -- '"templateVersion": "0.9.0"' "$baseline/project-layer.json" \
+  && grep -Fq -- "## User-Facing Validation" "$baseline/planning/active/ACTIVE.md" \
+  && ! grep -Fq -- "## Browser Dogfood" "$baseline/planning/active/ACTIVE.md"; then
+  pass
+else
+  fail "Bootstrap should use generic user-facing validation in template version 0.9.0"
+fi
+
+missing_user_facing_validation="$(new_fixture missing-user-facing-validation)"
+sed -i 's/^## User-Facing Validation$/## Validation Notes/' \
+  "$missing_user_facing_validation/planning/active/ACTIVE.md"
+expect_failure "$missing_user_facing_validation" \
+  "planning/active/ACTIVE.md must include a '## User-Facing Validation' section"
+
+legacy_browser_validation="$(new_fixture legacy-browser-validation)"
+python -c "import json,sys; p=sys.argv[1]; d=json.load(open(p,encoding='utf-8')); d['templateVersion']='0.8.0'; json.dump(d,open(p,'w',encoding='utf-8'),indent='\\t'); open(p,'a').write('\\n')" \
+  "$legacy_browser_validation/project-layer.json"
+sed -i 's/^## User-Facing Validation$/## Browser Dogfood/' \
+  "$legacy_browser_validation/planning/active/ACTIVE.md"
+if bash "$legacy_browser_validation/scripts/check-project-layer.sh" >/dev/null; then
+  pass
+else
+  fail "A 0.8.0 layer should retain its Browser Dogfood validation contract"
+fi
+
+legacy_missing_browser_validation="$(new_fixture legacy-missing-browser-validation)"
+python -c "import json,sys; p=sys.argv[1]; d=json.load(open(p,encoding='utf-8')); d['templateVersion']='0.8.0'; json.dump(d,open(p,'w',encoding='utf-8'),indent='\\t'); open(p,'a').write('\\n')" \
+  "$legacy_missing_browser_validation/project-layer.json"
+sed -i 's/^## User-Facing Validation$/## Validation Notes/' \
+  "$legacy_missing_browser_validation/planning/active/ACTIVE.md"
+expect_failure "$legacy_missing_browser_validation" \
+  "planning/active/ACTIVE.md must include a '## Browser Dogfood' section"
+
 expected_work_unit="PL-20260710-validate-project-layer"
 expected_memory="$baseline/planning/active/$expected_work_unit.memory.md"
 if [[ -f "$expected_memory" ]] \

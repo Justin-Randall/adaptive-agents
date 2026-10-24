@@ -1,6 +1,8 @@
 # Adaptive Agents
 
-Version-controlled behavior, planning, and learning for coding agents across projects.
+Instruction infrastructure for developers who use AI coding tools.
+
+Install it once on your host, then give every supported coding agent a durable, version-controlled baseline for how to work. Add project-specific refinements where they belong, and let the active repository supply the context that makes those instructions useful.
 
 ## Install
 
@@ -21,7 +23,7 @@ bash scripts/install.sh --dry-run
 bash scripts/install.sh --tool vscode
 ```
 
-Valid tool names are `claude`, `antigravity`, `opencode`, and `vscode`.
+Valid tool names are `claude`, `codex`, `antigravity`, `opencode`, and `vscode`.
 
 Then start a fresh agent session in another repository and ask:
 
@@ -30,6 +32,25 @@ Are Adaptive Agents active?
 ```
 
 The expected response is `ADAPTIVE_AGENTS_GLOBAL_LOADED`. This is a quick first check, not complete proof of installation. See [How To Use It](#how-to-use-it) for tool-specific installation options and the full three-part verification procedure.
+
+## Instructions As Infrastructure
+
+AI coding tools can write code quickly, but their behavior is usually configured one tool, session, or repository at a time. Adaptive Agents treats instructions as infrastructure instead: a host-level layer that travels with you across projects and gives each model a consistent operating context.
+
+The installation has two complementary scopes:
+
+- **User-wide baseline:** reusable coding, testing, repository-boundary, command-recovery, planning, and learning practices are installed once on the host and routed through each supported AI tool's native startup mechanism.
+- **Project-specific refinement:** a repository can own a `.adaptive-agents/` Project Layer for its architecture, commands, conventions, plans, and exceptions. The agent combines that local context with the user-wide baseline, with the more-specific project guidance taking precedence.
+
+This is not a prompt pack copied into every repository. The host installation points tools at one version-controlled source of truth; the project layer adds only the context that belongs to that codebase. The result is a repeatable way to shape how AI tools understand and change software across an entire development environment.
+
+### A Graph, Not A Prompt Dump
+
+Adaptive Agents applies graph thinking to instruction design. Instruction files, project rules, skills, plans, tests, and source files are nodes; explicit routing directives are edges. A session starts at a small root, classifies the request, and traverses only the relevant branch. A link makes a document discoverable; it does not make that document part of every model context.
+
+That distinction keeps instruction scale separate from context scale. The repository can contain an extensive body of guidance, potentially far larger than any useful model context, while a normal session activates only a few thousand tokens or less from the paths that matter. The agent gets the right context for the task without loading the entire instruction universe at once, which helps preserve room for code, tools, reasoning, and results.
+
+This is the key infrastructure property: add knowledge as connected, owned nodes instead of continually enlarging one monolithic system prompt. User-wide guidance supplies the stable roots, project layers refine the local branch, and task-specific routes expand context only when the work requires them.
 
 ## Start With A Request
 
@@ -48,24 +69,6 @@ Other requests can be just as direct:
 - "Check whether my Adaptive Agents setup is healthy and tell me what needs attention."
 
 The scripts documented later are deterministic implementation and automation entrypoints. You can also simply ask the agent to run or preview them — for example, "Check whether my configuration is healthy" or "Show me the startup instruction cost." The agent will invoke the appropriate script and return the result. The commands are available when you prefer direct control, but they are not the primary user interface.
-
-## Why Developers Use It
-
-Coding agents are useful, but they usually start each tool and repository without the working context a developer has accumulated: how to test changes, when to stop retrying a failed command, where planning belongs, which mistakes should become durable guidance, and which rules are specific to one project.
-
-Adaptive Agents is a versioned source of truth for that behavior. Define reusable expectations once, connect a supported coding-agent tool, and let the same guidance follow you across projects. Project-owned guidance can add or override details without copying the user-wide system into every repository.
-
-This is not an autonomous self-modifying prompt collection. Observations are captured as reviewable evidence, durable changes require approval, and all guidance remains ordinary source-controlled files. VS Code/GitHub Copilot and Claude Code integrations are verified; OpenCode support is implemented and undergoing fresh-session dogfooding. Antigravity 2.0 support is implemented and undergoing fresh-session dogfooding. Other agent tools need an integration that loads the canonical entrypoint.
-
-Without a shared guidance system, useful agent behavior tends to be scattered across chat history, copied instruction files, editor settings, and conventions that only one tool knows about. The result is repeated correction: one agent learns that a repository uses focused tests, another runs the broad suite; one session discovers a shell failure mode, and the next session repeats it.
-
-Adaptive Agents gives those decisions a lifecycle:
-
-- **Define behavior once.** Configured agent tools load the same user-wide coding, testing, repository-boundary, command-recovery, and artifact-hygiene guidance.
-- **Keep projects specific.** A project can own a `.adaptive-agents/` layer for its architecture, commands, planning, and exceptions. More-specific project guidance takes precedence over user-wide defaults.
-- **Carry work across sessions.** Indexed backlog items, one active plan, curated work-unit memory, verification evidence, and closed history give agents recoverable project state.
-- **Learn without silently rewriting the rules.** Agents can notice reusable friction and initiate a retrospective conversation. Capture, triage, and promotion are separate, reviewable steps.
-- **Keep the system inspectable.** Routing, local links, Project Layers, regression tests, and startup instruction cost are checked deterministically in CI.
 
 ## An Opinionated Personal System
 
@@ -158,6 +161,21 @@ Reference workflow:
 ## How To Use It
 
 The sections below document each integration and its verification steps in detail.
+
+### Install ChatGPT Codex
+
+From this repository root, run the shared local Codex installer through Git Bash on Windows, or Bash on macOS/Linux/WSL:
+
+```bash
+bash scripts/install-codex.sh
+bash scripts/install-codex.sh --dry-run
+```
+
+The desktop app, CLI, and IDE extension share the same local Codex configuration. The installer uses `CODEX_HOME` when set; otherwise it uses `%USERPROFILE%/.codex` in native Windows shells and `~/.codex` on Unix-like systems. WSL uses its Linux home unless you explicitly set `CODEX_HOME`.
+
+The installer links `CODEX_HOME/AGENTS.md` directly to this repository's canonical `AGENTS.md` and adds only this repository to `sandbox_workspace_write.writable_roots` in `CODEX_HOME/config.toml`. It preserves the current sandbox and approval policy, as well as unrelated settings. Existing user-authored global instruction files, custom permission profiles, malformed TOML, and incompatible sandbox modes stop installation before changes are made. Python 3.11 or newer is required for safe TOML parsing.
+
+After installation, open a fresh Codex session in an unrelated project and verify the global sentinel, a fact routed from the canonical instructions, and a write to an approved Adaptive Agents planning artifact. Desktop app dogfooding must be performed in a fresh session because the installer cannot prove that the running app loaded the new configuration.
 
 ### 1) Install VS Code Integration
 
@@ -324,7 +342,7 @@ Every integration is verified the same way, in a **fresh session in a repository
 
 Repeat across multiple fresh sessions; intermittent loading is a failure, not a pass.
 
-**Verified integrations**: VS Code / GitHub Copilot (after `install-vscode.sh`) and Claude Code (after `install-claude-code.sh`). Antigravity 2.0 support is implemented and undergoing fresh-session dogfooding.
+**Implemented integrations**: ChatGPT Codex (after `install-codex.sh`), VS Code / GitHub Copilot (after `install-vscode.sh`), Claude Code (after `install-claude-code.sh`), and Antigravity 2.0. Codex desktop fresh-session dogfooding is pending.
 
 **Reworked integration**: OpenCode (after `install-opencode.sh`) now uses the same two-part pattern; treat it as verified only after fresh-session dogfooding passes all three probes.
 
@@ -493,6 +511,7 @@ This repository is actively used and still being hardened.
 
 **Implemented, pending final dogfood evidence:**
 
+- ChatGPT Codex's shared local configuration, canonical global instructions link, and repository-scoped write grant; fresh-session validation from an unrelated project, including routed write-back, remains pending
 - OpenCode's single native entrypoint and external-directory access grant
 
 **Extension areas, not prebuilt claims:**

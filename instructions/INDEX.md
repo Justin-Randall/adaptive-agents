@@ -15,3 +15,4 @@ Use instruction files for behavior that should apply predictably across sessions
 - [command-failure-pivot.instructions.md](command-failure-pivot.instructions.md) defines shell failure retry discipline.
 - [temp-artifact-hygiene.instructions.md](temp-artifact-hygiene.instructions.md) defines diagnostic artifact cleanup expectations.
 - [branch-workflow.instructions.md](branch-workflow.instructions.md) defines branch and commit workflow preferences.
+- [web-application.instructions.md](web-application.instructions.md) applies to web application changes and defines browser-based user-facing validation.

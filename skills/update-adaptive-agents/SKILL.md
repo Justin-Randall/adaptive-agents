@@ -61,6 +61,7 @@ For non-trivial Adaptive Agents maintenance work, include a completion-time retr
 - Keep `instructions/global.instructions.md` short; it should route to more specific instruction files rather than contain all guidance.
 - Keep tool-native adapters minimal and disposable; canonical guidance belongs in routed repository files.
 - Do not duplicate the same rule across many files unless repeated intentionally for discovery.
+- When editing files emitted into a Project Layer from `templates/project-layer/`, keep every relative Markdown link within the generated `.adaptive-agents/` root. Route agents to user-wide guidance by name or through the installed Adaptive Agents entrypoint instead of linking outside the layer. Run the generated validator after template changes.
 - When building or updating a tool installer, delegate over duplicate: point the tool at existing canonical files (`AGENTS.md`, `instructions/*.instructions.md`) rather than copying their content into tool-specific templates; sentinels and rules live in one place, and config content is minimal — just enough to locate and load the canonical files.
 - Use Markdown links when referencing other checked-in guidance files.
 - Keep checked-in retrospectives and durable guidance sanitized: do not include private project names, repository names, people, clients, paths, proprietary outputs, secrets, or raw copied logs unless the user explicitly says they are safe to include.

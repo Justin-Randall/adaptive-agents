@@ -43,10 +43,11 @@ Before each implementation slice, complete the plan's `## DRY Assessment`. The a
 1. Read the active plan's Objective, Specifications, Acceptance Criteria, Scope, Test Plan, and DRY Assessment before editing.
 2. Load the Project Layer's relevant instructions, skills, playbooks, and project commands. More-specific local guidance wins.
 3. Resolve ambiguous specifications before implementation rather than inventing behavior.
-4. Follow the project's testing contract: write the focused failing check first, confirm the failure, make the smallest change, rerun the focused check, then broaden validation when the risk warrants it.
-5. Use the plan's DRY assessment to decide whether to run jscpd, and record the command, scope, result, and any intentional or deferred duplication.
-6. Verify claims with source, tests, validators, compiler output, or command output where practical.
-7. Keep changes small and reversible. Do not fix unrelated bugs or broken tests.
+4. When explicit user instructions and a validator conflict, do not assume either is wrong. Check the applicable project instructions, template version, and validator tests; explain the conflict and recommend the source of truth. If it remains unresolved, ask before changing the project structure or validator. If the user knowingly chooses to override a valid check, follow that direction but report the check as failing.
+5. Follow the project's testing contract: write the focused failing check first, confirm the failure, make the smallest change, rerun the focused check, then broaden validation when the risk warrants it.
+6. Use the plan's DRY assessment to decide whether to run jscpd, and record the command, scope, result, and any intentional or deferred duplication.
+7. Verify claims with source, tests, validators, compiler output, or command output where practical.
+8. Keep changes small and reversible. Do not fix unrelated bugs or broken tests.
 
 ## Close work
 

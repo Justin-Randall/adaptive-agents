@@ -2,7 +2,7 @@
 
 ## Current Work
 
-No active plan; see the [active plan slot](active/ACTIVE.md) or [closed work](closed/INDEX.md) for preserved plans and memories.
+[No active plan](active/ACTIVE.md).
 
 ## Queues
 

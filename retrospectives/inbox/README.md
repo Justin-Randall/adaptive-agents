@@ -41,7 +41,7 @@ Do not use inbox notes for:
 
 ## Captured Notes
 
-- No pending notes.
+- None currently; all captured inbox notes have been triaged.
 
 ## Workflow
 

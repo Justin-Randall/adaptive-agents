@@ -1,7 +1,7 @@
 # Retrospective: Active Plan Closure Left Stale Content Visible
 
 - Date: 2026-08-29
-- Status: Captured
+- Status: Promoted
 - Scope: User-wide
 - Session or task: Closing and archiving an approved project-layer plan
 
@@ -27,22 +27,24 @@ Agents and users can interpret stale content after an empty-state marker as an a
 
 ## Proposed User-Wide Target
 
-Where the lesson may belong after triage:
+The lesson is implemented in:
 
-- `instructions/planning-conventions.md`
-- `playbooks/adaptation-cycle.md`
-- `skills/update-adaptive-agents/SKILL.md`
+- `skills/manage-planning/SKILL.md`
+- `templates/project-layer/.adaptive-agents/scripts/check-project-layer.sh`
+- `scripts/test-project-layer.sh`
 
 ## Promotion Decision
 
-- Status: Captured
-- Decision: Defer promotion pending triage.
-- Rationale: The failure is clear, but the narrowest durable owner and the exact validation rule should be selected during review.
+- Status: Promoted
+- Decision: Promote the existing full-file closure rule and validator regression coverage.
+- Rationale: The shared planning skill requires replacing the complete active file, and the Project Layer validator and regression suite reject stale plan content after the empty-state marker.
 
 ## Promotion Links
 
-- None yet.
+- [Manage planning skill](../../skills/manage-planning/SKILL.md) — requires replacing the entire active plan with the empty-state document.
+- [Project Layer validator](../../templates/project-layer/.adaptive-agents/scripts/check-project-layer.sh) — validates the empty-state document and rejects leftover plan content.
+- [Project Layer regression tests](../../scripts/test-project-layer.sh) — covers stale plan sections and work-unit metadata after the empty-state marker.
 
 ---
 
-*Captured for canonical Adaptive Agents triage; no durable rule was changed automatically.*
+*Promoted after review; the linked guidance and validation coverage are in place.*

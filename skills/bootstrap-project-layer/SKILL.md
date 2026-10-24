@@ -14,6 +14,10 @@ Use this skill only when Adaptive Agents is already installed and the user asks 
 - Treat an existing Project Layer as project-owned authored content. Never replace it from the canonical template.
 - Preview all planned files and exclusion changes before invoking the setup script.
 
+## Context Discovery
+
+Before a cross-repository bootstrap, identify the Adaptive Agents source root, target project root, and execution context from the available workspace and tool information. Anchor reads and commands to the intended root using explicit paths or working-directory settings. Choose command syntax for the discovered shell/tool rather than inferring it from the operating system. If a root or execution context can't be determined safely, ask before making changes.
+
 ## Interview
 
 1. Identify the target project root or directory and inspect existing project instructions, planning documents, and Git state.

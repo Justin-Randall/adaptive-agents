@@ -156,6 +156,9 @@ check_required_paths() {
     scripts/inspect-project-layer-upgrade.sh
     scripts/test-project-layer.sh
     scripts/install-opencode.sh
+    scripts/install-codex.sh
+    scripts/codex_config.py
+    scripts/test-install-codex.sh
     scripts/test-opencode.sh
     scripts/test-install-vscode.sh
     scripts/test-install.sh
@@ -410,6 +413,38 @@ PY
     pass "Claude Code settings grant access to the Adaptive Agents repository"
   else
     warn "Claude Code settings do not grant access to the Adaptive Agents repository"
+  fi
+}
+
+check_codex_integration() {
+  local -a PYTHON_CMD=()
+  local codex_home="${CODEX_HOME:-}"
+  if [[ -z "$codex_home" ]]; then
+    case "$(uname -s 2>/dev/null || echo unknown)" in
+      MINGW*|MSYS*|CYGWIN*)
+        if [[ -n "${USERPROFILE:-}" ]] && command -v cygpath >/dev/null 2>&1; then
+          codex_home="$(cygpath -u "$USERPROFILE")/.codex"
+        else
+          return 0
+        fi
+        ;;
+      *) codex_home="$HOME/.codex" ;;
+    esac
+  fi
+  local global="$codex_home/AGENTS.md"
+  local config="$codex_home/config.toml"
+  if [[ ! -e "$global" && ! -L "$global" && ! -e "$config" ]]; then
+    return 0
+  fi
+  if [[ ! -f "$config" ]] || ! find_python; then
+    warn "Codex config.toml is missing or Python is unavailable for permission validation"
+    return 0
+  fi
+  if "${PYTHON_CMD[@]}" "$REPO_ROOT/scripts/codex_config.py" --config "$config" --repo-root "$REPO_ROOT" --check --global-instructions "$global" >/dev/null 2>&1
+  then
+    pass "Codex global entrypoint resolves to canonical AGENTS.md and grants repository-scoped workspace-write access"
+  else
+    warn "Codex config does not satisfy the canonical entrypoint and repository-scoped workspace-write contract"
   fi
 }
 
@@ -747,6 +782,14 @@ check_instruction_load_budget_tests() {
   fi
 }
 
+check_codex_tests() {
+  if ! bash scripts/test-install-codex.sh; then
+    fail "Codex installer regression tests failed"
+    return 1
+  fi
+  pass "Codex installer regression tests passed"
+}
+
 run_timed_check "required paths" check_required_paths
 run_timed_check "canonical Project Layer validator" check_project_layer_template
 run_timed_check "Project Layer regression tests" check_project_layer_tests
@@ -760,6 +803,8 @@ run_timed_check "instruction load budget" check_instruction_load_budget
 run_timed_check "prompt validation" check_prompts
 run_timed_check "OpenCode integration" check_opencode
 run_timed_check "Claude Code integration" check_claude_code
+run_timed_check "ChatGPT Codex installer regression tests" check_codex_tests
+run_timed_check "ChatGPT Codex integration" check_codex_integration
 run_timed_check "VS Code integration" check_vscode_integration
 run_timed_check "retrospective validation" check_retrospectives
 run_timed_check "retrospective privacy patterns" check_retrospective_private_patterns
