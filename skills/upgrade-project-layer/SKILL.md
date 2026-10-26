@@ -72,6 +72,17 @@ Never recopy the canonical template over an existing Project Layer or treat proj
 
 The Project Layer validator is version-gated: a requirement introduced in a template version (for example, the `## Test Plan` section required at `0.5.2`) activates only for layers whose `project-layer.json` `templateVersion` is at or above that version. Older layers keep validating even if they adopt a newer validator, and a missing or unparseable `templateVersion` is treated as an older layer.
 
+### Planning template updates (0.9.2)
+
+The 0.9.2 release adds both a completion-review record and epic child-status tracking to planning templates and guidance. Include all applicable files in one focused upgrade patch:
+
+- Add `## Completion Review` from `../templates/project-layer/.adaptive-agents/planning/active/{{ACTIVE_WORK_ID}}.memory.md` to the active work-unit memory template. Include the updated `.adaptive-agents/skills/manage-planning/SKILL.md` and `.adaptive-agents/playbooks/end-work.md`. For active work, complete the section before closure; do not backfill closed memories or rewrite historical packets.
+- Update `.adaptive-agents/planning/backlog/backlog-item-template.md` from `../templates/project-layer/.adaptive-agents/planning/backlog/backlog-item-template.md`, including `Status: Backlog` and the epic Children table. Keep `Readiness:` separate from execution status.
+- Reconcile existing epic and non-closed child status fields from verified active and closed records. Preserve Objective, Scope, acceptance criteria, test approach, and other source specification content; update only lifecycle metadata and the parent Children table. For already closed children, derive the parent-row disposition from immutable closed evidence without editing the closed packet or its copied backlog source. Do not infer unknown states. If the evidence is insufficient, ask the project owner and leave the relevant record unchanged until resolved.
+- Apply the `.adaptive-agents/skills/manage-planning/SKILL.md` and `.adaptive-agents/playbooks/end-work.md` changes with the same patch so new records follow the status and closure contract.
+
+Existing layers adopt these changes only through the normal inspect, propose, approve, and apply flow. Run the Project Layer validator and focused tests after applying the patch. Update `.adaptive-agents/project-layer.json` to `0.9.2` only after all approved content and required lifecycle reconciliation are present. The completion-review rule does not add a historical-memory validator gate.
+
 When a template version adds active-plan content requirements:
 
 1. The upgrade patch must add the required content to `ACTIVE.md` (or the documented research exemption) before bumping `project-layer.json`.

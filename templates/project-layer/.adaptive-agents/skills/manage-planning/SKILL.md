@@ -14,9 +14,10 @@ Use [Planning](../../planning/INDEX.md) as the authoritative planning router.
 3. Work may originate from a backlog plan or begin directly as approved research, debugging, maintenance, or implementation.
 4. Assign one canonical work-unit ID in `PL-YYYYMMDD-descriptive-slug` form. When activating a backlog item, reuse its filename stem; for direct work, derive the slug from the approved title.
 5. Create `ACTIVE.md` with `- Work Unit: <work-unit-id>` and create `<work-unit-id>.memory.md`. Link the memory from `ACTIVE.md` and `planning/INDEX.md`.
-6. **When activating a backlog item**, use its Objective, Problem Spec, Scope, and other details as source material for the SDD sections. If the backlog does not cover a required section, ask rather than inventing. Never overwrite the backlog item.
+6. **When activating a backlog item**, use its Objective, Problem Spec, Scope, and other details as source material for the SDD sections. If the backlog does not cover a required section, ask rather than inventing. Preserve the backlog source specification; lifecycle metadata may be updated as part of approved activation, execution, and closure.
    - **If the item is an Epic** (`Status: Epic`), it cannot be activated directly. Identify which child to activate based on the current request and the epic's children index. Load the epic for architecture context and the child for the specific scope and AC.
    - **If the item is a child** (lives in an epic subdirectory), load its parent epic for architecture decisions and then the child for its Objective, Scope, and AC. Load both into the active plan context.
+   - **Synchronize child tracking:** in the same activation change, set the child `Status:` and its parent Children row to `Active`; keep Readiness separate and preserve the source specification. Follow the user-wide Planning Conventions for the status vocabulary and evidence requirements. If an existing epic lacks status tracking, add it from verified records before reporting activation complete.
    - **Write the `## Test Plan`** from the backlog's `Test approach` line per the testing contract; ask if missing.
 7. **When a backlog item grows too large during spec review** (its scope spans multiple independent deliverables that won't fit one session), propose splitting it into an epic with children. Create the epic directory, move the original spec into `PL-YYYYMMDD-slug.md`, and create focused child files. Update INDEX.md.
 8. **When reopening prior work**, assign a new work-unit ID. Link the prior closed SDD and memory from the new plan, then seed new memory with only still-valid facts, unresolved issues, and restart context. Never modify or restore the closed memory wholesale.
@@ -40,6 +41,8 @@ Use [Planning](../../planning/INDEX.md) as the authoritative planning router.
 7. Wait for approval before changing the backlog index or detailed plans.
 
 ## Maintain Active Context
+
+- For an epic child, keep its parent Children row and child `Status:` synchronized with the active plan and memory. Before reporting validated implementation complete, record `Ready for closure` and its evidence/next action; do not claim `Completed` before approved closure and closed-packet verification. If a gap is found, return the child to `Active` or `Blocked`. Use the work-unit ID/planning router for active evidence and immutable closed links after archival; never add a moving active-plan link to backlog records.
 
 - Keep progress, acceptance criteria, decisions, and verification in `ACTIVE.md`.
 - Curate the active `<work-unit-id>.memory.md` for handoff-critical state; replace stale details instead of appending a session transcript.
@@ -90,6 +93,10 @@ Before executing work, load the project's relevant rules and apply them.
 - When work appears complete, run the retrospective checkpoint from the global instructions before summarizing.
 - If process-friction evidence exists (failed approaches, retries, discarded hypotheses, user corrections, rollbacks), propose a sanitized `Captured` retrospective.
 - Never promote retrospective observations into durable instructions without user approval.
+
+## Completion Review
+
+Before closure, complete and record `## Completion Review` in the work-unit memory. Review the final diff and relevant outputs, verify acceptance criteria with evidence, identify remaining gaps, and assess clarity, maintainability, discoverability, scope, and semantic duplication. Use duplication tools when appropriate and judge findings in context. Fix in-scope issues and record the disposition and rationale for unresolved or deferred findings. A blocking gap means the plan is not ready to close.
 
 ## End Work
 

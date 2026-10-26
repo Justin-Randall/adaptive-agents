@@ -92,11 +92,45 @@ All files in the hierarchy must be connected. The validator will check:
 
 This makes the hierarchy traversable for both humans and automated checks.
 
+### Child Status Tracking
+
+Every parent epic must have a Children table with at least **Work item**, **Status**, **Depends on**, and **Evidence / next action** columns. Keep the child link and its row after closure so the parent remains a complete progress view. Each child record carries a matching `Status:` field; `Readiness:` remains a separate approval/executability assessment.
+
+| Status | Meaning |
+| --- | --- |
+| `Backlog` | Not activated; consult Readiness and dependency evidence before selecting it. |
+| `Active` | Approved and currently being executed. |
+| `Blocked` | Activated work needs an unresolved decision or external intervention; record the blocker and next action. |
+| `Ready for closure` | Implementation and required validation are complete; user-approved closure and archival are still pending. |
+| `Completed` | Completion was approved and the closed specification/memory packet has been verified. |
+| `Deferred` | The user approved postponement; record the continuation or resumption context. |
+| `Cancelled` | The user approved cancellation. |
+| `Superseded` | The user approved replacement; identify the successor. |
+
+Example parent table (use real child links when writing an epic):
+
+| Work item | Status | Depends on | Evidence / next action |
+| --- | --- | --- | --- |
+| First child | Ready for closure | None | Required checks passed; request closure approval. |
+| Second child | Backlog | First child | Not activated; review after prerequisite closure. |
+
+Status synchronization is part of the approved work, not a separate backlog-spec rewrite:
+
+1. **Create or split an epic:** initialize every child row and child `Status:` as `Backlog`, with readiness recorded independently.
+2. **Activate a child:** update its parent row and child status to `Active` in the same change as `ACTIVE.md`, memory, and planning routing. Preserve the child's Objective, Scope, acceptance criteria, and test approach; lifecycle metadata updates are permitted and do not overwrite its source specification.
+3. **Progress or blockers:** keep the parent row, child status, active plan, and memory consistent. Update the evidence/next action when the state changes.
+4. **Finish implementation:** mark the child and parent row `Ready for closure` only after required validation passes. Do this before reporting completion or offering closure; approval to activate, commit, or push does not approve closure.
+5. **Discover a remaining gap:** return the child to `Active` or `Blocked`, reopen affected progress/acceptance checks, and update the parent instead of leaving a stale completion claim.
+6. **Close:** after user approval and closed-packet verification, record the final disposition in the parent row and surviving child metadata. Link the parent evidence to immutable closed records and retain the other children. Do not activate a successor automatically.
+7. **Completion review:** reconcile parent row, child metadata, active work, closed history, and dependency evidence. Missing or stale tracking must be corrected before claiming the planning state is current. Backfill existing epics from verified records; ask when the state cannot be established rather than guessing.
+
+Backlog and parent-epic records must not link to the moving active-plan path. For active work, record the work-unit ID and route readers through the planning index; after closure, use the immutable closed-packet links. Readiness approval and `Ready for closure` are not evidence of an approved `Completed` disposition.
+
 ### Activation Rules
 
 1. **Epics are never activated directly**. If the user selects an epic for activation, ask which child they want to work on.
 2. **Activate one child at a time**. Each child represents a single-session work unit. Close it before activating the next.
-3. **Check dependencies**. Before activating a child, verify its dependencies are in `Completed` or `Ready` state. If a dependency is not ready, the child cannot be activated.
+3. **Check dependencies**. Inspect dependency execution status and delivery evidence. Readiness approval alone does not prove delivery; verify required capabilities before activating dependent work, or obtain an explicit user-approved exception.
 4. **Epic context is available**. Load the epic file alongside the child during activation for architecture context and resolved decisions. The child's own Objective, Scope, and AC drive the session — the epic provides supporting context only.
 
 ### Closure Lifecycle

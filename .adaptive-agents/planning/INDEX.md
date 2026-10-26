@@ -2,7 +2,7 @@
 
 ## Current Work
 
-[No active plan](active/ACTIVE.md).
+[No active plan](active/ACTIVE.md). Most recent completed work: [PL-20261026-project-layer-upgrade-path-completeness](closed/PL-20261026-project-layer-upgrade-path-completeness/PL-20261026-project-layer-upgrade-path-completeness.sdd.md).
 
 ## Queues
 

@@ -3,7 +3,7 @@
 Use this playbook when active work appears complete or must stop.
 
 1. Re-read `planning/active/ACTIVE.md` and its linked supporting documents.
-2. Summarize acceptance-criteria status and verification evidence.
+2. Complete and record `## Completion Review` in the work-unit memory: review the final changes, verify acceptance criteria with evidence, identify gaps, assess engineering quality, and record findings and their disposition. Do not propose closure while a blocking gap remains. Summarize acceptance-criteria status and verification evidence. For an epic child whose implementation and required checks are complete, synchronize its parent Children row and child `Status:` to `Ready for closure` before reporting completion. Otherwise retain `Active` or `Blocked` with the remaining gap; a proposed disposition is not an approved closure.
 3. Propose exactly one disposition: `Completed`, `Deferred`, `Cancelled`, or `Superseded`.
 4. Scan `planning/backlog/INDEX.md` before proposing deferred-work changes. Propose an update to an existing item or a new detailed item; do not write it yet.
 5. Ask the user to approve or adjust the disposition, backlog changes, and closure.
@@ -15,7 +15,7 @@ Use this playbook when active work appears complete or must stop.
    - If the plan was activated from a backlog item, copy it into the same directory as `<work-unit-id>.backlog.md`.
    - Update `planning/closed/INDEX.md` with the new entry.
    - If the disposition is **Completed**, **Cancelled**, or **Superseded**, remove the backlog entry from `planning/backlog/INDEX.md` (the backlog file stays, only the index entry is removed). If the disposition is **Deferred**, leave the backlog entry in place.
-7. Verify the closed packet, including its required files and relative links, before changing the active slot.
+7. Verify the closed packet, including its required files and relative links, before changing the active slot. For an epic child, then update the parent Children row and surviving child lifecycle metadata to the approved disposition, link immutable closure evidence, and retain all sibling rows. Reconcile parent/child status and dependency evidence before reporting closure complete; do not activate the next child automatically.
 8. Replace `planning/active/ACTIVE.md` with an empty-state document whose first line is exactly `# No Active Plan`. Optional content may appear only under one `## Context` section; do not retain former plan sections, work-unit metadata, or active supporting-file links.
 9. Remove or verify removal of stale active supporting files.
 10. Create a fresh `planning/active/ACTIVE.md` and `<new-work-unit-id>.memory.md` only after the user chooses a backlog item or approves new direct exploratory, debugging, maintenance, or implementation work. For reopened work, link the prior closed SDD and memory and carry forward only still-valid context.

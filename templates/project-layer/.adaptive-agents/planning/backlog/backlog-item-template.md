@@ -2,6 +2,8 @@
 
 Plan: PL-YYYYMMDD-descriptive-slug
 
+Status: Backlog
+
 Readiness: Ready: <reason> | Needs Review: <reason> | Not Ready: <reason>
 
 Test approach: <falsifiable checks, failure paths, coverage, CI — or research — no tests>
@@ -40,3 +42,11 @@ Key decisions made during planning that an activation session should not re-deri
 
 - Link to parent plan or epic: `PL-YYYYMMDD-parent-plan`
 - Link to dependent items as they emerge
+
+## Children (epics only)
+
+Omit this section for standalone items and children. For an epic, set its own `Status: Epic`, initialize child status as `Backlog`, and maintain this table through activation, validation, and approved closure according to the user-wide Planning Conventions. Readiness and execution status are separate. Replace the example with real child links; retain closed-child rows with immutable evidence.
+
+| Work item | Status | Depends on | Evidence / next action |
+| --- | --- | --- | --- |
+| Child plan link | Backlog | None | Review scope/readiness before activation. |

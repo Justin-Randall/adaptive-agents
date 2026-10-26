@@ -32,6 +32,8 @@ The learning flow is capture, triage, review, and approved promotion. Project-sp
 
 Planning artifacts coordinate work but do not override checked-in instructions or architectural invariants. Each active task has one canonical `PL-YYYYMMDD-descriptive-slug` work-unit identity. Its plan and curated memory preserve that identity through closure; reopened work receives a new identity and links to immutable prior context rather than rewriting it. Active plans should reference the specifications and supporting context needed for implementation without duplicating durable guidance.
 
+Parent epics maintain a synchronized execution-status view of their children, separate from backlog readiness. Implementation complete but awaiting closure is an explicit state; approved closure and verified archival establish the final disposition. The canonical lifecycle vocabulary and synchronization rules live in the user-wide Planning Conventions; generated workflows route to that contract.
+
 ## Validation Boundary
 
 Deterministic scripts validate repository structure, routing, links, metadata, installer behavior, and Project Layer contracts. Focused tests should falsify the changed behavior first; the repository health checker provides broad completion validation.

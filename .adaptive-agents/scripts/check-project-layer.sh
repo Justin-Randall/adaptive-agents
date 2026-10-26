@@ -113,6 +113,13 @@ while queue:
 
 for markdown in markdown_files:
     if markdown not in reachable:
+        relative = markdown.relative_to(root)
+        closed_source = (
+            relative.parent == Path("planning/backlog")
+            and (root / "planning/closed" / markdown.stem).is_dir()
+        )
+        if closed_source:
+            continue
         failures.append(f"orphan Markdown file: {markdown.relative_to(root).as_posix()}")
 
 active_text = (root / "planning/active/ACTIVE.md").read_text(encoding="utf-8") if (root / "planning/active/ACTIVE.md").exists() else ""
@@ -172,6 +179,10 @@ closed_pattern = re.compile(r"^((?:PL-[0-9]{8}|PL-[0-9]{8}T[0-9]{6}Z|PL-[0-9]{4}
 plan_locations = {}
 
 for plan in sorted((root / "planning/backlog").glob("PL-*.md")):
+    if plan not in reachable and (root / "planning/closed" / plan.stem).is_dir():
+        # Closed packets retain an immutable copy of the source backlog item.
+        # The original file may remain for history after its index row is removed.
+        continue
     m = backlog_pattern.match(plan.name)
     if not m:
         failures.append(f"invalid backlog plan filename: {plan.name}")

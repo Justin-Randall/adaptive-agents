@@ -14,9 +14,13 @@ Use the current Project Layer's planning router as the authoritative source for 
 3. Determine whether work comes from a backlog item or an approved direct request. Do not activate work silently.
 4. Assign one canonical work-unit ID using the Project Layer's naming convention. Prefer the standard `PL-YYYYMMDD-descriptive-slug` form when no more specific convention applies.
 5. When activating work, create or update `ACTIVE.md` and its linked supporting memory according to the Project Layer template. Keep the active plan and planning index linked and reachable.
-6. When activating a backlog item, use its Objective, Problem Spec, Scope, acceptance criteria, and test approach as source material. Do not overwrite the backlog item. Ask when required specification detail is missing.
+6. When activating a backlog item, use its Objective, Problem Spec, Scope, acceptance criteria, and test approach as source material. Preserve the backlog source specification; update only its lifecycle metadata as required by Child Status Tracking. Ask when required specification detail is missing.
 7. Never activate an epic directly. Load its architecture context and activate one eligible child. For a child, load the parent epic and check dependencies before proceeding.
 8. When reopening closed work, assign a new work-unit ID and link prior closed context without restoring or rewriting the old plan wholesale.
+
+## Epic child tracking
+
+Follow [Child Status Tracking](../../instructions/planning-conventions.md#child-status-tracking). Update the parent Children row and child `Status:` in the same change as activation, status changes, and approved closure. Keep Readiness separate. Before reporting implementation complete, record `Ready for closure` with validation evidence; use `Completed` only after approval and closed-packet verification. Completion review must reconcile the parent, child, active plan, and history. Preserve source specifications while updating lifecycle metadata.
 
 ## Backlog and deferred work
 

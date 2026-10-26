@@ -72,12 +72,23 @@ else
   fail "Canonical template baseline should pass"
 fi
 
-if grep -Fq -- '"templateVersion": "0.9.0"' "$baseline/project-layer.json" \
+if grep -Fq -- '"templateVersion": "0.9.2"' "$baseline/project-layer.json" \
   && grep -Fq -- "## User-Facing Validation" "$baseline/planning/active/ACTIVE.md" \
   && ! grep -Fq -- "## Browser Dogfood" "$baseline/planning/active/ACTIVE.md"; then
   pass
 else
-  fail "Bootstrap should use generic user-facing validation in template version 0.9.0"
+  fail "Bootstrap should use generic user-facing validation in template version 0.9.2"
+fi
+
+if grep -Fq -- "Status: Backlog" "$baseline/planning/backlog/backlog-item-template.md" \
+  && grep -Fq -- "## Children (epics only)" "$baseline/planning/backlog/backlog-item-template.md" \
+  && grep -Fq -- "Work item | Status | Depends on | Evidence / next action" "$baseline/planning/backlog/backlog-item-template.md" \
+  && grep -Fq -- "planning/backlog/backlog-item-template.md" "$REPO_ROOT/skills/upgrade-project-layer/SKILL.md" \
+  && cmp -s "$REPO_ROOT/.adaptive-agents/planning/backlog/backlog-item-template.md" \
+    "$REPO_ROOT/templates/project-layer/.adaptive-agents/planning/backlog/backlog-item-template.md"; then
+  pass
+else
+  fail "Version 0.9.2 should provide and document the epic child-status backlog template upgrade"
 fi
 
 missing_user_facing_validation="$(new_fixture missing-user-facing-validation)"
@@ -180,6 +191,26 @@ EOF
 printf '| PL-20260710 | [Duplicate work](PL-20260710-duplicate-work.md) | Test duplicate detection. | Ready |\n' >> "$duplicate_id/planning/backlog/INDEX.md"
 printf '| PL-20260710 | [Duplicate Work](PL-20260710-duplicate-work/PL-20260710.sdd.md) | Completed | Test duplicate. |\n' >> "$duplicate_id/planning/closed/INDEX.md"
 expect_failure "$duplicate_id" "plan ID appears in multiple lifecycle locations: PL-20260710-duplicate-work"
+
+closed_backlog_source="$(new_fixture closed-backlog-source)"
+mkdir -p "$closed_backlog_source/planning/closed/PL-20260710-closed-work"
+cat > "$closed_backlog_source/planning/closed/PL-20260710-closed-work/PL-20260710-closed-work.sdd.md" <<'EOF'
+# PL-20260710: Closed Work
+
+[Backlog source](PL-20260710-closed-work.backlog.md)
+EOF
+cat > "$closed_backlog_source/planning/closed/PL-20260710-closed-work/PL-20260710-closed-work.backlog.md" <<'EOF'
+# PL-20260710: Closed Work (backlog source)
+EOF
+cat > "$closed_backlog_source/planning/backlog/PL-20260710-closed-work.md" <<'EOF'
+# PL-20260710: Closed Work (original backlog source)
+EOF
+printf '| PL-20260710 | [Closed Work](PL-20260710-closed-work/PL-20260710-closed-work.sdd.md) | Completed | Test closed packet. |\n' >> "$closed_backlog_source/planning/closed/INDEX.md"
+if bash "$closed_backlog_source/scripts/check-project-layer.sh" >/dev/null; then
+  pass
+else
+  fail "Validator should allow an unindexed backlog source retained in its closed packet"
+fi
 
 unlinked_support="$(new_fixture unlinked-support)"
 printf '# Notes\n' > "$unlinked_support/planning/active/NOTES.md"
