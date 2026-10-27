@@ -149,6 +149,22 @@ def transform(raw: str, repo_root: Path) -> str:
     return updated
 
 
+def redirect(repo_root: Path) -> str:
+    target = (repo_root.resolve() / "AGENTS.md").as_posix()
+    return (
+        "<!-- adaptive-agents:codex-redirect -->\n"
+        "# Adaptive Agents\n\n"
+        f"Before responding, read and follow the canonical Adaptive Agents instructions at `{target}`.\n"
+        "Follow their discovery protocol to load relevant guidance.\n"
+    )
+
+
+def valid_entrypoint(path: Path, repo_root: Path) -> bool:
+    if path.is_symlink():
+        return path.resolve() == (repo_root / "AGENTS.md").resolve()
+    return path.is_file() and path.read_text(encoding="utf-8") == redirect(repo_root)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True, type=Path)
@@ -156,12 +172,25 @@ def main() -> int:
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--global-instructions", type=Path)
+    parser.add_argument("--install-instructions", action="store_true")
     args = parser.parse_args()
+    if args.global_instructions is not None:
+        entry = args.global_instructions
+        if (entry.exists() or entry.is_symlink()) and not valid_entrypoint(entry, args.repo_root):
+            fail("existing global instructions are not the canonical redirect or symlink; preserving them")
+    if args.install_instructions:
+        if args.global_instructions is None:
+            fail("--global-instructions is required with --install-instructions")
+        if not entry.exists() and not entry.is_symlink():
+            entry.parent.mkdir(parents=True, exist_ok=True)
+            with entry.open("x", encoding="utf-8", newline="\n") as stream:
+                stream.write(redirect(args.repo_root))
+        return 0
     if args.check:
         if args.global_instructions is None:
             fail("--global-instructions is required with --check")
         try:
-            if not args.global_instructions.is_symlink() or args.global_instructions.resolve() != (args.repo_root / "AGENTS.md").resolve():
+            if not valid_entrypoint(args.global_instructions, args.repo_root):
                 fail("Codex global AGENTS.md is missing or does not resolve to the canonical repository file")
             config = tomllib.loads(args.config.read_text(encoding="utf-8"))
         except (OSError, tomllib.TOMLDecodeError) as exc:

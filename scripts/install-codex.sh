@@ -47,13 +47,6 @@ if [[ -e "$OVERRIDE" || -L "$OVERRIDE" ]]; then
   echo "ERROR: $OVERRIDE takes precedence over AGENTS.md. Preserve it and resolve the Codex global-instructions conflict manually." >&2
   exit 1
 fi
-if [[ -e "$GLOBAL" || -L "$GLOBAL" ]]; then
-  if [[ ! -L "$GLOBAL" ]] || [[ "$(readlink -f "$GLOBAL" 2>/dev/null || true)" != "$(readlink -f "$REPO_ROOT/AGENTS.md")" ]]; then
-    echo "ERROR: $GLOBAL already exists and is not the canonical Adaptive Agents AGENTS.md symlink; preserving it." >&2
-    exit 1
-  fi
-fi
-
 PYTHON=""
 for candidate in python3 python py; do
   if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c 'import tomllib' >/dev/null 2>&1; then
@@ -66,30 +59,23 @@ if [[ -z "$PYTHON" ]]; then
   exit 1
 fi
 
-"$PYTHON" "$SCRIPT_DIR/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT"
+"$PYTHON" "$SCRIPT_DIR/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" --global-instructions "$GLOBAL"
 if [[ "$DRY_RUN" -eq 1 ]]; then
-  echo "[dry-run] Would link $GLOBAL to $REPO_ROOT/AGENTS.md"
+  echo "[dry-run] Would write a redirect at $GLOBAL to $REPO_ROOT/AGENTS.md"
   echo "[dry-run] Would grant workspace-write access to $REPO_ROOT"
   exit 0
 fi
 
 mkdir -p "$CODEX_DIR"
 if [[ ! -e "$GLOBAL" && ! -L "$GLOBAL" ]]; then
-  if command -v cygpath >/dev/null 2>&1; then
-    if ! "$PYTHON" -c 'import os, sys; os.symlink(sys.argv[1], sys.argv[2])' "$REPO_ROOT/AGENTS.md" "$GLOBAL"; then
-      echo "ERROR: Could not create Codex global AGENTS.md symlink at $GLOBAL" >&2
-      exit 1
-    fi
-  elif ! ln -s "$REPO_ROOT/AGENTS.md" "$GLOBAL"; then
-    echo "ERROR: Could not create Codex global AGENTS.md symlink at $GLOBAL" >&2
-    exit 1
-  fi
-  CREATED_LINK=1
+  "$PYTHON" "$SCRIPT_DIR/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" \
+    --global-instructions "$GLOBAL" --install-instructions
+  CREATED_ENTRYPOINT=1
 else
-  CREATED_LINK=0
+  CREATED_ENTRYPOINT=0
 fi
 if ! "$PYTHON" "$SCRIPT_DIR/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" --apply; then
-  if [[ "$CREATED_LINK" -eq 1 ]]; then rm -f -- "$GLOBAL"; fi
+  if [[ "$CREATED_ENTRYPOINT" -eq 1 ]]; then rm -f -- "$GLOBAL"; fi
   exit 1
 fi
 echo "Codex integration installed for this shared local Codex home: $CODEX_DIR"

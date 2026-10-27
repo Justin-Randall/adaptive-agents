@@ -15,5 +15,5 @@ Use this area for executable repository maintenance. Put procedural explanations
 ## Tool Installers
 
 - `install.sh` detects supported local tools; pass `--tool codex` to target ChatGPT Codex.
-- `install-codex.sh` links the global Codex instructions to canonical `AGENTS.md` and adds the repository-scoped workspace-write grant.
+- `install-codex.sh` writes a minimal global Codex redirect to canonical `AGENTS.md` and adds the repository-scoped workspace-write grant.
 - `test-install-codex.sh` exercises the installer with isolated temporary Codex homes.

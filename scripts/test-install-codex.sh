@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_ROOT="$(cygpath -u "$(git rev-parse --show-toplevel)")"
-TMP_ROOT="$(mktemp -d)"
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+if command -v cygpath >/dev/null 2>&1; then REPO_ROOT="$(cygpath -u "$REPO_ROOT")"; fi
+TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/codex-install.XXXXXX")"
 trap 'rm -rf "$TMP_ROOT"' EXIT
 
 FAKE_REPO="$TMP_ROOT/repo with spaces"
@@ -27,15 +28,18 @@ run_installer() {
     bash "$INSTALLER" "${@:2}"
 }
 
-echo "=== Test 1: Fresh install creates the global symlink and narrow permission grant ==="
+repo_root_expected="$(python -c 'import pathlib,sys; print(pathlib.Path(sys.argv[1]).resolve().as_posix())' "$FAKE_REPO")"
+echo "=== Test 1: Fresh install creates the global redirect and narrow permission grant ==="
 mkdir -p "$FAKE_HOME/fresh"
 printf 'approval_policy = "on-request"\n' > "$FAKE_HOME/fresh/config.toml"
 if run_installer "$FAKE_HOME/fresh" > "$TMP_ROOT/fresh.out" 2>&1; then
-  if [[ -L "$FAKE_HOME/fresh/AGENTS.md" ]] &&
-     [[ "$(readlink -f "$FAKE_HOME/fresh/AGENTS.md")" == "$(readlink -f "$FAKE_REPO/AGENTS.md")" ]]; then
-    pass "fresh install links the canonical AGENTS.md"
+  if [[ -f "$FAKE_HOME/fresh/AGENTS.md" && ! -L "$FAKE_HOME/fresh/AGENTS.md" ]] &&
+     grep -Fq 'Before responding, read and follow' "$FAKE_HOME/fresh/AGENTS.md" &&
+     grep -Fq "$repo_root_expected/AGENTS.md" "$FAKE_HOME/fresh/AGENTS.md" &&
+     ! grep -q 'ADAPTIVE_AGENTS_GLOBAL_LOADED' "$FAKE_HOME/fresh/AGENTS.md"; then
+    pass "fresh install writes a minimal redirect to canonical guidance"
   else
-    fail "fresh install did not create a symlink to the canonical AGENTS.md"
+    fail "fresh install did not write the canonical redirect"
   fi
   if python - "$FAKE_HOME/fresh/config.toml" "$FAKE_REPO" <<'PY'
 import sys
@@ -76,12 +80,13 @@ fi
 
 echo "=== Test 3: Rerun is byte-stable ==="
 cp "$FAKE_HOME/fresh/config.toml" "$TMP_ROOT/config.before"
+cp "$FAKE_HOME/fresh/AGENTS.md" "$TMP_ROOT/agents.before"
 run_installer "$FAKE_HOME/fresh" > "$TMP_ROOT/rerun.out" 2>&1
 if cmp -s "$TMP_ROOT/config.before" "$FAKE_HOME/fresh/config.toml" &&
-   [[ "$(readlink -f "$FAKE_HOME/fresh/AGENTS.md")" == "$(readlink -f "$FAKE_REPO/AGENTS.md")" ]]; then
-  pass "rerun leaves config byte-stable and retains the canonical symlink"
+   cmp -s "$TMP_ROOT/agents.before" "$FAKE_HOME/fresh/AGENTS.md"; then
+  pass "rerun leaves config byte-stable and retains the canonical redirect"
 else
-  fail "rerun changed Codex config or the canonical symlink"
+  fail "rerun changed Codex config or the canonical redirect"
 fi
 
 echo "=== Test 3b: Duplicate existing grants are not expanded ==="
@@ -194,29 +199,58 @@ fi
 
 echo "=== Test 9: Health check rejects missing grants and non-canonical entrypoints ==="
 mkdir -p "$FAKE_HOME/health-missing-grant" "$FAKE_HOME/health-wrong-entry"
-python - "$FAKE_REPO/AGENTS.md" "$FAKE_HOME/health-missing-grant/AGENTS.md" <<'PY'
-import os
-import sys
-os.symlink(sys.argv[1], sys.argv[2])
-PY
+cp "$FAKE_HOME/fresh/AGENTS.md" "$FAKE_HOME/health-missing-grant/AGENTS.md"
 printf '[sandbox_workspace_write]\nwritable_roots = []\n' > "$FAKE_HOME/health-missing-grant/config.toml"
 if python "$CONFIG_HELPER" --config "$FAKE_HOME/health-missing-grant/config.toml" --repo-root "$FAKE_REPO" --check --global-instructions "$FAKE_HOME/health-missing-grant/AGENTS.md" >/dev/null 2>&1; then
   fail "health check accepted a missing repository permission grant"
 else
   pass "health check rejects a missing repository permission grant"
 fi
-python - "$FAKE_HOME/user-other-AGENTS.md" "$FAKE_HOME/health-wrong-entry/AGENTS.md" <<'PY'
-import os
-import sys
-from pathlib import Path
-Path(sys.argv[1]).write_text("user guidance\n", encoding="utf-8")
-os.symlink(sys.argv[1], sys.argv[2])
-PY
+printf 'user guidance\n' > "$FAKE_HOME/health-wrong-entry/AGENTS.md"
 printf '[sandbox_workspace_write]\nwritable_roots = [%s]\n' "$(python -c 'import pathlib,sys; print(pathlib.Path(sys.argv[1]).resolve().as_posix())' "$FAKE_REPO")" > "$FAKE_HOME/health-wrong-entry/config.toml"
 if python "$CONFIG_HELPER" --config "$FAKE_HOME/health-wrong-entry/config.toml" --repo-root "$FAKE_REPO" --check --global-instructions "$FAKE_HOME/health-wrong-entry/AGENTS.md" >/dev/null 2>&1; then
   fail "health check accepted a non-canonical global entrypoint"
 else
   pass "health check rejects a non-canonical global entrypoint"
+fi
+
+echo "=== Test 9b: Edited managed redirects are preserved ==="
+mkdir -p "$FAKE_HOME/edited-redirect"
+cp "$FAKE_HOME/fresh/AGENTS.md" "$FAKE_HOME/edited-redirect/AGENTS.md"
+printf 'User addition\n' >> "$FAKE_HOME/edited-redirect/AGENTS.md"
+cp "$FAKE_HOME/edited-redirect/AGENTS.md" "$TMP_ROOT/edited.before"
+if run_installer "$FAKE_HOME/edited-redirect" > "$TMP_ROOT/edited.out" 2>&1; then
+  fail "installer accepted an edited managed redirect"
+elif cmp -s "$TMP_ROOT/edited.before" "$FAKE_HOME/edited-redirect/AGENTS.md" &&
+     [[ ! -e "$FAKE_HOME/edited-redirect/config.toml" ]]; then
+  pass "edited managed redirect is preserved without config mutation"
+else
+  fail "edited redirect conflict caused partial changes"
+fi
+
+echo "=== Test 9c: Legacy symlink validation needs no creation privileges ==="
+if python - "$CONFIG_HELPER" "$FAKE_REPO" <<'PYTEST'
+import importlib.util
+import sys
+from pathlib import Path
+from unittest.mock import Mock
+
+spec = importlib.util.spec_from_file_location("codex_config", sys.argv[1])
+helper = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helper)
+repo = Path(sys.argv[2])
+entry = Mock(spec=Path)
+entry.is_symlink.return_value = True
+entry.resolve.return_value = (repo / "AGENTS.md").resolve()
+assert helper.valid_entrypoint(entry, repo)
+entry.resolve.return_value = (repo / "other.md").resolve()
+assert not helper.valid_entrypoint(entry, repo)
+entry.read_text.assert_not_called()
+PYTEST
+then
+  pass "legacy canonical symlinks are accepted and unrelated symlinks rejected"
+else
+  fail "legacy symlink validation failed"
 fi
 
 echo "=== Test 10: Platform default Codex home is resolved without CODEX_HOME ==="
