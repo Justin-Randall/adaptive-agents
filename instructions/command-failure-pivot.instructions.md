@@ -25,12 +25,15 @@ When pivoting, choose one of these instead of another equivalent retry:
 
 ## Windows Shell Selection
 
-When running Bash-oriented scripts on Windows, prefer a full Git Bash implementation over wrapper shells.
+When running Bash-oriented scripts on Windows, use a verified full Git Bash implementation, never an unidentified `bash` wrapper.
 
-- If `git` is available, probe for Git Bash first and use it by default for `.sh` workflows.
+- Resolve `git.exe` first. If `bash` resolves to `C:\Windows\System32\bash.exe`, classify it as the WSL launcher and do not use it for `.sh` workflows.
+- When Git is installed, derive the Git Bash executable from the Git installation (normally the sibling `bin\bash.exe`) and select that full path as the command shell when the runner supports explicit shell selection.
+- If the runner cannot select a verified Bash implementation, pivot to a native diagnostic or a directly runnable equivalent instead of retrying the script through bare `bash`.
 - Keep PowerShell as the default for Windows-native command and tooling workflows.
 - Treat `invalid option` failures from strict shell flags (for example `set -euo pipefail`) as shell-environment failures; pivot shells before retrying equivalent command variants.
-- If Git Bash is unavailable, report the fallback shell and continue with the most compatible option.
+- Treat `Access is denied`, `Bash/E_ACCESSDENIED`, and launcher failures before script output as shell-launch failures; do not retry equivalent command lines through the same launcher.
+- If Git Bash is unavailable, report the fallback shell and continue with the most compatible option, marking Bash-only validation as pending when it cannot be faithfully reproduced.
 
 ## Tool Examples
 
