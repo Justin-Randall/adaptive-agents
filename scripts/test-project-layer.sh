@@ -263,22 +263,16 @@ python -c "import json,sys; p=sys.argv[1]; d=json.load(open(p,encoding='utf-8'))
   "$legacy_no_progress/project-layer.json"
 sed -i '/^## Progress$/,/^## Objective$/ { /^## Progress$/d; /^## Objective$/!d }' \
   "$legacy_no_progress/planning/active/ACTIVE.md"
-if bash "$legacy_no_progress/scripts/check-project-layer.sh" >/dev/null; then
-  pass
-else
-  fail "A 0.6.0 layer without a ## Progress section should still validate"
-fi
+expect_failure "$legacy_no_progress" \
+  "planning/active/ACTIVE.md must include a '## Progress' section with checklist items"
 
 unversioned_no_progress="$(new_fixture unversioned-no-progress)"
 python -c "import json,sys; p=sys.argv[1]; d=json.load(open(p,encoding='utf-8')); d.pop('templateVersion',None); json.dump(d,open(p,'w',encoding='utf-8'),indent='\t'); open(p,'a').write('\n')" \
   "$unversioned_no_progress/project-layer.json"
 sed -i '/^## Progress$/,/^## Objective$/ { /^## Progress$/d; /^## Objective$/!d }' \
   "$unversioned_no_progress/planning/active/ACTIVE.md"
-if bash "$unversioned_no_progress/scripts/check-project-layer.sh" >/dev/null; then
-  pass
-else
-  fail "An unversioned layer without a ## Progress section should still validate"
-fi
+expect_failure "$unversioned_no_progress" \
+  "planning/active/ACTIVE.md must include a '## Progress' section with checklist items"
 
 missing_test_plan="$(new_fixture missing-test-plan)"
 sed -i '/^## Test Plan$/,/^## Scope$/ { /^## Test Plan$/d; /^## Scope$/!d }' "$missing_test_plan/planning/active/ACTIVE.md"
