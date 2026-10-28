@@ -9,8 +9,8 @@ Completed — foundation implementation and its approved closure review are comp
 ## Current Context
 
 - Branch: `pl-20261027-total-recall`.
-- Parent epic: [Total Recall for Session Details](../backlog/PL-20261027-total-recall.md).
-- Source child: [Codex Total Recall Foundation](../backlog/PL-20261027-total-recall/PL-20261027-total-recall-codex-foundation.md).
+- Parent epic: [Total Recall for Session Details](../../backlog/PL-20261027-total-recall.md).
+- Source child: [Codex Total Recall Foundation](../../backlog/PL-20261027-total-recall/PL-20261027-total-recall-codex-foundation.md).
 - The sibling installer child remains in `Backlog` and depends on this foundation.
 - Canonical runtime session artifacts are planned under `~/.adaptive-agents/sessions/codex/<adaptive-session-uuid>/`.
 

@@ -4,11 +4,11 @@ Plan: PL-20261027-total-recall-codex-installer-hardening
 
 Parent: [Total Recall for Session Details](../PL-20261027-total-recall.md)
 
-Status: Backlog
+Status: Active
 
 Depends on: [Codex Total Recall Installer and Upgrade](PL-20261027-total-recall-codex-installer.md)
 
-Readiness: Needs Review: define supported platform profiles, configuration-layer observability, and failure-injection boundaries before activation.
+Readiness: Ready: user approved activation; platform profiles, inline-hook conflict behavior, and failure-injection coverage are specified in the active plan.
 
 Test approach: Exercise native Windows, macOS, Linux, and WSL profiles where available; inject failures at each installer mutation boundary and verify rollback or explicit recovery, session-record preservation, end-to-end upgrade behavior, and accurate diagnostics for supported and unsupported configuration states.
 

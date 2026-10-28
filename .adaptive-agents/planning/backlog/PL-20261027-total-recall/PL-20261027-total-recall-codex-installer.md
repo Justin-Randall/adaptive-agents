@@ -47,5 +47,5 @@ Deferred:
 
 - Parent epic: [Total Recall for Session Details](../PL-20261027-total-recall.md)
 - Depends on: [Codex Total Recall Foundation](PL-20261027-total-recall-codex-foundation.md)
-- Existing installer: [`scripts/install-codex.sh`](../../../../scripts/install-codex.sh)
-- Existing installer tests: [`scripts/test-install-codex.sh`](../../../../scripts/test-install-codex.sh)
+- Existing installer: `scripts/install-codex.sh` (repository root)
+- Existing installer tests: `scripts/test-install-codex.sh` (repository root)

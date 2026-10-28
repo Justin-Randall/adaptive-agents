@@ -2,7 +2,7 @@
 
 Plan: PL-20261027-total-recall-codex-foundation
 
-Parent: [Total Recall for Session Details](../PL-20261027-total-recall.md)
+Parent: [Total Recall for Session Details](../../backlog/PL-20261027-total-recall.md)
 
 Status: Ready for closure
 
@@ -85,6 +85,6 @@ These investigations are part of the activated foundation plan. Each task must p
 
 ## Related Work
 
-- Parent epic: [Total Recall for Session Details](../PL-20261027-total-recall.md)
+- Parent epic: [Total Recall for Session Details](../../backlog/PL-20261027-total-recall.md)
 - Predecessor integration: [Completed ChatGPT Codex integration](../../closed/PL-20260711-chatgpt-codex-support/PL-20260711-chatgpt-codex-support.sdd.md)
 - Depends on no sibling child.
