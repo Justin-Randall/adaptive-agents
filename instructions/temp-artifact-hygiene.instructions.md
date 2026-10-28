@@ -12,11 +12,14 @@ Route intentional intermediate outputs to the active workspace's approved scratc
 - Prefer paths inside the workspace-approved scratch location (for example `Scratch/` when that is the local convention).
 - When no scratch location is documented, use `./.tmp` at the project root and ensure it is gitignored (add `/.tmp` to `.gitignore`); remove the files when done.
 - Use filenames that cannot be confused with reserved device names on the current OS.
+- Before creating temporary folders or files under a project root, inspect existing `.gitignore` rules. If no suitable rule covers the planned path, propose a narrowly scoped ignore rule before creating the artifacts. Until approved or otherwise covered, use an approved external scratch location.
+- Treat harness-generated session graphs, ledgers, event records, locks, and dogfood output as runtime artifacts, not project source. Store them outside the repository by default. If a project-local fallback is unavoidable, establish a narrowly scoped ignore rule before generation.
 
 ## Cleanup Rules
 
 - Delete temporary artifacts created for diagnostics, parsing, coverage inspection, or one-off transformation as soon as they have served their purpose.
 - Before wrapping up a task, ensure ad hoc artifacts are not left in source directories.
+- Verify generated session artifacts are absent from both the worktree and Git tracking before commit or push (`git status` and `git ls-files -- <path>`).
 - If a temporary artifact must remain briefly for a follow-up step, keep it in the approved scratch area and remove it when the follow-up is complete.
 
 ## Validation

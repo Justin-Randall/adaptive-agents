@@ -13,7 +13,9 @@ Keep source trees clean by routing intermediate outputs to the approved scratch 
 3. Perform the diagnostic or transformation work using only those scratch paths.
 4. Consume the output (inspect, parse, summarize, or extract what is needed).
 5. Delete the temporary artifacts immediately after they stop being useful.
-6. Run one final hygiene check to confirm no unintended artifacts remain outside the approved scratch location.
+6. Before creating temporary folders or files under a project root, inspect existing `.gitignore` coverage. If no suitable rule exists, propose a narrowly scoped rule before creating them; use an approved external scratch location until the path is covered.
+7. For harness-generated session state, prefer the harness or user-wide session directory. If a project-local fallback is used, verify that its narrow path is ignored before generation.
+8. Run one final hygiene check to confirm no unintended artifacts remain outside the approved scratch location and that generated paths are not tracked by Git.
 
 ## Practical Notes
 
