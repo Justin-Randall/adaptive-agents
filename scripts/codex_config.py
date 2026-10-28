@@ -18,7 +18,12 @@ def fail(message: str) -> None:
     raise SystemExit(1)
 
 
-def transform(raw: str, repo_root: Path) -> str:
+def transform(
+    raw: str,
+    repo_root: Path,
+    *,
+    extra_roots: tuple[Path, ...] = (),
+) -> str:
     try:
         config = tomllib.loads(raw)
     except tomllib.TOMLDecodeError as exc:
@@ -30,22 +35,33 @@ def transform(raw: str, repo_root: Path) -> str:
     if sandbox_mode is not None and sandbox_mode != "workspace-write":
         fail(f"sandbox_mode is {sandbox_mode!r}; installer preserves it and requires workspace-write")
 
-    root = repo_root.resolve().as_posix()
+    managed_roots = [repo_root.resolve().as_posix()]
+    managed_roots.extend(path.resolve().as_posix() for path in extra_roots)
     section = config.get("sandbox_workspace_write")
     if section is not None and not isinstance(section, dict):
         fail("sandbox_workspace_write must be a TOML table")
     roots = (section or {}).get("writable_roots", [])
     if not isinstance(roots, list) or any(not isinstance(item, str) for item in roots):
         fail("sandbox_workspace_write.writable_roots must be an array of strings")
-    normalized_root = os.path.normcase(root)
-    if any(os.path.normcase(item.replace("\\", "/")) == normalized_root for item in roots):
+    existing_roots = {
+        os.path.normcase(item.replace("\\", "/"))
+        for item in roots
+    }
+    missing_roots = [
+        root for root in managed_roots
+        if os.path.normcase(root) not in existing_roots
+    ]
+    if not missing_roots:
         return raw
 
     newline = "\r\n" if "\r\n" in raw else "\n"
-    quoted = json.dumps(root)
+    quoted_roots = ", ".join(json.dumps(root) for root in missing_roots)
     if section is None:
         suffix = "" if not raw or raw.endswith(("\n", "\r")) else newline
-        return raw + suffix + f"[sandbox_workspace_write]{newline}writable_roots = [{quoted}]{newline}"
+        return raw + suffix + (
+            f"[sandbox_workspace_write]{newline}"
+            f"writable_roots = [{quoted_roots}]{newline}"
+        )
 
     lines = raw.splitlines(keepends=True)
     in_section = False
@@ -69,7 +85,7 @@ def transform(raw: str, repo_root: Path) -> str:
                 break
         if start is None:
             fail("could not locate the sandbox_workspace_write table for a safe merge")
-        lines.insert(start, f"writable_roots = [{quoted}]{newline}")
+        lines.insert(start, f"writable_roots = [{quoted_roots}]{newline}")
         return "".join(lines)
 
     # Find the closing bracket of this array while ignoring quoted text/comments.
@@ -138,7 +154,7 @@ def transform(raw: str, repo_root: Path) -> str:
         elif not char.isspace():
             meaningful.append(char)
     separator = "" if not roots or meaningful[-1:] == [","] else ", "
-    insertion = separator + quoted
+    insertion = separator + quoted_roots
     absolute = sum(len(part) for part in lines[:start]) + closing
     full = "".join(lines)
     updated = full[:absolute] + insertion + full[absolute:]
@@ -173,7 +189,9 @@ def main() -> int:
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--global-instructions", type=Path)
     parser.add_argument("--install-instructions", action="store_true")
+    parser.add_argument("--session-root", type=Path)
     args = parser.parse_args()
+    managed_roots = (args.session_root,) if args.session_root is not None else ()
     if args.global_instructions is not None:
         entry = args.global_instructions
         if (entry.exists() or entry.is_symlink()) and not valid_entrypoint(entry, args.repo_root):
@@ -205,14 +223,25 @@ def main() -> int:
         roots = sandbox.get("writable_roots", [])
         if not isinstance(roots, list) or any(not isinstance(item, str) for item in roots):
             fail("sandbox_workspace_write.writable_roots is not an array of strings")
-        expected = args.repo_root.resolve().as_posix()
-        normalized_expected = os.path.normcase(expected)
-        if not any(os.path.normcase(item.replace("\\", "/")) == normalized_expected for item in roots):
-            fail("sandbox_workspace_write.writable_roots is missing the Adaptive Agents repository")
-        print("Codex entrypoint and repository-scoped workspace-write grant are valid.")
+        expected_roots = (args.repo_root, *managed_roots)
+        missing = [
+            path.resolve().as_posix()
+            for path in expected_roots
+            if not any(
+                os.path.normcase(item.replace("\\", "/"))
+                == os.path.normcase(path.resolve().as_posix())
+                for item in roots
+            )
+        ]
+        if missing:
+            fail(
+                "sandbox_workspace_write.writable_roots is missing required paths: "
+                + ", ".join(missing)
+            )
+        print("Codex entrypoint and required workspace-write grants are valid.")
         return 0
     raw = args.config.read_text(encoding="utf-8") if args.config.exists() else ""
-    updated = transform(raw, args.repo_root)
+    updated = transform(raw, args.repo_root, extra_roots=managed_roots)
     if updated == raw:
         print("Codex permission grant is already present.")
         return 0

@@ -41,7 +41,7 @@ Do not use inbox notes for:
 
 ## Captured Notes
 
-- None currently; all captured inbox notes have been triaged.
+- [Generated session artifacts were tracked by source control](2026-10-28-generated-session-artifacts-tracked.md)
 
 ## Workflow
 

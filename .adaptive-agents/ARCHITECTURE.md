@@ -38,6 +38,8 @@ Parent epics maintain a synchronized execution-status view of their children, se
 
 Deterministic scripts validate repository structure, routing, links, metadata, installer behavior, and Project Layer contracts. Focused tests should falsify the changed behavior first; the repository health checker provides broad completion validation.
 
+Total Recall integrations keep complete captured session events in an authoritative append-only ledger when the harness provides one, with Markdown indexes and context packets acting as derived semantic navigation and retrieval views. Maintained seed templates own the model-facing graph contract; adapters must preserve model-authored regions and validators must prove source identity, reachability, and non-orphaning without attempting to certify semantic quality.
+
 Generated files and temporary diagnostics are disposable outputs. Canonical guidance, templates, schemas, and validators are reviewed source artifacts.
 
 ## Architectural Invariants

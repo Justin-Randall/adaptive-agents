@@ -3,6 +3,14 @@ set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 if command -v cygpath >/dev/null 2>&1; then REPO_ROOT="$(cygpath -u "$REPO_ROOT")"; fi
+if command -v python >/dev/null 2>&1; then
+  PYTHON_BIN="python"
+elif command -v python3 >/dev/null 2>&1; then
+  PYTHON_BIN="python3"
+else
+  echo "ERROR: Python 3 is required for the Codex installer tests." >&2
+  exit 1
+fi
 TMP_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/codex-install.XXXXXX")"
 trap 'rm -rf "$TMP_ROOT"' EXIT
 
@@ -11,6 +19,10 @@ FAKE_HOME="$TMP_ROOT/codex home"
 FAKE_BIN="$TMP_ROOT/bin"
 INSTALLER="$FAKE_REPO/scripts/install-codex.sh"
 CONFIG_HELPER="$FAKE_REPO/scripts/codex_config.py"
+HOOKS_HELPER="$FAKE_REPO/scripts/codex_hooks_config.py"
+TOTAL_RECALL="$FAKE_REPO/scripts/codex_total_recall.py"
+TOTAL_RECALL_INSTALLER="$FAKE_REPO/scripts/codex_total_recall_installer.py"
+TOTAL_RECALL_LAUNCHER="$FAKE_REPO/scripts/codex_total_recall_launcher.py"
 PASSES=0
 FAILURES=0
 
@@ -20,6 +32,10 @@ fail() { FAILURES=$((FAILURES + 1)); echo "FAIL: $1"; }
 mkdir -p "$FAKE_REPO/scripts" "$FAKE_HOME" "$FAKE_BIN"
 cp "$REPO_ROOT/scripts/install-codex.sh" "$INSTALLER"
 cp "$REPO_ROOT/scripts/codex_config.py" "$CONFIG_HELPER"
+cp "$REPO_ROOT/scripts/codex_hooks_config.py" "$HOOKS_HELPER"
+cp "$REPO_ROOT/scripts/codex_total_recall.py" "$TOTAL_RECALL"
+cp "$REPO_ROOT/scripts/codex_total_recall_installer.py" "$TOTAL_RECALL_INSTALLER"
+cp "$REPO_ROOT/scripts/codex_total_recall_launcher.py" "$TOTAL_RECALL_LAUNCHER"
 printf '# Adaptive Agents test fixture\n' > "$FAKE_REPO/AGENTS.md"
 printf '# Test index\n' > "$FAKE_REPO/INDEX.md"
 
@@ -28,7 +44,20 @@ run_installer() {
     bash "$INSTALLER" "${@:2}"
 }
 
-repo_root_expected="$(python -c 'import pathlib,sys; print(pathlib.Path(sys.argv[1]).resolve().as_posix())' "$FAKE_REPO")"
+repo_root_expected="$("$PYTHON_BIN" -c 'import pathlib,sys; print(pathlib.Path(sys.argv[1]).resolve().as_posix())' "$FAKE_REPO")"
+runtime_home_native="$(HOME="$TMP_ROOT/home" USERPROFILE="$TMP_ROOT/windows-home" "$PYTHON_BIN" -c 'from pathlib import Path; print(Path.home())')"
+if command -v cygpath >/dev/null 2>&1; then
+  runtime_home="$(cygpath -u "$runtime_home_native")"
+else
+  runtime_home="$runtime_home_native"
+fi
+runtime_root="$runtime_home/.adaptive-agents/codex/total-recall"
+session_root="$runtime_home/.adaptive-agents/sessions/codex"
+if command -v cygpath >/dev/null 2>&1; then
+  runtime_root_config="$(cygpath -m "$runtime_root")"
+else
+  runtime_root_config="$runtime_root"
+fi
 echo "=== Test 1: Fresh install creates the global redirect and narrow permission grant ==="
 mkdir -p "$FAKE_HOME/fresh"
 printf 'approval_policy = "on-request"\n' > "$FAKE_HOME/fresh/config.toml"
@@ -41,7 +70,7 @@ if run_installer "$FAKE_HOME/fresh" > "$TMP_ROOT/fresh.out" 2>&1; then
   else
     fail "fresh install did not write the canonical redirect"
   fi
-  if python - "$FAKE_HOME/fresh/config.toml" "$FAKE_REPO" <<'PY'
+  if "$PYTHON_BIN" - "$FAKE_HOME/fresh/config.toml" "$FAKE_REPO" "$session_root" <<'PY'
 import sys
 import tomllib
 from pathlib import Path
@@ -50,28 +79,57 @@ config = tomllib.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 repo = Path(sys.argv[2]).resolve().as_posix()
 assert config["approval_policy"] == "on-request"
 roots = config["sandbox_workspace_write"]["writable_roots"]
-assert roots == [repo], roots
+session_root = Path(sys.argv[3]).resolve().as_posix()
+assert roots == [repo, session_root], roots
 PY
   then
     pass "fresh install grants only the repository and preserves approval policy"
   else
     fail "fresh install config is invalid or changed unrelated policy"
   fi
+  if [[ -f "$runtime_root/launcher.py" && -f "$runtime_root/active.json" ]] &&
+     "$PYTHON_BIN" - "$FAKE_HOME/fresh/hooks.json" "$runtime_root_config/launcher.py" "$runtime_root_config" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+hooks = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+command = hooks["hooks"]["SessionStart"][0]["hooks"][0]["command"]
+normalize = lambda value: value.replace("\\", "/").casefold()
+assert normalize(sys.argv[2]) in normalize(command), command
+active = json.loads((Path(sys.argv[3]) / "active.json").read_text(encoding="utf-8"))
+adapter = Path(sys.argv[3]) / active["version_directory"] / "codex_total_recall.py"
+assert adapter.is_file(), adapter
+PY
+  then
+    pass "fresh install provisions a user-scoped runtime and registers its stable launcher"
+  else
+    fail "fresh install did not provision the managed runtime and launcher"
+  fi
 else
   fail "fresh install failed: $(cat "$TMP_ROOT/fresh.out")"
 fi
 
-if python "$CONFIG_HELPER" --config "$FAKE_HOME/fresh/config.toml" --repo-root "$FAKE_REPO" --check --global-instructions "$FAKE_HOME/fresh/AGENTS.md" >/dev/null 2>&1; then
+if "$PYTHON_BIN" "$CONFIG_HELPER" --config "$FAKE_HOME/fresh/config.toml" --repo-root "$FAKE_REPO" --session-root "$session_root" --check --global-instructions "$FAKE_HOME/fresh/AGENTS.md" >/dev/null 2>&1; then
   pass "health-check contract accepts the canonical entrypoint and repository grant"
 else
   fail "health-check contract rejected a valid Codex install"
 fi
+if run_installer "$FAKE_HOME/fresh" --check > "$TMP_ROOT/health-check.out" 2>&1; then
+  pass "installer health check accepts the complete managed integration"
+else
+  fail "installer health check rejected a valid integration: $(cat "$TMP_ROOT/health-check.out")"
+fi
 
 echo "=== Test 2: Dry-run previews without writing ==="
 mkdir -p "$FAKE_HOME/dry-run"
+cp "$runtime_root/active.json" "$TMP_ROOT/dry-run-active.before"
+cp "$runtime_root/launcher.py" "$TMP_ROOT/dry-run-launcher.before"
 if run_installer "$FAKE_HOME/dry-run" --dry-run > "$TMP_ROOT/dry-run.out" 2>&1 &&
    [[ ! -e "$FAKE_HOME/dry-run/AGENTS.md" ]] &&
    [[ ! -e "$FAKE_HOME/dry-run/config.toml" ]] &&
+   cmp -s "$TMP_ROOT/dry-run-active.before" "$runtime_root/active.json" &&
+   cmp -s "$TMP_ROOT/dry-run-launcher.before" "$runtime_root/launcher.py" &&
    grep -q "dry-run" "$TMP_ROOT/dry-run.out"; then
   pass "dry-run previews actions and leaves the Codex home unchanged"
 else
@@ -81,22 +139,34 @@ fi
 echo "=== Test 3: Rerun is byte-stable ==="
 cp "$FAKE_HOME/fresh/config.toml" "$TMP_ROOT/config.before"
 cp "$FAKE_HOME/fresh/AGENTS.md" "$TMP_ROOT/agents.before"
+cp "$FAKE_HOME/fresh/hooks.json" "$TMP_ROOT/hooks.before"
+cp "$runtime_root/active.json" "$TMP_ROOT/active.before"
 run_installer "$FAKE_HOME/fresh" > "$TMP_ROOT/rerun.out" 2>&1
 if cmp -s "$TMP_ROOT/config.before" "$FAKE_HOME/fresh/config.toml" &&
-   cmp -s "$TMP_ROOT/agents.before" "$FAKE_HOME/fresh/AGENTS.md"; then
-  pass "rerun leaves config byte-stable and retains the canonical redirect"
+   cmp -s "$TMP_ROOT/agents.before" "$FAKE_HOME/fresh/AGENTS.md" &&
+   cmp -s "$TMP_ROOT/hooks.before" "$FAKE_HOME/fresh/hooks.json" &&
+   cmp -s "$TMP_ROOT/active.before" "$runtime_root/active.json"; then
+  pass "rerun leaves Codex config, hooks, and active runtime byte-stable"
 else
   fail "rerun changed Codex config or the canonical redirect"
 fi
 
 echo "=== Test 3b: Duplicate existing grants are not expanded ==="
 mkdir -p "$FAKE_HOME/duplicate-grant"
-repo_root_toml="$(python -c 'import pathlib,sys; print(pathlib.Path(sys.argv[1]).resolve().as_posix())' "$FAKE_REPO")"
+repo_root_toml="$("$PYTHON_BIN" -c 'import pathlib,sys; print(pathlib.Path(sys.argv[1]).resolve().as_posix())' "$FAKE_REPO")"
 printf '[sandbox_workspace_write]\nwritable_roots = ["%s", "%s"]\n' "$repo_root_toml" "$repo_root_toml" > "$FAKE_HOME/duplicate-grant/config.toml"
-cp "$FAKE_HOME/duplicate-grant/config.toml" "$TMP_ROOT/duplicate.before"
 if run_installer "$FAKE_HOME/duplicate-grant" > "$TMP_ROOT/duplicate.out" 2>&1 &&
-   cmp -s "$TMP_ROOT/duplicate.before" "$FAKE_HOME/duplicate-grant/config.toml"; then
-  pass "pre-existing duplicate grants are left byte-stable without adding another entry"
+   "$PYTHON_BIN" - "$FAKE_HOME/duplicate-grant/config.toml" "$repo_root_toml" "$session_root" <<'PY'
+import sys
+import tomllib
+from pathlib import Path
+
+roots = tomllib.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))["sandbox_workspace_write"]["writable_roots"]
+assert roots.count(sys.argv[2]) == 2, roots
+assert roots.count(Path(sys.argv[3]).resolve().as_posix()) == 1, roots
+PY
+then
+  pass "duplicate repository grants are not expanded and the session grant is added once"
 else
   fail "installer expanded or rewrote pre-existing duplicate grants"
 fi
@@ -115,7 +185,7 @@ writable_roots = [
 network_access = false
 EOF
 if run_installer "$FAKE_HOME/existing-grant" > "$TMP_ROOT/existing-grant.out" 2>&1 &&
-   python - "$FAKE_HOME/existing-grant/config.toml" "$FAKE_REPO" <<'PY'
+   "$PYTHON_BIN" - "$FAKE_HOME/existing-grant/config.toml" "$FAKE_REPO" "$session_root" <<'PY'
 import sys
 import tomllib
 from pathlib import Path
@@ -124,7 +194,8 @@ raw = Path(sys.argv[1]).read_text(encoding="utf-8")
 config = tomllib.loads(raw)
 roots = config["sandbox_workspace_write"]["writable_roots"]
 repo = Path(sys.argv[2]).resolve().as_posix()
-assert roots == ["C:/existing/path", repo], roots
+session_root = Path(sys.argv[3]).resolve().as_posix()
+assert roots == ["C:/existing/path", repo, session_root], roots
 assert config["model"] == "test-model"
 assert config["approval_policy"] == "on-request"
 assert config["sandbox_workspace_write"]["network_access"] is False
@@ -201,14 +272,14 @@ echo "=== Test 9: Health check rejects missing grants and non-canonical entrypoi
 mkdir -p "$FAKE_HOME/health-missing-grant" "$FAKE_HOME/health-wrong-entry"
 cp "$FAKE_HOME/fresh/AGENTS.md" "$FAKE_HOME/health-missing-grant/AGENTS.md"
 printf '[sandbox_workspace_write]\nwritable_roots = []\n' > "$FAKE_HOME/health-missing-grant/config.toml"
-if python "$CONFIG_HELPER" --config "$FAKE_HOME/health-missing-grant/config.toml" --repo-root "$FAKE_REPO" --check --global-instructions "$FAKE_HOME/health-missing-grant/AGENTS.md" >/dev/null 2>&1; then
+if "$PYTHON_BIN" "$CONFIG_HELPER" --config "$FAKE_HOME/health-missing-grant/config.toml" --repo-root "$FAKE_REPO" --session-root "$session_root" --check --global-instructions "$FAKE_HOME/health-missing-grant/AGENTS.md" >/dev/null 2>&1; then
   fail "health check accepted a missing repository permission grant"
 else
   pass "health check rejects a missing repository permission grant"
 fi
 printf 'user guidance\n' > "$FAKE_HOME/health-wrong-entry/AGENTS.md"
-printf '[sandbox_workspace_write]\nwritable_roots = [%s]\n' "$(python -c 'import pathlib,sys; print(pathlib.Path(sys.argv[1]).resolve().as_posix())' "$FAKE_REPO")" > "$FAKE_HOME/health-wrong-entry/config.toml"
-if python "$CONFIG_HELPER" --config "$FAKE_HOME/health-wrong-entry/config.toml" --repo-root "$FAKE_REPO" --check --global-instructions "$FAKE_HOME/health-wrong-entry/AGENTS.md" >/dev/null 2>&1; then
+printf '[sandbox_workspace_write]\nwritable_roots = [%s]\n' "$("$PYTHON_BIN" -c 'import pathlib,sys; print(pathlib.Path(sys.argv[1]).resolve().as_posix())' "$FAKE_REPO")" > "$FAKE_HOME/health-wrong-entry/config.toml"
+if "$PYTHON_BIN" "$CONFIG_HELPER" --config "$FAKE_HOME/health-wrong-entry/config.toml" --repo-root "$FAKE_REPO" --session-root "$session_root" --check --global-instructions "$FAKE_HOME/health-wrong-entry/AGENTS.md" >/dev/null 2>&1; then
   fail "health check accepted a non-canonical global entrypoint"
 else
   pass "health check rejects a non-canonical global entrypoint"
@@ -229,7 +300,7 @@ else
 fi
 
 echo "=== Test 9c: Legacy symlink validation needs no creation privileges ==="
-if python - "$CONFIG_HELPER" "$FAKE_REPO" <<'PYTEST'
+if "$PYTHON_BIN" - "$CONFIG_HELPER" "$FAKE_REPO" <<'PYTEST'
 import importlib.util
 import sys
 from pathlib import Path

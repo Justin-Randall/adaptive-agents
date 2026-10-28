@@ -7,6 +7,7 @@ Templates are copied or rendered into target projects by scripts or skills. Keep
 ## Current Templates
 
 - [project-layer](project-layer/template.json) — source template for `.adaptive-agents/` Project Layer bootstrap.
+- [total-recall](total-recall/session-index.md) — versioned seed template for a session `INDEX.md` semantic navigation graph.
 
 ## Versioning
 

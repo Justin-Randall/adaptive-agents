@@ -25,6 +25,7 @@ Checks:
   - guidance Markdown files are reachable from INDEX.md through local links
   - canonical and dogfood Project Layers pass their bundled validators
   - Project Layer validator regression tests reject known defects
+  - Codex Total Recall foundation tests pass
   - instruction-load budget regression tests pass
   - static startup instruction load remains within budget
   - VS Code integration has a valid deterministic SessionStart hook and read-access trust grant
@@ -159,6 +160,8 @@ check_required_paths() {
     scripts/install-codex.sh
     scripts/codex_config.py
     scripts/test-install-codex.sh
+    scripts/codex_total_recall.py
+    scripts/test-codex-total-recall.py
     scripts/test-opencode.sh
     scripts/test-install-vscode.sh
     scripts/test-install.sh
@@ -787,7 +790,25 @@ check_codex_tests() {
     fail "Codex installer regression tests failed"
     return 1
   fi
+  for test_file in \
+    scripts/test-codex-total-recall-installer.py \
+    scripts/test-codex-config.py \
+    scripts/test-codex-hooks-config.py
+  do
+    if ! "${PYTHON_CMD[@]}" "$test_file"; then
+      fail "Codex installer unit tests failed: $test_file"
+      return 1
+    fi
+  done
   pass "Codex installer regression tests passed"
+}
+
+check_codex_total_recall_tests() {
+  if ! "${PYTHON_CMD[@]}" scripts/test-codex-total-recall.py; then
+    fail "Codex Total Recall foundation tests failed"
+    return 1
+  fi
+  pass "Codex Total Recall foundation tests passed"
 }
 
 run_timed_check "required paths" check_required_paths
@@ -804,6 +825,11 @@ run_timed_check "prompt validation" check_prompts
 run_timed_check "OpenCode integration" check_opencode
 run_timed_check "Claude Code integration" check_claude_code
 run_timed_check "ChatGPT Codex installer regression tests" check_codex_tests
+if find_python; then
+  run_timed_check "ChatGPT Codex Total Recall foundation tests" check_codex_total_recall_tests
+else
+  fail "Python 3 not found; cannot run Codex Total Recall foundation tests"
+fi
 run_timed_check "ChatGPT Codex integration" check_codex_integration
 run_timed_check "VS Code integration" check_vscode_integration
 run_timed_check "retrospective validation" check_retrospectives

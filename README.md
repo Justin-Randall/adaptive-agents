@@ -169,11 +169,16 @@ From this repository root, run the shared local Codex installer through Git Bash
 ```bash
 bash scripts/install-codex.sh
 bash scripts/install-codex.sh --dry-run
+bash scripts/install-codex.sh --check
 ```
 
 The desktop app, CLI, and IDE extension share the same local Codex configuration. The installer uses `CODEX_HOME` when set; otherwise it uses `%USERPROFILE%/.codex` in native Windows shells and `~/.codex` on Unix-like systems. WSL uses its Linux home unless you explicitly set `CODEX_HOME`.
 
-The installer writes a small managed redirect in `CODEX_HOME/AGENTS.md` instructing Codex to read this repository's canonical `AGENTS.md` and adds only this repository to `sandbox_workspace_write.writable_roots` in `CODEX_HOME/config.toml`. It preserves the current sandbox and approval policy, as well as unrelated settings. Existing user-authored global instruction files, custom permission profiles, malformed TOML, and incompatible sandbox modes stop installation before changes are made. Existing canonical symlinks remain supported. Fresh installations require no symlink privileges or Windows Developer Mode. The redirect loads guidance from the repository rather than copying it, so repository updates remain available without reinstalling. Python 3.11 or newer is required for safe TOML parsing.
+The installer writes a small managed redirect in `CODEX_HOME/AGENTS.md` instructing Codex to read this repository's canonical `AGENTS.md`. It adds this repository and the user-scoped Total Recall session store (`~/.adaptive-agents/sessions/codex`) to `sandbox_workspace_write.writable_roots` in `CODEX_HOME/config.toml`, while preserving the current sandbox and approval policy and unrelated settings. The managed hook runtime is installed outside the checkout at `~/.adaptive-agents/codex/total-recall/`, with a stable launcher, versioned adapter payload, and integrity manifest. The selected system Python (3.11 or newer) is used; no interpreter or virtual environment is bundled.
+
+Existing user-authored global instruction files, custom permission profiles, malformed TOML, and incompatible sandbox modes stop installation before changes are made. Permission profiles are not yet supported; the installer fails closed rather than converting between permission models. Existing canonical symlinks remain supported. Fresh installations require no symlink privileges or Windows Developer Mode. The redirect loads guidance from the repository rather than copying it, so repository updates remain available without reinstalling. `--check` validates the managed runtime and the installer-owned Codex configuration and hook registration; it cannot prove Codex has trusted or executed the hooks.
+
+Codex requires explicit review and trust for these non-managed user hooks before they run, and may request review again if their definitions change. The installer provisions the required filesystem permissions and hook definitions, but cannot grant Codex hook trust on your behalf. Review the commands in Codex before approving them; do not use a trust-bypass option as an installer shortcut.
 
 After installation, open a fresh Codex session in an unrelated project and verify the global sentinel, a fact routed from the canonical instructions, and a write to an approved Adaptive Agents planning artifact. Desktop app dogfooding must be performed in a fresh session because the installer cannot prove that the running app loaded the new configuration.
 
