@@ -56,6 +56,15 @@ def dispatch() -> None:
         != os.path.normcase(str(Path(expected_interpreter).resolve()))
     ):
         raise RuntimeError("Codex launched the managed runtime with an unexpected Python interpreter")
+    reader = manifest.get("reader")
+    if not isinstance(reader, dict):
+        raise RuntimeError("managed runtime manifest has no installed reader configuration")
+    reader_interpreter = reader.get("python_executable")
+    reader_launcher = reader.get("launcher_path")
+    if reader_interpreter != expected_interpreter or reader_launcher != str(Path(__file__).resolve()):
+        raise RuntimeError("managed runtime manifest has an invalid installed reader configuration")
+    os.environ["ADAPTIVE_TOTAL_RECALL_READER_PYTHON"] = reader_interpreter
+    os.environ["ADAPTIVE_TOTAL_RECALL_READER_LAUNCHER"] = reader_launcher
 
     files = manifest.get("files")
     if not isinstance(files, dict):

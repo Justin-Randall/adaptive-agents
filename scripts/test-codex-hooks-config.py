@@ -113,16 +113,216 @@ class HookConfigTests(unittest.TestCase):
             self.assertIn(str(managed_launcher.resolve()), command)
             self.assertNotIn(str(legacy_script.resolve()), command)
 
-    def test_inline_user_hooks_block_hooks_json_installation(self) -> None:
+    def test_changed_managed_hook_settings_are_refreshed_on_upgrade(self) -> None:
         with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:
-            config = Path(directory) / "config.toml"
-            config.write_text(
-                '[[hooks.SessionStart]]\nmatcher = "startup"\n',
-                encoding="utf-8",
+            config = Path(directory) / "hooks.json"
+            previous = MODULE.desired_config(
+                Path(directory) / "codex_total_recall.py",
+                "python",
+            )
+            previous["hooks"]["SessionStart"][0]["matcher"] = "startup|resume"
+            previous["hooks"]["PreCompact"][0]["hooks"][0]["timeout"] = 20
+            config.write_text(json.dumps(previous, indent=2) + "\n", encoding="utf-8")
+            updated_script = Path(directory) / ".adaptive-agents" / "launcher.py"
+
+            self.assertEqual(
+                MODULE.main(
+                    [
+                        "--config",
+                        str(config),
+                        "--script",
+                        str(updated_script),
+                        "--python",
+                        "python",
+                        "--apply",
+                    ]
+                ),
+                0,
             )
 
+            updated = json.loads(config.read_text(encoding="utf-8"))
+            self.assertEqual(updated, MODULE.desired_config(updated_script, "python"))
+
+    def test_inline_user_hooks_are_preserved_and_managed_hooks_migrate_inline(self) -> None:
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:
+            codex_home = Path(directory)
+            toml_config = codex_home / "config.toml"
+            hooks_config = codex_home / "hooks.json"
+            user_config = (
+                'approval_policy = "on-request"\n'
+                '\n'
+                '[[hooks.SessionStart]]\n'
+                'matcher = "startup"\n'
+                '[[hooks.SessionStart.hooks]]\n'
+                'type = "command"\n'
+                'command = "user-session-start"\n'
+                'timeout = 5\n'
+            )
+            toml_config.write_text(user_config, encoding="utf-8")
+            legacy_script = codex_home / "scripts" / "codex_total_recall.py"
+            hooks_config.write_text(
+                json.dumps(MODULE.desired_config(legacy_script, "python"), indent=2) + "\n",
+                encoding="utf-8",
+            )
+            managed_launcher = codex_home / ".adaptive-agents" / "launcher.py"
+
+            self.assertEqual(
+                MODULE.main(
+                    [
+                        "--config",
+                        str(hooks_config),
+                        "--script",
+                        str(managed_launcher),
+                        "--python",
+                        "python",
+                        "--toml-config",
+                        str(toml_config),
+                        "--apply",
+                    ]
+                ),
+                0,
+            )
+
+            updated_toml = toml_config.read_text(encoding="utf-8")
+            self.assertTrue(updated_toml.startswith(user_config))
+            parsed = MODULE.tomllib.loads(updated_toml)
+            session_start = parsed["hooks"]["SessionStart"]
+            self.assertEqual(session_start[0]["hooks"][0]["command"], "user-session-start")
+            self.assertEqual(len(session_start), 2)
+            self.assertIn("ADAPTIVE_AGENTS_TOTAL_RECALL_HOOKS", updated_toml)
+            self.assertFalse(hooks_config.exists())
+
+            self.assertEqual(
+                MODULE.main(
+                    [
+                        "--config",
+                        str(hooks_config),
+                        "--script",
+                        str(managed_launcher),
+                        "--python",
+                        "python",
+                        "--toml-config",
+                        str(toml_config),
+                        "--check",
+                    ]
+                ),
+                0,
+            )
+
+    def test_inline_user_hooks_without_managed_json_are_preserved(self) -> None:
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:
+            config = Path(directory) / "config.toml"
+            hooks_config = Path(directory) / "hooks.json"
+            user_config = (
+                '[[hooks.SessionStart]]\n'
+                'matcher = "startup"\n'
+                '[[hooks.SessionStart.hooks]]\n'
+                'type = "command"\n'
+                'command = "user-session-start"\n'
+            )
+            config.write_text(user_config, encoding="utf-8")
+            script = Path(directory) / "launcher.py"
+
+            self.assertEqual(
+                MODULE.main(
+                    [
+                        "--config",
+                        str(hooks_config),
+                        "--script",
+                        str(script),
+                        "--python",
+                        "python",
+                        "--toml-config",
+                        str(config),
+                        "--apply",
+                    ]
+                ),
+                0,
+            )
+
+            updated = config.read_text(encoding="utf-8")
+            parsed = MODULE.tomllib.loads(updated)
+            self.assertTrue(updated.startswith(user_config))
+            self.assertEqual(parsed["hooks"]["SessionStart"][0]["hooks"][0]["command"], "user-session-start")
+            self.assertFalse(hooks_config.exists())
+
+    def test_malformed_inline_markers_fail_without_mutation(self) -> None:
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:
+            codex_home = Path(directory)
+            toml_config = codex_home / "config.toml"
+            hooks_config = codex_home / "hooks.json"
+            toml_original = (
+                '[[hooks.SessionStart]]\n'
+                'matcher = "startup"\n'
+                f'{MODULE.INLINE_HOOKS_START}\n'
+            )
+            managed_hooks = json.dumps(
+                MODULE.desired_config(codex_home / "launcher.py", "python"),
+                indent=2,
+            ) + "\n"
+            toml_config.write_text(toml_original, encoding="utf-8")
+            hooks_config.write_text(managed_hooks, encoding="utf-8")
+
             with self.assertRaises(SystemExit):
-                MODULE.validate_hook_layer(config, Path(directory) / "hooks.json")
+                MODULE.main(
+                    [
+                        "--config",
+                        str(hooks_config),
+                        "--script",
+                        str(codex_home / "new-launcher.py"),
+                        "--python",
+                        "python",
+                        "--toml-config",
+                        str(toml_config),
+                        "--apply",
+                    ]
+                )
+
+            self.assertEqual(toml_config.read_text(encoding="utf-8"), toml_original)
+            self.assertEqual(hooks_config.read_text(encoding="utf-8"), managed_hooks)
+
+    def test_unrecognized_inline_managed_block_fails_without_mutation(self) -> None:
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:
+            codex_home = Path(directory)
+            toml_config = codex_home / "config.toml"
+            hooks_config = codex_home / "hooks.json"
+            toml_original = (
+                '[[hooks.SessionStart]]\n'
+                'matcher = "startup"\n'
+                '[[hooks.SessionStart.hooks]]\n'
+                'type = "command"\n'
+                'command = "user-session-start"\n'
+                f'{MODULE.INLINE_HOOKS_START}\n'
+                '[[hooks.UnknownEvent]]\n'
+                '[[hooks.UnknownEvent.hooks]]\n'
+                'type = "command"\n'
+                'command = "user-managed-looking-hook"\n'
+                f'{MODULE.INLINE_HOOKS_END}\n'
+            )
+            managed_hooks = json.dumps(
+                MODULE.desired_config(codex_home / "launcher.py", "python"),
+                indent=2,
+            ) + "\n"
+            toml_config.write_text(toml_original, encoding="utf-8")
+            hooks_config.write_text(managed_hooks, encoding="utf-8")
+
+            with self.assertRaises(SystemExit):
+                MODULE.main(
+                    [
+                        "--config",
+                        str(hooks_config),
+                        "--script",
+                        str(codex_home / "new-launcher.py"),
+                        "--python",
+                        "python",
+                        "--toml-config",
+                        str(toml_config),
+                        "--apply",
+                    ]
+                )
+
+            self.assertEqual(toml_config.read_text(encoding="utf-8"), toml_original)
+            self.assertEqual(hooks_config.read_text(encoding="utf-8"), managed_hooks)
 
     def test_disabled_hooks_block_installation(self) -> None:
         with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:

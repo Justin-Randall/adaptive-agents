@@ -108,7 +108,7 @@ if [[ "$DRY_RUN" -eq 1 ]]; then
   echo "[dry-run] Would write a redirect at $GLOBAL to $REPO_ROOT/AGENTS.md"
   echo "[dry-run] Would grant workspace-write access to $REPO_ROOT and $SESSION_ROOT"
   echo "[dry-run] $RUNTIME_PLAN"
-  echo "[dry-run] Would install Total Recall hooks at $HOOKS"
+  echo "[dry-run] Would configure managed Total Recall hooks in the supported Codex hook representation"
   exit 0
 fi
 

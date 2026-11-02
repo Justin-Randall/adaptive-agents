@@ -151,6 +151,80 @@ else
   fail "rerun changed Codex config or the canonical redirect"
 fi
 
+echo "=== Test 3a: Upgrade changed managed hooks without losing inline user hooks ==="
+inline_upgrade_home="$FAKE_HOME/inline-upgrade"
+cp -a "$FAKE_HOME/fresh" "$inline_upgrade_home"
+cat >> "$inline_upgrade_home/config.toml" <<'EOF'
+
+[[hooks.SessionStart]]
+matcher = "startup"
+[[hooks.SessionStart.hooks]]
+type = "command"
+command = "user-session-start"
+timeout = 5
+EOF
+"$PYTHON_BIN" - "$inline_upgrade_home/hooks.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+config = json.loads(path.read_text(encoding="utf-8"))
+config["hooks"]["SessionStart"][0]["matcher"] = "startup|resume"
+config["hooks"]["PreCompact"][0]["hooks"][0]["timeout"] = 20
+path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8")
+PY
+mkdir -p "$session_root/upgrade-preservation"
+printf 'Keep this user session record.\n' > "$session_root/upgrade-preservation/record.md"
+cp "$session_root/upgrade-preservation/record.md" "$TMP_ROOT/session-record.before"
+cp "$inline_upgrade_home/config.toml" "$TMP_ROOT/inline-config.before"
+cp "$inline_upgrade_home/hooks.json" "$TMP_ROOT/inline-hooks.before"
+if run_installer "$inline_upgrade_home" --dry-run > "$TMP_ROOT/inline-dry-run.out" 2>&1 &&
+   grep -Fq "supported Codex hook representation" "$TMP_ROOT/inline-dry-run.out" &&
+   ! grep -Fq "hooks.json" "$TMP_ROOT/inline-dry-run.out" &&
+   cmp -s "$TMP_ROOT/inline-config.before" "$inline_upgrade_home/config.toml" &&
+   cmp -s "$TMP_ROOT/inline-hooks.before" "$inline_upgrade_home/hooks.json"; then
+  pass "inline-hook dry-run previews the selected representation without mutation"
+else
+  fail "inline-hook dry-run promised the wrong destination or changed configuration"
+fi
+if run_installer "$inline_upgrade_home" > "$TMP_ROOT/inline-upgrade.out" 2>&1 &&
+   [[ ! -e "$inline_upgrade_home/hooks.json" ]] &&
+   "$PYTHON_BIN" - "$inline_upgrade_home/config.toml" "$runtime_root_config/launcher.py" <<'PY'
+import sys
+import tomllib
+from pathlib import Path
+
+config = tomllib.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+normalize = lambda value: value.replace("\\", "/").casefold()
+assert config["approval_policy"] == "on-request"
+groups = config["hooks"]["SessionStart"]
+user_groups = [
+    group
+    for group in groups
+    if group["hooks"][0]["command"] == "user-session-start"
+]
+managed_groups = [
+    group
+    for group in groups
+    if normalize(sys.argv[2]) in normalize(group["hooks"][0]["command"])
+]
+assert len(user_groups) == 1, groups
+assert len(managed_groups) == 1, groups
+assert managed_groups[0]["matcher"] == "startup|resume|clear|compact|fork"
+assert config["hooks"]["PreCompact"][0]["hooks"][0]["timeout"] == 10
+PY
+then
+  if cmp -s "$TMP_ROOT/session-record.before" "$session_root/upgrade-preservation/record.md" &&
+     run_installer "$inline_upgrade_home" --check > "$TMP_ROOT/inline-upgrade-check.out" 2>&1; then
+    pass "upgrade refreshes changed managed hooks inline, preserves user hooks and session records, and passes --check"
+  else
+    fail "inline-hook upgrade changed a user session record or failed its health check"
+  fi
+else
+  fail "inline-hook upgrade failed: $(cat "$TMP_ROOT/inline-upgrade.out")"
+fi
+
 echo "=== Test 3b: Duplicate existing grants are not expanded ==="
 mkdir -p "$FAKE_HOME/duplicate-grant"
 repo_root_toml="$("$PYTHON_BIN" -c 'import pathlib,sys; print(pathlib.Path(sys.argv[1]).resolve().as_posix())' "$FAKE_REPO")"

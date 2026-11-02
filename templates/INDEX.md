@@ -7,7 +7,9 @@ Templates are copied or rendered into target projects by scripts or skills. Keep
 ## Current Templates
 
 - [project-layer](project-layer/template.json) — source template for `.adaptive-agents/` Project Layer bootstrap.
-- [total-recall](total-recall/session-index.md) — versioned seed template for a session `INDEX.md` semantic navigation graph.
+- [total-recall](total-recall/markdown-session-index.md) — Markdown source discovery and lightweight model-owned topic graph for runtime 1.2.
+- [deprecated JSONL template](total-recall/selective-session-index.md) — historical version-13 fixture, not used by the current runtime.
+- [legacy Total Recall template](total-recall/session-index.md) — frozen version-12 contract retained for already-installed runtimes; not the new maintenance policy.
 
 ## Versioning
 

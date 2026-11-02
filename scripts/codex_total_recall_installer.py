@@ -11,11 +11,12 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import uuid
 from pathlib import Path
 from typing import Any
 
 
-RUNTIME_VERSION = "1.0.0"
+RUNTIME_VERSION = "1.2.0"
 MANIFEST_SCHEMA_VERSION = 1
 MINIMUM_PYTHON = (3, 11)
 
@@ -114,6 +115,10 @@ class ManagedRuntime:
             "runtime_version": RUNTIME_VERSION,
             "minimum_python": list(MINIMUM_PYTHON),
             "python_executable": self.python_executable,
+            "reader": {
+                "python_executable": self.python_executable,
+                "launcher_path": str(self.launcher_path),
+            },
             "files": {"codex_total_recall.py": adapter_digest},
         }
         if self.adaptive_agents_root is not None:
@@ -256,7 +261,12 @@ class ManagedRuntime:
             versions = self.root / "versions"
             versions.mkdir(exist_ok=True)
             if not version_directory.exists():
-                stage = Path(tempfile.mkdtemp(prefix=".staging-", dir=versions))
+                if os.name == "nt":
+                    # Python 3.13+ mkdtemp blocks inherited sandbox read access.
+                    stage = versions / f".staging-{uuid.uuid4()}"
+                    stage.mkdir()
+                else:
+                    stage = Path(tempfile.mkdtemp(prefix=".staging-", dir=versions))
                 shutil.copy2(self.adapter_source, stage / "codex_total_recall.py")
                 if sha256_file(stage / "codex_total_recall.py") != adapter_digest:
                     raise InstallationError("staged Total Recall adapter failed hash verification")

@@ -635,6 +635,12 @@ def should_skip(path: Path) -> bool:
 
 def normalize_target(source: Path, target: str):
     target = target.strip()
+    # This template URI is rendered and checked by the Total Recall tests.
+    if (source in {root / "templates" / "total-recall" / "session-index.md",
+                   root / "templates" / "total-recall" / "selective-session-index.md",
+                   root / "templates" / "total-recall" / "markdown-session-index.md"}
+            and target in {"{{ADAPTIVE_AGENTS_AUTHORITY}}", "ledger.jsonl#L12-L12"}):
+        return None
     if not target or target.startswith(skip_prefixes):
         return None
     if "://" in target:
@@ -808,6 +814,24 @@ check_codex_total_recall_tests() {
     fail "Codex Total Recall foundation tests failed"
     return 1
   fi
+  if ! "${PYTHON_CMD[@]}" scripts/test-codex-total-recall-dogfood.py; then
+    fail "Codex Total Recall provenance evidence tests failed"
+    return 1
+  fi
+  if ! "${PYTHON_CMD[@]}" scripts/test-codex-total-recall-recovery.py; then
+    fail "Codex Total Recall native-reply recovery tests failed"
+    return 1
+  fi
+  if ! "${PYTHON_CMD[@]}" scripts/test-codex-recall-pivot.py; then
+    fail "Codex Total Recall pivot evidence tests failed"
+    return 1
+  fi
+  for test_file in scripts/test-codex-markdown-recall.py scripts/test-codex-markdown-dogfood.py; do
+    if ! "${PYTHON_CMD[@]}" "$test_file"; then
+      fail "Codex Markdown experiment tests failed: $test_file"
+      return 1
+    fi
+  done
   pass "Codex Total Recall foundation tests passed"
 }
 
