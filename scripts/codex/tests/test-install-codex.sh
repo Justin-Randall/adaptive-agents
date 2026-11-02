@@ -18,24 +18,24 @@ FAKE_REPO="$TMP_ROOT/repo with spaces"
 FAKE_HOME="$TMP_ROOT/codex home"
 FAKE_BIN="$TMP_ROOT/bin"
 INSTALLER="$FAKE_REPO/scripts/install-codex.sh"
-CONFIG_HELPER="$FAKE_REPO/scripts/codex_config.py"
-HOOKS_HELPER="$FAKE_REPO/scripts/codex_hooks_config.py"
-TOTAL_RECALL="$FAKE_REPO/scripts/codex_total_recall.py"
-TOTAL_RECALL_INSTALLER="$FAKE_REPO/scripts/codex_total_recall_installer.py"
-TOTAL_RECALL_LAUNCHER="$FAKE_REPO/scripts/codex_total_recall_launcher.py"
+CONFIG_HELPER="$FAKE_REPO/scripts/codex/codex_config.py"
+HOOKS_HELPER="$FAKE_REPO/scripts/codex/codex_hooks_config.py"
+TOTAL_RECALL="$FAKE_REPO/scripts/codex/codex_total_recall.py"
+TOTAL_RECALL_INSTALLER="$FAKE_REPO/scripts/codex/codex_total_recall_installer.py"
+TOTAL_RECALL_LAUNCHER="$FAKE_REPO/scripts/codex/codex_total_recall_launcher.py"
 PASSES=0
 FAILURES=0
 
 pass() { PASSES=$((PASSES + 1)); echo "PASS: $1"; }
 fail() { FAILURES=$((FAILURES + 1)); echo "FAIL: $1"; }
 
-mkdir -p "$FAKE_REPO/scripts" "$FAKE_HOME" "$FAKE_BIN"
+mkdir -p "$FAKE_REPO/scripts/codex" "$FAKE_HOME" "$FAKE_BIN"
 cp "$REPO_ROOT/scripts/install-codex.sh" "$INSTALLER"
-cp "$REPO_ROOT/scripts/codex_config.py" "$CONFIG_HELPER"
-cp "$REPO_ROOT/scripts/codex_hooks_config.py" "$HOOKS_HELPER"
-cp "$REPO_ROOT/scripts/codex_total_recall.py" "$TOTAL_RECALL"
-cp "$REPO_ROOT/scripts/codex_total_recall_installer.py" "$TOTAL_RECALL_INSTALLER"
-cp "$REPO_ROOT/scripts/codex_total_recall_launcher.py" "$TOTAL_RECALL_LAUNCHER"
+cp "$REPO_ROOT/scripts/codex/codex_config.py" "$CONFIG_HELPER"
+cp "$REPO_ROOT/scripts/codex/codex_hooks_config.py" "$HOOKS_HELPER"
+cp "$REPO_ROOT/scripts/codex/codex_total_recall.py" "$TOTAL_RECALL"
+cp "$REPO_ROOT/scripts/codex/codex_total_recall_installer.py" "$TOTAL_RECALL_INSTALLER"
+cp "$REPO_ROOT/scripts/codex/codex_total_recall_launcher.py" "$TOTAL_RECALL_LAUNCHER"
 printf '# Adaptive Agents test fixture\n' > "$FAKE_REPO/AGENTS.md"
 printf '# Test index\n' > "$FAKE_REPO/INDEX.md"
 

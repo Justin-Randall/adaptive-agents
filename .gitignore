@@ -9,7 +9,7 @@ Thumbs.db
 .vscode/settings.json
 
 # Generated VS Code integration files
-vscode/
+/vscode/
 
 # Generated OpenCode integration files (when installed to project-level)
 .opencode/

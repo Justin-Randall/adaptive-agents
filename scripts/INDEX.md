@@ -1,34 +1,40 @@
 # Scripts
 
-This directory contains deterministic setup, validation, inspection, installation, and migration scripts for Adaptive Agents.
+This tree contains executable setup, validation, installation and maintenance
+tools. Start with the area below rather than scanning every implementation and
+test. Keep procedural guidance in [playbooks](../playbooks/INDEX.md).
 
-Scripts should be safe to run repeatedly when practical, report actionable failures, and avoid writing outside their documented target paths.
+## Areas
 
-## Markdown Browser
+| Area | Contents |
+|---|---|
+| [Codex](codex/INDEX.md) | Configuration helpers, managed Total Recall runtime, dogfood tools and [Codex tests](codex/tests/INDEX.md). |
+| [VS Code](vscode/INDEX.md) | SessionStart implementation, integration validation and [VS Code tests](vscode/tests/INDEX.md). |
+| [Markdown Browser](browser/INDEX.md) | System-owned browser server and generator. |
+| [Repository tests](tests/INDEX.md) | Shared validation, installer and script-layout regression tests. |
+| [Session startup](session-start/) | Existing focused startup probes. |
 
-- `ui.py` starts or generates the system-owned Markdown Browser.
-- `markdown_browser.py` contains the HTTP server, Project Layer/System navigation, SSE, and watchdog implementation.
-- Run `py -3 scripts/ui.py serve --target <project-root>` from this repository to browse any project that has a `.adaptive-agents` Project Layer.
+## Stable Root Commands
 
-Use this area for executable repository maintenance. Put procedural explanations in [playbooks](../playbooks/INDEX.md) and user-facing setup narrative in [README.md](../README.md).
+- [install.sh](install.sh) detects supported integrations; the tool-specific
+  `install-*.sh` commands retain their existing paths.
+- [check-adaptive-agents.sh](check-adaptive-agents.sh) runs repository health
+  checks and the relocated regression suites.
+- [check-instruction-load-budget.sh](check-instruction-load-budget.sh) and
+  [its Python implementation](check-instruction-load-budget.py) validate required
+  instruction loading.
+- [session-start.sh](session-start.sh) remains the lifecycle entrypoint.
+- [ui.py](ui.py) launches the browser, including from unrelated projects.
+- [vscode-session-start.py](vscode-session-start.py) and
+  [check-vscode-integration.py](check-vscode-integration.py) preserve existing
+  installed hook and health-check commands.
+- [bootstrap-project-layer.sh](bootstrap-project-layer.sh),
+  [inspect-project-layer-upgrade.sh](inspect-project-layer-upgrade.sh) and
+  [migrate-project-layer-retrospectives.sh](migrate-project-layer-retrospectives.sh)
+  retain their repository-maintenance interfaces.
 
-## Tool Installers
-
-- `install.sh` detects supported local tools; pass `--tool codex` to target ChatGPT Codex.
-- `install-codex.sh` writes a minimal global Codex redirect to canonical `AGENTS.md`, grants workspace write access to the repository and session store, provisions the managed Total Recall runtime and hook configuration, and supports `--check`.
-- `codex_total_recall_installer.py` stages and validates versioned runtime payloads, active pointers, and integrity manifests under the per-user runtime root.
-- `codex_total_recall_launcher.py` is the stable hook entrypoint; it verifies the active managed payload before dispatching the adapter.
-- `test-install-codex.sh` exercises installer lifecycle and preservation behavior with isolated temporary Codex homes.
-- `test-codex-total-recall-installer.py` covers managed runtime provisioning, integrity checks, rollback behavior, and launcher dispatch.
-- `test-codex-config.py` verifies narrow repository/session-store permission merging and idempotence.
-- `codex_hooks_config.py` safely creates or validates the Adaptive Agents-owned `hooks.json` without overwriting unrelated user hooks.
-- `test-codex-hooks-config.py` verifies hook provisioning, migration ownership, and fail-closed handling of conflicting user configuration.
-- [codex_total_recall.py](codex_total_recall.py) is the self-contained runtime-1.2 Markdown adapter: complete deterministic capture, bounded anchor reads/literal search/recent events, declared-link validation and nonblocking hooks. PostToolUse supplies actual result-part handles within 1,200 bytes. Old JSON/JSONL sessions and migration/coverage/line-reader flags are explicitly unsupported; start fresh.
-- [dogfood-codex-recall-pivot.py](dogfood-codex-recall-pivot.py) retains historical JSONL replay helpers for report tests. Its live entrypoint is retired; use Markdown dogfood.
-- [codex_markdown_recall.py](codex_markdown_recall.py) is a thin explicit-root wrapper around the canonical runtime for isolated tests, not a second implementation or alternate format.
-- [dogfood-codex-markdown.py](dogfood-codex-markdown.py) compares selective and proactive guidance using six ordinary Luna turns, native Markdown capture, per-turn index snapshots, compaction and fresh-context source-backed questions. Alternatively, `--frozen-session` tests an existing unmodified graph/ledger in hook-free, read-only fresh Luna contexts with index-only controls and natural questions. It incurs model usage, retains evidence, and never upgrades the live profile. Run `--help` for the required isolated workspace/report arguments; predeclared budgets and quality gates are in the active plan.
-- [test-codex-markdown-recall.py](test-codex-markdown-recall.py) checks fidelity, stable within-event anchors, safe append/restart, concurrency, legacy rejection and bounded search/read pagination. [test-codex-markdown-dogfood.py](test-codex-markdown-dogfood.py) checks the experiment's evidence accounting without model usage.
-- [test-codex-total-recall.py](test-codex-total-recall.py) tests the Markdown-only hook/CLI contract, source preservation, opportunistic topics, raw UTF-8, removed flags and fail-closed legacy rejection.
-- [recover-codex-total-recall.py](recover-codex-total-recall.py) is an explicitly retired JSONL recovery entrypoint. [Its regression test](test-codex-total-recall-recovery.py) proves preview, apply and CLI fail without mutating historical files.
-- [dogfood-codex-total-recall.py](dogfood-codex-total-recall.py) retains the shared native app-server client and historical evidence helpers; its JSONL live entrypoint is retired. Use [Markdown dogfood](dogfood-codex-markdown.py), including `--packaged-runtime` to test the installed stable launcher in an isolated profile.
-- [test-codex-total-recall-dogfood.py](test-codex-total-recall-dogfood.py) validates retained historical ordered-retrieval reports without restoring legacy runtime support.
+The three root test commands documented in the public README remain small
+forwarders: [OpenCode](test-opencode.sh), [Antigravity](test-install-antigravity.sh)
+and [Project Layer](test-project-layer.sh). Other tests use their area paths.
+[markdown_browser.py](markdown_browser.py) is an import bridge for older Project
+Layer browser launchers, not a second server implementation.

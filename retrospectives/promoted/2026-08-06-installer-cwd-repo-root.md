@@ -41,6 +41,6 @@ Users running installation from another working directory received a confusing p
 - [Claude Code installer](../../scripts/install-claude-code.sh)
 - [OpenCode installer](../../scripts/install-opencode.sh)
 - [Antigravity installer](../../scripts/install-antigravity.sh)
-- [Claude Code installer tests](../../scripts/test-install-claude-code.sh)
+- [Claude Code installer tests](../../scripts/tests/test-install-claude-code.sh)
 - [OpenCode installer tests](../../scripts/test-opencode.sh)
 - [Antigravity installer tests](../../scripts/test-install-antigravity.sh)

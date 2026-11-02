@@ -4,7 +4,7 @@ Curate this file for cross-session handoff. Replace stale details rather than ke
 
 ## Current State
 
-- **Current priority:** checkpoint the user-verified Desktop recall milestone before scripts cleanup and further polish. The live installation is now **1.2.0/template 14**, upgraded by the user. Markdown is the only supported source format; JSON/JSONL sessions require a fresh conversation, with no migration, dual writer or automatic history deletion.
+- **Current priority:** finish the user-approved scripts-tree cleanup after local milestone commit `ca4f7df`, before further recall polish. No push or cleanup commit requested. The live installation is now **1.2.0/template 14**, upgraded by the user. Markdown is the only supported source format; JSON/JSONL sessions require a fresh conversation, with no migration, dual writer or automatic history deletion.
 - **Verified seam:** real Desktop capture, forced manual compaction, delivered recovery context and source-backed ledger lookup now pass in the user's session. Isolated packaged-runtime topic/compaction/retrieval and frozen-context proofs remain separate evidence. Proactive topics, bounded-helper usage, automatic-threshold compaction, long-session quality and cross-platform/rollback acceptance remain open.
 - Active on branch `pl-20261027-total-recall-codex-installer-hardening`.
 - Activated from the Total Recall installer-hardening backlog child with user approval.
@@ -24,11 +24,46 @@ Curate this file for cross-session handoff. Replace stale details rather than ke
 - Private baseline and milestone verification reports remain in current Copilot session files: `desktop-markdown-precompact-c996cea2.json` and `desktop-markdown-milestone-c996cea2.json`. At verification the 428,840-byte ledger hash was `f7c00f1850637c2c7e5bbbe4b890576ed3e582942429f8b24cad4eba7c3e8e77`; the unchanged index hash was `48220fcc5dc5134cb3fff91541a6d8f29ce0290034a28d41c0d880ca75c231fe`. All original user-session artifacts remain outside the repository and untouched.
 - Milestone validation: full repository health rerun passed **262 checks, zero failures**, with the existing unrelated Claude Code entrypoint warning. Retained evidence JSON parses and pending files contain no high-confidence credential patterns. User approved a local checkpoint commit only, explicitly excluded README changes and requested removal of our engineering/project additions there; the existing user-facing README is preserved for a separate rework. Scripts cleanup and feature polish follow separately, with no push or work-unit closure.
 
+## Script Tree Cleanup
+
+- The scripts router owns Codex, VS Code, browser
+  and shared-test subtrees. Root installers and installed/public entrypoints stay
+  stable. Root browser import and three README test commands are compatibility
+  bridges only. The README is intentionally unchanged.
+- The layout suite (`scripts/tests/test-script-layout.py`) tests source
+  grouping, unrelated-working-directory invocation, legacy browser import and
+  canonical-root/budget-checker discovery. Installed-runtime tests prove an
+  already installed reader survives moving the old flat checkout source.
+- Root hook wrappers must propagate `main()`'s integer exit status. A moved
+  VS Code test caught a lost error status before completion. Installer-command
+  tests accept the existing `py -3`/`python3`/`python` selection contract, execute
+  the real generated command against isolated guidance and verify JSON/status
+  output without touching live planning or user cache.
+- Historical closed packets, captured JSON and old command records retain their
+  original paths. Maintained links and internal consumers use the new tree.
+  No new native/model dogfood is needed for path-only relocation; existing
+  installed-runtime/session validation is read-only.
+- See the [Script Tree architecture](../../ARCHITECTURE.md#script-tree).
+- Verified cleanup: **275 repository checks, zero failures**, one existing
+  Claude Code entrypoint warning. Shared installers and all three public test
+  bridges pass. Five layout tests and Python/shell syntax/whitespace checks
+  pass. Root script files decreased from 48 to 21. The generated-integration
+  ignore rule is root-anchored so the new VS Code source tree remains trackable.
+- The actual pre-cleanup installed launcher validated the Desktop session and
+  returned the expected source in 698 serialized bytes. Seven runtime, config
+  and evidence hashes were unchanged before/after; the original 428,840-byte
+  milestone ledger prefix still matches its retained hash.
+- Known unrelated VS Code issue: `load_profile` already validates all route
+  profiles, but the canonical manifest lacks the exact active-memory entry.
+  This rejects live-checkout startup independently of source relocation.
+  The hermetic installer test proves the generated command and hook output
+  contract, not live planning-budget health. No production workaround added.
+
 ## Markdown-Only Installed Runtime
 
-- `scripts/codex_total_recall.py` is the single self-contained implementation; the explicit-root Markdown wrapper imports it rather than duplicating storage. Manifest version 4 identifies `ledger.md` / `markdown-1`; canonical template 14 renders stable installed-reader commands. Production PostToolUse delivers up to four real result-part handles within 1,200 bytes. Stop is capture-only.
+- `scripts/codex/codex_total_recall.py` is the single self-contained implementation; the explicit-root Markdown wrapper imports it rather than duplicating storage. Manifest version 4 identifies `ledger.md` / `markdown-1`; canonical template 14 renders stable installed-reader commands. Production PostToolUse delivers up to four real result-part handles within 1,200 bytes. Stop is capture-only.
 - Existing model navigation is never rewritten by capture. Full parsed payload values round-trip through checksummed readable records with stable event/field/part anchors. No JSONL mirror, mandatory topic inventory, coverage CLI or repair/migration writer remains. Retired JSONL recovery/live runners fail explicitly; historical report helpers remain isolated from current runtime support.
-- Current focused checks: 9 foundation, 10 storage, 11 installer, 10 hook-config, 6 driver-accounting, 1 retired-recovery, 16 historical provenance and 5 historical pivot tests. Direct Git Bash installer suite: 21 passed, including upgrade from managed file hooks to preserved inline user hooks, rerun, dry-run, unchanged session records and `--check`.
+- Current focused checks: 9 foundation, 10 storage, 12 installer, 10 hook-config, 6 driver-accounting, 1 retired-recovery, 16 historical provenance and 5 historical pivot tests. Direct Git Bash installer suite: 21 passed, including upgrade from managed file hooks to preserved inline user hooks, rerun, dry-run, unchanged session records and `--check`.
 - **`markdown-packaged-1`:** actual managed runtime 1.2.0/template 14 in an isolated workspace; explicit Luna on Codex `0.163.0-alpha.10.2`, native workspace-write/network-off policy, no bypass. Six ordinary turns took 96.326 seconds with eight maintenance/discovery calls and a 5,305-byte root. Topics evolved early and linked both decision versions. Real compaction followed by a normal reply took 2.848 seconds.
 - All 17 declared native checks passed, including four source-backed fresh-thread answers in 8/4/5/4 calls, valid links, unchanged historical graph, preserved ledger prefix and no JSONL mirror. All 94 hook completions succeeded. Receipt happened to receive a topic link in this run; it does not independently prove deliberately unindexed retrieval. That evidence remains in the earlier pair/frozen trial.
 - Original workspace: `%USERPROFILE%\.adaptive-agents\dogfood\markdown-packaged-1`; report and evidence directory `markdown-packaged-1` remain in the current Copilot session files. The driver snapshot and actual native transcripts are retained. The source runtime hash in the report identifies the real production module, not just the wrapper.

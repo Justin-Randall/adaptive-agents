@@ -8,7 +8,10 @@ import unittest
 from unittest.mock import patch
 
 
-SPEC = importlib.util.spec_from_file_location("pivot", Path(__file__).with_name("dogfood-codex-recall-pivot.py"))
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+SPEC = importlib.util.spec_from_file_location("pivot", Path(__file__).resolve().parents[1] / "dogfood-codex-recall-pivot.py")
 assert SPEC and SPEC.loader
 PIVOT = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(PIVOT)

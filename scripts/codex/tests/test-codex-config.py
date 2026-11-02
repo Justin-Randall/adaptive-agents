@@ -10,7 +10,10 @@ import unittest
 from pathlib import Path
 
 
-MODULE_PATH = Path(__file__).with_name("codex_config.py")
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+MODULE_PATH = Path(__file__).resolve().parents[1] / "codex_config.py"
 SPEC = importlib.util.spec_from_file_location("codex_config", MODULE_PATH)
 assert SPEC and SPEC.loader
 MODULE = importlib.util.module_from_spec(SPEC)

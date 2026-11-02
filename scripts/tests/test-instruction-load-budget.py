@@ -13,7 +13,7 @@ import unittest
 
 sys.dont_write_bytecode = True
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 CHECKER_PATH = REPO_ROOT / "scripts" / "check-instruction-load-budget.py"
 WRAPPER_PATH = REPO_ROOT / "scripts" / "check-instruction-load-budget.sh"
 

@@ -17,7 +17,7 @@ set -euo pipefail
 usage() {
   cat <<EOF
 Usage:
-  bash scripts/test-install-claude-code.sh [options]
+  bash scripts/tests/test-install-claude-code.sh [options]
 
 Options:
   --installer PATH   Path to install-claude-code.sh. Default: scripts/install-claude-code.sh
@@ -54,12 +54,12 @@ done
 # ---------------------------------------------------------------------------
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 INSTALL_REPO_ROOT="$(git -C "$REPO_ROOT" rev-parse --show-toplevel 2>/dev/null || printf '%s' "$REPO_ROOT")"
 IMPORT_REPO_ROOT="$REPO_ROOT"
 
 if [[ -z "$INSTALLER_PATH" ]]; then
-  INSTALLER_PATH="$SCRIPT_DIR/install-claude-code.sh"
+  INSTALLER_PATH="$REPO_ROOT/scripts/install-claude-code.sh"
 fi
 
 if [[ ! -f "$INSTALLER_PATH" ]]; then

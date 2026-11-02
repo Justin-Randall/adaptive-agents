@@ -53,6 +53,44 @@ The live Desktop installation is now user-upgraded runtime 1.2.0/template 14. Th
 - A stale PostToolUse trust hash initially prevented result capture; the user resolved approval. Tests that freshly trust every isolated handler did not reproduce that upgrade condition. `--check` proves installed configuration/integrity, not effective approval.
 - User approved a local milestone commit after validation, explicitly **without pushing**. Keep scripts cleanup and subsequent feature polish separate from this checkpoint; the active work unit remains open.
 
+### Script Tree Cleanup
+
+- The Desktop milestone is checkpointed locally as `ca4f7df`, without a push.
+  The user next approved grouping Codex, VS Code, browser implementations and
+  tests before further feature polish; see the [Script Tree architecture](../../ARCHITECTURE.md#script-tree).
+- Keep root installers, health/startup commands, the installed VS Code hook path
+  and browser CLI stable. Three public README test commands and the older
+  Project Layer browser import retain thin bridges, not duplicate implementations.
+  Internal commands now use application/test subdirectories. Older commands in
+  historical evidence below identify the original checkout, not current paths.
+- A regression installs the Codex adapter from a flat checkout, moves the source
+  and proves its existing installed launcher can still read captured evidence.
+  The actual previously installed Desktop launcher also validates the supplied
+  Markdown session after relocation. No reinstall, trust approval, live
+  configuration change or session repair is required for this cleanup.
+- Layout tests cover unrelated-working-directory entrypoints, canonical root
+  discovery and the legacy browser import. Repository health also executes the
+  relocated VS Code Python and installer tests. The installer fixture now uses
+  the installer's supported interpreter choices and isolated guidance/status
+  paths, rather than depending on live planning budgets or updating user cache.
+- This is structural maintenance, not additional recall/topic-quality acceptance.
+  The public README and immutable evidence remain unchanged. No cleanup commit,
+  push, closure or new child activation is authorized by this step.
+- Cleanup verification: **275 repository checks, zero failures**, with the
+  existing Claude Code entrypoint warning. All shared installer suites and
+  public test bridges pass; Python/shell syntax and whitespace checks pass.
+  Five layout tests protect source grouping, trackability and entrypoint/root
+  compatibility. Root script files decreased from 48 to 21.
+- Actual previously installed launcher: valid Desktop session and a 698-byte
+  bounded source read, with seven runtime/config/evidence hashes unchanged.
+  The original 428,840-byte milestone ledger prefix is intact; later appends
+  are not rewritten.
+- Unrelated existing VS Code limitation: the canonical route manifest omits
+  the exact active-memory entry required by full-profile validation.
+  The unchanged hook's `load_profile` therefore rejects the live checkout.
+  The isolated installer test verifies generated-command execution, not live
+  planning-budget health. This pre-existing issue is outside the path cleanup.
+
 ### Pivot Rationale and Boundaries
 
 - The supplied desktop session eventually covered all 447 frozen events, but a simple "Thank you." took about 6 minutes 38 seconds to finish, with 16 blocked Stop continuations before the seventeenth Stop succeeded. The root grew from 3,976 to 43,541 bytes with 234 semantic links; 107 labels mentioned probes. This is a structural pass and a conversational/navigation failure.

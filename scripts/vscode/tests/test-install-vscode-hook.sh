@@ -72,10 +72,40 @@ else
   fail "supported install writes one Adaptive Agents SessionStart hook"
 fi
 HOOK_COMMAND="$("${PYTHON_CMD[@]}" -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["hooks"]["SessionStart"][0]["command"])' "$HOOK_PATH")"
-if [[ "$HOOK_COMMAND" == "py -3 \"$REPO_ROOT_NORM/scripts/vscode-session-start.py\"" ]] && printf '{"hookEventName":"SessionStart"}\n' | eval "$HOOK_COMMAND" >/dev/null; then
-  pass "installed hook command executes the adapter directly with Windows Python"
+HOOK_FIXTURE="$TMP_ROOT/hook-fixture"
+"${PYTHON_CMD[@]}" - "$HOOK_FIXTURE" <<'PY'
+import json
+from pathlib import Path
+import sys
+
+root = Path(sys.argv[1])
+(root / "scripts").mkdir(parents=True)
+(root / "AGENTS.md").write_text("isolated hook guidance\n", encoding="utf-8")
+(root / "scripts" / "session-start.sh").write_text("exit 0\n", encoding="utf-8")
+manifest = {
+    "schemaVersion": 1,
+    "metricVersion": 1,
+    "highWaterEstimatedTokens": 32768,
+    "warningEstimatedTokens": 26215,
+    "profiles": [
+        {"name": "startup", "extends": [], "files": [
+            {"path": "AGENTS.md", "classification": "always", "reason": "test entrypoint"}
+        ]},
+        {"name": "non_trivial_coding", "extends": ["startup"], "files": []},
+    ],
+}
+(root / "instruction-load-routes.json").write_text(json.dumps(manifest), encoding="utf-8")
+PY
+if [[ "$HOOK_COMMAND" == "py -3 \"$REPO_ROOT_NORM/scripts/vscode-session-start.py\"" ||
+      "$HOOK_COMMAND" == "python3 \"$REPO_ROOT_NORM/scripts/vscode-session-start.py\"" ||
+      "$HOOK_COMMAND" == "python \"$REPO_ROOT_NORM/scripts/vscode-session-start.py\"" ]] &&
+   printf '{"hookEventName":"SessionStart"}\n' |
+     eval "$HOOK_COMMAND --repo-root \"$HOOK_FIXTURE\" --status-file \"$HOOK_FIXTURE/status.json\"" >"$HOOK_FIXTURE/output.json" &&
+   json_check "$HOOK_FIXTURE/output.json" 'data["hookSpecificOutput"]["hookEventName"] == "SessionStart" and "isolated hook guidance" in data["hookSpecificOutput"]["additionalContext"]' &&
+   [[ -f "$HOOK_FIXTURE/status.json" ]]; then
+  pass "installed hook command executes the adapter directly with a supported Python"
 else
-  fail "installed hook command executes the adapter directly with Windows Python"
+  fail "installed hook command executes the adapter directly with a supported Python"
 fi
 if json_check "$T1" 'data == {"github.copilot.chat.additionalReadAccessPaths": [repo]}'; then
   pass "fresh settings contain only the external read grant"
@@ -185,9 +215,12 @@ fi
 
 # A copied installation removes only a recognized generated legacy bootstrap.
 COPIED_REPO="$TMP_ROOT/copied-repo"
-mkdir -p "$COPIED_REPO/scripts" "$COPIED_REPO/vscode"
+mkdir -p "$COPIED_REPO/scripts/vscode" "$COPIED_REPO/vscode"
 cp "$INSTALLER" "$COPIED_REPO/scripts/install-vscode.sh"
 cp "$REPO_ROOT/scripts/vscode-session-start.py" "$COPIED_REPO/scripts/"
+cp "$REPO_ROOT/scripts/vscode/__init__.py" "$COPIED_REPO/scripts/vscode/"
+cp "$REPO_ROOT/scripts/vscode/session_start.py" "$COPIED_REPO/scripts/vscode/"
+cp "$REPO_ROOT/scripts/check-instruction-load-budget.py" "$COPIED_REPO/scripts/"
 touch "$COPIED_REPO/AGENTS.md" "$COPIED_REPO/INDEX.md"
 printf '# User-Wide Adaptive Agent Bootstrap\n' > "$COPIED_REPO/vscode/user-wide.instructions.md"
 COPIED_SETTINGS="$TMP_ROOT/copied/settings.json"

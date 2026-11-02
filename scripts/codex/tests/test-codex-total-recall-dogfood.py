@@ -9,7 +9,10 @@ import unittest
 from unittest import mock
 
 
-SPEC = importlib.util.spec_from_file_location("dogfood", Path(__file__).with_name("dogfood-codex-total-recall.py"))
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+SPEC = importlib.util.spec_from_file_location("dogfood", Path(__file__).resolve().parents[1] / "dogfood-codex-total-recall.py")
 assert SPEC and SPEC.loader
 DOGFOOD = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(DOGFOOD)

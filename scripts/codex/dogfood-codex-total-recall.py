@@ -27,8 +27,8 @@ from typing import Any
 import uuid
 
 
-REPO = Path(__file__).resolve().parent.parent
-SPEC = importlib.util.spec_from_file_location("recall", REPO / "scripts" / "codex_total_recall.py")
+REPO = Path(__file__).resolve().parents[2]
+SPEC = importlib.util.spec_from_file_location("recall", REPO / "scripts" / "codex" / "codex_total_recall.py")
 assert SPEC and SPEC.loader
 RECALL = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(RECALL)
@@ -300,7 +300,7 @@ def prove_provenance(executable: str, home: Path, workspace: Path, thread: str, 
         proof["original_source_event_id"] = source["event_id"]
         ledger = session / "ledger.jsonl"
         retained = ledger.read_bytes()
-        runtime = workspace / "scripts" / "codex_total_recall.py"
+        runtime = workspace / "scripts" / "codex" / "codex_total_recall.py"
         runtime_before = runtime.read_bytes()
         proof["ledger_sha256"] = hashlib.sha256(retained).hexdigest()
         proof["runtime_sha256"] = hashlib.sha256(runtime_before).hexdigest()
@@ -345,7 +345,7 @@ def run(executable: str, report: dict[str, Any]) -> None:
     workspace = Path(tempfile.gettempdir()) / f".recall-dogfood-{uuid.uuid4()}"
     workspace.mkdir()
     report["wire_environment"] = {"PYTHONIOENCODING": "cp1252:surrogateescape", "PYTHONUTF8": "0"}
-    report["runtime_sha256"] = hashlib.sha256((REPO / "scripts" / "codex_total_recall.py").read_bytes()).hexdigest()
+    report["runtime_sha256"] = hashlib.sha256((REPO / "scripts" / "codex" / "codex_total_recall.py").read_bytes()).hexdigest()
     report["template_sha256"] = hashlib.sha256(RECALL.session_index_template_path().read_bytes()).hexdigest()
     report["manual_graph_repair"] = False
     report["hypotheses"] = {
@@ -361,7 +361,7 @@ def run(executable: str, report: dict[str, Any]) -> None:
             subprocess.run(["git", "init", "--quiet", str(workspace)], check=True)
             runtime = workspace / "scripts"
             runtime.mkdir()
-            shutil.copy2(REPO / "scripts" / "codex_total_recall.py", runtime / "codex_total_recall.py")
+            shutil.copy2(REPO / "scripts" / "codex" / "codex_total_recall.py", runtime / "codex_total_recall.py")
             templates = workspace / "templates" / "total-recall"
             templates.mkdir(parents=True)
             shutil.copy2(RECALL.session_index_template_path(), templates / RECALL.session_index_template_path().name)
@@ -604,7 +604,7 @@ def run_installed(executable: str, report: dict[str, Any]) -> None:
     managed = Path.home() / ".adaptive-agents" / "codex" / "total-recall"
     active = RECALL.read_json(managed / "active.json")
     runtime = (managed / active["version_directory"] / "codex_total_recall.py").resolve()
-    if runtime.read_bytes() != (REPO / "scripts" / "codex_total_recall.py").read_bytes():
+    if runtime.read_bytes() != (REPO / "scripts" / "codex" / "codex_total_recall.py").read_bytes():
         raise RuntimeError("Installed runtime differs from checkout; no implicit installation is permitted")
     interpreter = RECALL.read_json(runtime.parent / "manifest.json")["python_executable"]
     if not isinstance(interpreter, str) or not Path(interpreter).is_file():

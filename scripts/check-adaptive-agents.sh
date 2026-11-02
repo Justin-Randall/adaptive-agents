@@ -145,30 +145,42 @@ check_required_paths() {
     schemas
     agents
     scripts
+    scripts/INDEX.md
+    scripts/codex/INDEX.md
+    scripts/codex/tests/INDEX.md
+    scripts/vscode/INDEX.md
+    scripts/vscode/tests/INDEX.md
+    scripts/browser/INDEX.md
+    scripts/tests/INDEX.md
+    scripts/tests/test-script-layout.py
+    scripts/browser/markdown_browser.py
+    scripts/markdown_browser.py
+    scripts/vscode/session_start.py
+    scripts/vscode/integration.py
     instruction-load-routes.json
     instruction-load-baseline.json
     schemas/instruction-load-routes.schema.json
     schemas/instruction-load-baseline.schema.json
     scripts/check-instruction-load-budget.sh
     scripts/check-instruction-load-budget.py
-    scripts/test-instruction-load-budget.py
+    scripts/tests/test-instruction-load-budget.py
     .github/workflows/static-validation.yml
     scripts/bootstrap-project-layer.sh
     scripts/inspect-project-layer-upgrade.sh
     scripts/test-project-layer.sh
     scripts/install-opencode.sh
     scripts/install-codex.sh
-    scripts/codex_config.py
-    scripts/test-install-codex.sh
-    scripts/codex_total_recall.py
-    scripts/test-codex-total-recall.py
+    scripts/codex/codex_config.py
+    scripts/codex/tests/test-install-codex.sh
+    scripts/codex/codex_total_recall.py
+    scripts/codex/tests/test-codex-total-recall.py
     scripts/test-opencode.sh
-    scripts/test-install-vscode.sh
-    scripts/test-install.sh
+    scripts/vscode/tests/test-install-vscode.sh
+    scripts/tests/test-install.sh
     scripts/vscode-session-start.py
-    scripts/test-vscode-session-start.py
+    scripts/vscode/tests/test-vscode-session-start.py
     scripts/check-vscode-integration.py
-    scripts/test-vscode-integration.py
+    scripts/vscode/tests/test-vscode-integration.py
     .adaptive-agents/INDEX.md
     .adaptive-agents/project-layer.json
     .adaptive-agents/scripts/check-project-layer.sh
@@ -443,7 +455,7 @@ check_codex_integration() {
     warn "Codex config.toml is missing or Python is unavailable for permission validation"
     return 0
   fi
-  if "${PYTHON_CMD[@]}" "$REPO_ROOT/scripts/codex_config.py" --config "$config" --repo-root "$REPO_ROOT" --check --global-instructions "$global" >/dev/null 2>&1
+  if "${PYTHON_CMD[@]}" "$REPO_ROOT/scripts/codex/codex_config.py" --config "$config" --repo-root "$REPO_ROOT" --check --global-instructions "$global" >/dev/null 2>&1
   then
     pass "Codex global entrypoint resolves to canonical AGENTS.md and grants repository-scoped workspace-write access"
   else
@@ -782,7 +794,7 @@ check_instruction_load_budget() {
 
 check_instruction_load_budget_tests() {
   local output
-  if output="$("${PYTHON_CMD[@]}" scripts/test-instruction-load-budget.py --verbose 2>&1)"; then
+  if output="$("${PYTHON_CMD[@]}" scripts/tests/test-instruction-load-budget.py --verbose 2>&1)"; then
     pass "Instruction load budget regression tests pass"
     verbose_evidence "Instruction load budget regression tests" "$output"
   else
@@ -791,15 +803,33 @@ check_instruction_load_budget_tests() {
   fi
 }
 
+check_script_tree_tests() {
+  for test_file in \
+    scripts/tests/test-script-layout.py \
+    scripts/vscode/tests/test-vscode-session-start.py \
+    scripts/vscode/tests/test-vscode-integration.py
+  do
+    if ! "${PYTHON_CMD[@]}" "$test_file"; then
+      fail "Script tree compatibility tests failed: $test_file"
+      return 1
+    fi
+  done
+  if ! bash scripts/vscode/tests/test-install-vscode.sh; then
+    fail "VS Code installer regression tests failed"
+    return 1
+  fi
+  pass "Script tree compatibility tests passed"
+}
+
 check_codex_tests() {
-  if ! bash scripts/test-install-codex.sh; then
+  if ! bash scripts/codex/tests/test-install-codex.sh; then
     fail "Codex installer regression tests failed"
     return 1
   fi
   for test_file in \
-    scripts/test-codex-total-recall-installer.py \
-    scripts/test-codex-config.py \
-    scripts/test-codex-hooks-config.py
+    scripts/codex/tests/test-codex-total-recall-installer.py \
+    scripts/codex/tests/test-codex-config.py \
+    scripts/codex/tests/test-codex-hooks-config.py
   do
     if ! "${PYTHON_CMD[@]}" "$test_file"; then
       fail "Codex installer unit tests failed: $test_file"
@@ -810,23 +840,23 @@ check_codex_tests() {
 }
 
 check_codex_total_recall_tests() {
-  if ! "${PYTHON_CMD[@]}" scripts/test-codex-total-recall.py; then
+  if ! "${PYTHON_CMD[@]}" scripts/codex/tests/test-codex-total-recall.py; then
     fail "Codex Total Recall foundation tests failed"
     return 1
   fi
-  if ! "${PYTHON_CMD[@]}" scripts/test-codex-total-recall-dogfood.py; then
+  if ! "${PYTHON_CMD[@]}" scripts/codex/tests/test-codex-total-recall-dogfood.py; then
     fail "Codex Total Recall provenance evidence tests failed"
     return 1
   fi
-  if ! "${PYTHON_CMD[@]}" scripts/test-codex-total-recall-recovery.py; then
+  if ! "${PYTHON_CMD[@]}" scripts/codex/tests/test-codex-total-recall-recovery.py; then
     fail "Codex Total Recall native-reply recovery tests failed"
     return 1
   fi
-  if ! "${PYTHON_CMD[@]}" scripts/test-codex-recall-pivot.py; then
+  if ! "${PYTHON_CMD[@]}" scripts/codex/tests/test-codex-recall-pivot.py; then
     fail "Codex Total Recall pivot evidence tests failed"
     return 1
   fi
-  for test_file in scripts/test-codex-markdown-recall.py scripts/test-codex-markdown-dogfood.py; do
+  for test_file in scripts/codex/tests/test-codex-markdown-recall.py scripts/codex/tests/test-codex-markdown-dogfood.py; do
     if ! "${PYTHON_CMD[@]}" "$test_file"; then
       fail "Codex Markdown experiment tests failed: $test_file"
       return 1
@@ -841,6 +871,7 @@ run_timed_check "Project Layer regression tests" check_project_layer_tests
 run_timed_check "dogfood Project Layer validator" check_dogfood_project_layer
 if find_python; then
   run_timed_check "instruction load budget tests" check_instruction_load_budget_tests
+  run_timed_check "script tree compatibility tests" check_script_tree_tests
 else
   fail "Python 3 not found; cannot run instruction load budget regression tests"
 fi

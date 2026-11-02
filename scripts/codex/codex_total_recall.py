@@ -88,7 +88,7 @@ def file_lock(path: Path) -> Generator[None, None, None]:
 
 def authority_root() -> Path:
     configured = os.environ.get("ADAPTIVE_AGENTS_ROOT")
-    return Path(configured).resolve() if configured else Path(__file__).resolve().parent.parent
+    return Path(configured).resolve() if configured else Path(__file__).resolve().parents[2]
 
 
 def event_kind(data: dict[str, Any]) -> str:

@@ -8,7 +8,9 @@ import sys
 import tempfile
 import unittest
 
-SPEC = importlib.util.spec_from_file_location("trial", Path(__file__).with_name("dogfood-codex-markdown.py"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+SPEC = importlib.util.spec_from_file_location("trial", Path(__file__).resolve().parents[1] / "dogfood-codex-markdown.py")
 assert SPEC and SPEC.loader
 trial = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(trial)

@@ -20,7 +20,7 @@ from typing import Any
 import codex_markdown_recall as md
 
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("dogfood", Path(__file__).with_name("dogfood-codex-total-recall.py"))
 assert SPEC and SPEC.loader
 DOGFOOD = importlib.util.module_from_spec(SPEC)
@@ -279,10 +279,10 @@ def run(args: argparse.Namespace, report: dict[str, Any]) -> None:
     evidence = args.report.with_suffix("")
     evidence.mkdir(parents=True, exist_ok=False)
     shutil.copy2(Path(__file__), evidence / "driver.py")
-    runtime = workspace / "scripts"
-    runtime.mkdir()
+    runtime = workspace / "scripts" / "codex"
+    runtime.mkdir(parents=True)
     for name in ("codex_markdown_recall.py", "codex_total_recall.py"):
-        shutil.copy2(ROOT / "scripts" / name, runtime / name)
+        shutil.copy2(ROOT / "scripts" / "codex" / name, runtime / name)
     template = workspace / "templates" / "total-recall"
     template.mkdir(parents=True)
     shutil.copy2(ROOT / "templates" / "total-recall" / "markdown-session-index.md", template)
@@ -307,9 +307,9 @@ def run(args: argparse.Namespace, report: dict[str, Any]) -> None:
     if args.packaged_runtime:
         managed = workspace / "managed-runtime"
         subprocess.run(
-            [sys.executable, str(ROOT / "scripts" / "codex_total_recall_installer.py"),
+            [sys.executable, str(ROOT / "scripts" / "codex" / "codex_total_recall_installer.py"),
              "--runtime-root", str(managed), "--adapter-source", str(runtime / "codex_total_recall.py"),
-             "--launcher-source", str(ROOT / "scripts" / "codex_total_recall_launcher.py"),
+             "--launcher-source", str(ROOT / "scripts" / "codex" / "codex_total_recall_launcher.py"),
              "--python-executable", sys.executable, "--adaptive-agents-root", str(workspace), "--apply"],
             check=True, capture_output=True, timeout=60)
         hook_entrypoint = managed / "launcher.py"

@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[3]
 CHECKER = REPO_ROOT / "scripts" / "check-vscode-integration.py"
 
 

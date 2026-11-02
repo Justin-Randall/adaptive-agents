@@ -10,7 +10,10 @@ import unittest
 from pathlib import Path
 
 
-MODULE_PATH = Path(__file__).with_name("codex_hooks_config.py")
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+MODULE_PATH = Path(__file__).resolve().parents[1] / "codex_hooks_config.py"
 SPEC = importlib.util.spec_from_file_location("codex_hooks_config", MODULE_PATH)
 assert SPEC and SPEC.loader
 MODULE = importlib.util.module_from_spec(SPEC)
@@ -85,7 +88,7 @@ class HookConfigTests(unittest.TestCase):
     def test_foundation_hook_config_migrates_to_managed_launcher(self) -> None:
         with tempfile.TemporaryDirectory(dir=Path.cwd()) as directory:
             config = Path(directory) / "hooks.json"
-            legacy_script = Path(directory) / "scripts" / "codex_total_recall.py"
+            legacy_script = Path(directory) / "scripts" / "codex" / "codex_total_recall.py"
             managed_launcher = Path(directory) / ".adaptive-agents" / "codex" / "launcher.py"
             original = json.dumps(
                 MODULE.desired_config(legacy_script, "python"),
@@ -159,7 +162,7 @@ class HookConfigTests(unittest.TestCase):
                 'timeout = 5\n'
             )
             toml_config.write_text(user_config, encoding="utf-8")
-            legacy_script = codex_home / "scripts" / "codex_total_recall.py"
+            legacy_script = codex_home / "scripts" / "codex" / "codex_total_recall.py"
             hooks_config.write_text(
                 json.dumps(MODULE.desired_config(legacy_script, "python"), indent=2) + "\n",
                 encoding="utf-8",

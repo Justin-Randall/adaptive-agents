@@ -17,23 +17,55 @@ from pathlib import Path
 from unittest.mock import patch
 
 
-MODULE_PATH = Path(__file__).with_name("codex_total_recall_installer.py")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+MODULE_PATH = Path(__file__).resolve().parents[1] / "codex_total_recall_installer.py"
 SPEC = importlib.util.spec_from_file_location("codex_total_recall_installer", MODULE_PATH)
 assert SPEC and SPEC.loader
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
-RECALL_SPEC = importlib.util.spec_from_file_location("recall", Path(__file__).with_name("codex_total_recall.py"))
+RECALL_SPEC = importlib.util.spec_from_file_location("recall", Path(__file__).resolve().parents[1] / "codex_total_recall.py")
 assert RECALL_SPEC and RECALL_SPEC.loader
 RECALL = importlib.util.module_from_spec(RECALL_SPEC)
 RECALL_SPEC.loader.exec_module(RECALL)
 
 
 class ManagedRuntimeTests(unittest.TestCase):
+    def test_existing_installed_reader_survives_checkout_source_relocation(self) -> None:
+        old_scripts = Path(self.temporary.name) / "old checkout" / "scripts"
+        old_scripts.mkdir(parents=True)
+        adapter = old_scripts / "codex_total_recall.py"
+        source = Path(__file__).resolve().parents[1]
+        shutil.copy2(source / "codex_total_recall.py", adapter)
+        runtime = MODULE.ManagedRuntime(
+            self.root, adapter, source / "codex_total_recall_launcher.py",
+            sys.executable, Path(__file__).resolve().parents[3])
+        runtime.install()
+        launcher = self.root / "launcher.py"
+        capture = subprocess.run(
+            [sys.executable, str(launcher), "--root", str(old_scripts / "sessions")],
+            input=json.dumps({"session_id": "existing", "hook_event_name": "PostToolUse",
+                              "tool_response": "Evidence before source relocation."}).encode("utf-8"),
+            capture_output=True, timeout=60)
+        self.assertEqual(capture.returncode, 0, capture.stderr)
+        session = next(old_scripts.glob("sessions/*/ledger.md")).parent
+        event = RECALL.read_events(session)[0]
+        active = (self.root / "active.json").read_bytes()
+        relocated = old_scripts / "codex"
+        relocated.mkdir()
+        adapter.rename(relocated / adapter.name)
+        read = subprocess.run(
+            [sys.executable, str(launcher), "--read", str(session), "--anchor", event["event_id"]],
+            cwd=self.temporary.name, capture_output=True, timeout=60)
+        self.assertEqual(read.returncode, 0, read.stderr)
+        self.assertIn("Evidence before source relocation.", json.loads(read.stdout)["text"])
+        self.assertEqual((self.root / "active.json").read_bytes(), active)
+
     def test_installed_adapter_uses_only_markdown_and_delivers_result_handles(self) -> None:
         runtime = MODULE.ManagedRuntime(
-            self.root, Path(__file__).with_name("codex_total_recall.py"),
-            Path(__file__).with_name("codex_total_recall_launcher.py"),
-            sys.executable, Path(__file__).resolve().parent.parent)
+            self.root, Path(__file__).resolve().parents[1] / "codex_total_recall.py",
+            Path(__file__).resolve().parents[1] / "codex_total_recall_launcher.py",
+            sys.executable, Path(__file__).resolve().parents[3])
         runtime.install()
         store = Path(self.temporary.name) / "markdown sessions"
         result = subprocess.run(
@@ -202,7 +234,7 @@ class ManagedRuntimeTests(unittest.TestCase):
         self.runtime = MODULE.ManagedRuntime(
             self.root,
             self.source,
-            Path(__file__).with_name("codex_total_recall_launcher.py"),
+            Path(__file__).resolve().parents[1] / "codex_total_recall_launcher.py",
             sys.executable,
             canonical_root,
         )
@@ -226,10 +258,10 @@ class ManagedRuntimeTests(unittest.TestCase):
     def test_installed_index_reader_uses_manifest_paths_and_stable_launcher(self) -> None:
         self.runtime = MODULE.ManagedRuntime(
             self.root,
-            Path(__file__).with_name("codex_total_recall.py"),
-            Path(__file__).with_name("codex_total_recall_launcher.py"),
+            Path(__file__).resolve().parents[1] / "codex_total_recall.py",
+            Path(__file__).resolve().parents[1] / "codex_total_recall_launcher.py",
             sys.executable,
-            Path(__file__).resolve().parent.parent,
+            Path(__file__).resolve().parents[3],
         )
         self.runtime.install()
         store = Path(self.temporary.name) / "installed sessions & user's"
@@ -292,9 +324,9 @@ class ManagedRuntimeTests(unittest.TestCase):
 
     def test_real_installed_adapter_retains_long_raw_utf8_payloads(self) -> None:
         runtime = MODULE.ManagedRuntime(
-            self.root, Path(__file__).with_name("codex_total_recall.py"),
-            Path(__file__).with_name("codex_total_recall_launcher.py"),
-            sys.executable, Path(__file__).resolve().parent.parent)
+            self.root, Path(__file__).resolve().parents[1] / "codex_total_recall.py",
+            Path(__file__).resolve().parents[1] / "codex_total_recall_launcher.py",
+            sys.executable, Path(__file__).resolve().parents[3])
         runtime.install()
         store = Path(self.temporary.name) / "sessions"
         environment = dict(os.environ, PYTHONIOENCODING="cp1252:surrogateescape", PYTHONUTF8="0")

@@ -81,24 +81,24 @@ if [[ -z "$PYTHON" ]]; then
 fi
 PYTHON_EXECUTABLE="$("$PYTHON" -c 'import sys; print(sys.executable)')"
 
-"$PYTHON" "$SCRIPT_DIR/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" \
+"$PYTHON" "$SCRIPT_DIR/codex/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" \
   --session-root "$SESSION_ROOT" --global-instructions "$GLOBAL"
-"$PYTHON" "$SCRIPT_DIR/codex_hooks_config.py" --config "$HOOKS" \
+"$PYTHON" "$SCRIPT_DIR/codex/codex_hooks_config.py" --config "$HOOKS" \
   --script "$RUNTIME_ROOT/launcher.py" --python "$PYTHON_EXECUTABLE" --toml-config "$CONFIG"
-RUNTIME_PLAN="$("$PYTHON" "$SCRIPT_DIR/codex_total_recall_installer.py" --runtime-root "$RUNTIME_ROOT" \
-  --adapter-source "$SCRIPT_DIR/codex_total_recall.py" \
-  --launcher-source "$SCRIPT_DIR/codex_total_recall_launcher.py" \
+RUNTIME_PLAN="$("$PYTHON" "$SCRIPT_DIR/codex/codex_total_recall_installer.py" --runtime-root "$RUNTIME_ROOT" \
+  --adapter-source "$SCRIPT_DIR/codex/codex_total_recall.py" \
+  --launcher-source "$SCRIPT_DIR/codex/codex_total_recall_launcher.py" \
   --python-executable "$PYTHON_EXECUTABLE" --adaptive-agents-root "$REPO_ROOT")"
 
 if [[ "$CHECK_ONLY" -eq 1 ]]; then
-  "$PYTHON" "$SCRIPT_DIR/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" \
+  "$PYTHON" "$SCRIPT_DIR/codex/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" \
     --session-root "$SESSION_ROOT" --check --global-instructions "$GLOBAL"
-  "$PYTHON" "$SCRIPT_DIR/codex_hooks_config.py" --config "$HOOKS" \
+  "$PYTHON" "$SCRIPT_DIR/codex/codex_hooks_config.py" --config "$HOOKS" \
     --script "$RUNTIME_ROOT/launcher.py" --python "$PYTHON_EXECUTABLE" \
     --toml-config "$CONFIG" --check
-  "$PYTHON" "$SCRIPT_DIR/codex_total_recall_installer.py" --runtime-root "$RUNTIME_ROOT" \
-    --adapter-source "$SCRIPT_DIR/codex_total_recall.py" \
-    --launcher-source "$SCRIPT_DIR/codex_total_recall_launcher.py" \
+  "$PYTHON" "$SCRIPT_DIR/codex/codex_total_recall_installer.py" --runtime-root "$RUNTIME_ROOT" \
+    --adapter-source "$SCRIPT_DIR/codex/codex_total_recall.py" \
+    --launcher-source "$SCRIPT_DIR/codex/codex_total_recall_launcher.py" \
     --python-executable "$PYTHON_EXECUTABLE" --adaptive-agents-root "$REPO_ROOT" --check
   echo "Codex Total Recall installation is healthy."
   exit 0
@@ -155,27 +155,27 @@ snapshot_file runtime-active "$RUNTIME_ROOT/active.json"
 snapshot_file runtime-launcher "$RUNTIME_ROOT/launcher.py"
 ROLLBACK_ENABLED=1
 
-"$PYTHON" "$SCRIPT_DIR/codex_total_recall_installer.py" --runtime-root "$RUNTIME_ROOT" \
-  --adapter-source "$SCRIPT_DIR/codex_total_recall.py" \
-  --launcher-source "$SCRIPT_DIR/codex_total_recall_launcher.py" \
+"$PYTHON" "$SCRIPT_DIR/codex/codex_total_recall_installer.py" --runtime-root "$RUNTIME_ROOT" \
+  --adapter-source "$SCRIPT_DIR/codex/codex_total_recall.py" \
+  --launcher-source "$SCRIPT_DIR/codex/codex_total_recall_launcher.py" \
   --python-executable "$PYTHON_EXECUTABLE" --adaptive-agents-root "$REPO_ROOT" --apply
 if [[ ! -e "$GLOBAL" && ! -L "$GLOBAL" ]]; then
-  "$PYTHON" "$SCRIPT_DIR/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" \
+  "$PYTHON" "$SCRIPT_DIR/codex/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" \
     --global-instructions "$GLOBAL" --install-instructions
 fi
-"$PYTHON" "$SCRIPT_DIR/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" \
+"$PYTHON" "$SCRIPT_DIR/codex/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" \
   --session-root "$SESSION_ROOT" --apply
-"$PYTHON" "$SCRIPT_DIR/codex_hooks_config.py" --config "$HOOKS" \
+"$PYTHON" "$SCRIPT_DIR/codex/codex_hooks_config.py" --config "$HOOKS" \
   --script "$RUNTIME_ROOT/launcher.py" --python "$PYTHON_EXECUTABLE" \
   --toml-config "$CONFIG" --apply
-"$PYTHON" "$SCRIPT_DIR/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" \
+"$PYTHON" "$SCRIPT_DIR/codex/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" \
   --session-root "$SESSION_ROOT" --check --global-instructions "$GLOBAL"
-"$PYTHON" "$SCRIPT_DIR/codex_hooks_config.py" --config "$HOOKS" \
+"$PYTHON" "$SCRIPT_DIR/codex/codex_hooks_config.py" --config "$HOOKS" \
   --script "$RUNTIME_ROOT/launcher.py" --python "$PYTHON_EXECUTABLE" \
   --toml-config "$CONFIG" --check
-"$PYTHON" "$SCRIPT_DIR/codex_total_recall_installer.py" --runtime-root "$RUNTIME_ROOT" \
-  --adapter-source "$SCRIPT_DIR/codex_total_recall.py" \
-  --launcher-source "$SCRIPT_DIR/codex_total_recall_launcher.py" \
+"$PYTHON" "$SCRIPT_DIR/codex/codex_total_recall_installer.py" --runtime-root "$RUNTIME_ROOT" \
+  --adapter-source "$SCRIPT_DIR/codex/codex_total_recall.py" \
+  --launcher-source "$SCRIPT_DIR/codex/codex_total_recall_launcher.py" \
   --python-executable "$PYTHON_EXECUTABLE" --adaptive-agents-root "$REPO_ROOT" --check
 ROLLBACK_ENABLED=0
 trap - EXIT

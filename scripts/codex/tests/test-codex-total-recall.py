@@ -9,6 +9,8 @@ import sys
 import tempfile
 import unittest
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 import codex_hooks_config as hooks
 import codex_total_recall as recall
 

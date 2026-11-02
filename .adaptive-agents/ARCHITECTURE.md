@@ -26,6 +26,24 @@ Tool integrations are adapters from each tool's native instruction-discovery, li
 
 Installers must preserve unrelated user configuration, deduplicate managed values, support safe repeated execution, and verify behavior through fresh sessions or equivalent tool-native checks. A successful file write or installer exit is not sufficient proof that a tool loaded the guidance.
 
+### Script Tree
+
+The root `scripts/` directory owns stable public installer, health-check, browser
+and lifecycle entrypoints. Application implementations belong under
+`scripts/codex/`, `scripts/vscode/` and `scripts/browser/`, routed by focused
+indexes. Application tests live beneath their owning area; shared repository and
+installer tests live in `scripts/tests/`.
+
+Preserve installed command paths rather than requiring users to migrate hook
+configuration for a source-tree cleanup. Thin root entrypoints forward to the
+single implementation; the legacy browser import and three public README test
+commands retain compatibility bridges. Other internal/test callers use canonical
+area paths. Historical closed plans and evidence retain their original commands.
+The installed Codex adapter remains self-contained in its versioned runtime;
+moving checkout sources must not invalidate an existing installed reader or
+rewrite session history. Tests cover outside-checkout invocation, default root
+discovery, copied-repository fixtures and installed-reader independence.
+
 On Windows, staged public runtime payloads must inherit the managed parent's access rules when promoted; Python 3.13+ owner-only temporary-directory ACLs must not become the installed reader's access policy. Host hook execution and sandboxed model tool execution are separate permission boundaries. Interpreter read/execute access requires its own evidence and explicit approval for any permission changes; never substitute sandbox bypass or a different sandbox implementation as proof.
 
 ## Adaptation Lifecycle
