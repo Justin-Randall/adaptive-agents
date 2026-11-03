@@ -42,6 +42,7 @@ Do not use inbox notes for:
 ## Captured Notes
 
 - [Generated session artifacts were tracked by source control](2026-10-28-generated-session-artifacts-tracked.md)
+- [Windows Git Bash resolution](2026-11-03-windows-git-bash-resolution.md)
 
 ## Workflow
 

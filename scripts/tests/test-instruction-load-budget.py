@@ -415,8 +415,21 @@ class InstructionLoadBudgetTests(unittest.TestCase):
         bash_command = "bash"
         wrapper_path = WRAPPER_PATH.as_posix()
         if sys.platform == "win32":
-            git_path = Path(shutil.which("git"))
-            bash_command = str(git_path.parents[2] / "bin" / "bash.exe")
+            git_executable = shutil.which("git")
+            if git_executable is None:
+                self.fail("Git executable was not found to locate Git Bash")
+            git_path = Path(git_executable)
+            bash_path = next(
+                (
+                    parent / "bin" / "bash.exe"
+                    for parent in git_path.parents
+                    if (parent / "bin" / "bash.exe").is_file()
+                ),
+                None,
+            )
+            if bash_path is None:
+                self.fail(f"Git Bash was not found in parent directories of {git_path}")
+            bash_command = str(bash_path)
             wrapper_path = f"/{WRAPPER_PATH.drive[0].lower()}{wrapper_path[2:]}"
         result = subprocess.run(
             [bash_command, wrapper_path, "--unknown"],

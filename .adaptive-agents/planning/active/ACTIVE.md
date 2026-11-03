@@ -90,6 +90,16 @@ The live Desktop installation is now user-upgraded runtime 1.2.0/template 14. Th
   The unchanged hook's `load_profile` therefore rejects the live checkout.
   The isolated installer test verifies generated-command execution, not live
   planning-budget health. This pre-existing issue is outside the path cleanup.
+- The Markdown dogfood driver no longer initializes temporary workspaces as Git
+  repositories; an isolated Codex app-server A/B probe showed basic session,
+  sandboxed file-read and file-write behavior succeeds identically without Git.
+  Keep workspaces while evidence may be analyzed, then ask about cleanup when
+  closing the active plan or backlog item per the
+  [Project Instructions](../../instructions/project.instructions.md#dogfood-workspace-hygiene).
+  The new no-Git regression passes in the seven-test focused suite; Project
+  Layer validation passes all 43 regression checks. The instruction-load
+  budget regression suite also passes all 31 tests. The full Adaptive Agents
+  health check passes 278 checks with no failures and one existing warning.
 
 ### Pivot Rationale and Boundaries
 

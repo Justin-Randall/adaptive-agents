@@ -17,6 +17,10 @@ SPEC.loader.exec_module(trial)
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_driver_does_not_initialize_temporary_workspaces_as_git_repositories(self) -> None:
+        source = Path(trial.__file__).read_text(encoding="utf-8")
+        self.assertNotIn('"git", "init"', source)
+
     def test_frozen_recall_requires_completed_source_text_and_read_citation(self) -> None:
         anchor = "evt-000004-123456abcdef-f1-p0"
         trace = [{"sequence": 1, "method": "item/completed", "item": {

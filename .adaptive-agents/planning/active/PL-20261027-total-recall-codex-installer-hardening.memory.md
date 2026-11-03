@@ -59,6 +59,26 @@ Curate this file for cross-session handoff. Replace stale details rather than ke
   The hermetic installer test proves the generated command and hook output
   contract, not live planning-budget health. No production workaround added.
 
+## Dogfood Workspace Hygiene
+
+- The user authorized cleanup of the 12 retained dogfood workspaces after
+  analysis. They are removed; the user-scoped dogfood root is empty.
+- A controlled Codex app-server A/B probe using one identical file-read/write
+  task passed with and without Git metadata. The Markdown driver no longer
+  initializes Git in either its frozen-recall or proactive/selective workspace
+  setup. It retains generated workspaces for follow-up analysis.
+- Project instructions now say to initialize Git only for Git-specific tests,
+  retain dogfood artifacts while analysis may continue, and ask about cleanup
+  when closing an active plan or backlog item. This is not authorization to
+  remove newly generated workspaces at run completion.
+- The Markdown driver suite passes all seven tests, Project Layer validator
+  tests pass 43/43, the direct instruction-load budget checker passes, and the
+  instruction-load budget test suite passes 31/31. Its Windows shell test had
+  used a fixed Git parent index, which differed between `Git\cmd` and
+  `Git\mingw64\bin` executable layouts. Searching ancestors for the existing
+  `bin\bash.exe` made the subprocess test pass. Full repository health passes
+  278 checks with zero failures and one existing Claude Code warning.
+
 ## Markdown-Only Installed Runtime
 
 - `scripts/codex/codex_total_recall.py` is the single self-contained implementation; the explicit-root Markdown wrapper imports it rather than duplicating storage. Manifest version 4 identifies `ledger.md` / `markdown-1`; canonical template 14 renders stable installed-reader commands. Production PostToolUse delivers up to four real result-part handles within 1,200 bytes. Stop is capture-only.

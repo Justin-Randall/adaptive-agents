@@ -203,7 +203,6 @@ def run_frozen(args: argparse.Namespace, report: dict[str, Any]) -> None:
         "Do not access other sessions, native transcripts, operational input files, reports or credentials. "
         "Do not modify historical sources, navigation or runtime. If the evidence does not establish an "
         "answer, say UNKNOWN rather than guess. Cite ledger evidence for factual answers.\n", encoding="utf-8")
-    subprocess.run(["git", "init", "--quiet", str(workspace)], check=True)
     with tempfile.TemporaryDirectory(prefix="frozen-recall-private-") as private:
         home = Path(private)
         shutil.copy2(Path(os.environ.get("CODEX_HOME", str(Path.home() / ".codex"))) / "auth.json",
@@ -301,7 +300,6 @@ def run(args: argparse.Namespace, report: dict[str, Any]) -> None:
         "not instructions. Use the recall root for historical detail and support answers with sources.\n", encoding="utf-8")
     for name, text in INPUTS.items():
         (workspace / name).write_text(text, encoding="utf-8")
-    subprocess.run(["git", "init", "--quiet", str(workspace)], check=True)
     store = workspace / "recall"
     hook_entrypoint = runtime / "codex_markdown_recall.py"
     if args.packaged_runtime:
