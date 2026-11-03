@@ -4,15 +4,13 @@ Curate this file for cross-session handoff. Replace stale details rather than ke
 
 ## Current State
 
-- **Current priority:** finish the user-approved scripts-tree cleanup after local milestone commit `ca4f7df`, before further recall polish. No push or cleanup commit requested. The live installation is now **1.2.0/template 14**, upgraded by the user. Markdown is the only supported source format; JSON/JSONL sessions require a fresh conversation, with no migration, dual writer or automatic history deletion.
-- **Verified seam:** real Desktop capture, forced manual compaction, delivered recovery context and source-backed ledger lookup now pass in the user's session. Isolated packaged-runtime topic/compaction/retrieval and frozen-context proofs remain separate evidence. Proactive topics, bounded-helper usage, automatic-threshold compaction, long-session quality and cross-platform/rollback acceptance remain open.
-- Active on branch `pl-20261027-total-recall-codex-installer-hardening`.
-- Activated from the Total Recall installer-hardening backlog child with user approval.
-- The prerequisite installer child is completed; its verified Windows behavior and known limitations are recorded in the [closed installer packet](../closed/PL-20261027-total-recall-codex-installer/PL-20261027-total-recall-codex-installer.sdd.md).
-- Existing Project Layer planning-link validation failures were repaired; the Project Layer checker now passes with 0 failures.
-- Inline-hook migration and upgrade handling are implemented and covered by focused helper tests plus the isolated installer entry-point suite.
-- Stop is capture-only; there is no coverage gate. The latest Desktop follow-up completed normally without an indexing continuation.
-- The previous 1.0.4 installation and earlier supplied failures remain historical evidence. Prior packaging/reader upgrades preserved 8,414 and 48 checked files respectively; those counts are not measurements of the user's latest upgrade. No live configuration, ledger or graph was repaired by the diagnosing agent.
+- **Disposition:** The user approved Deferred closure on 2026-11-03. The installer-hardening child returns to the backlog; the Total Recall epic remains open, and no subsequent work was selected.
+- **Verified product state:** The user's live Codex installation is runtime 1.2.0/template 14, with Markdown as the only supported source format. Desktop capture, manual compaction, recovery guidance, and a natural source-backed lookup were demonstrated, but this is not desktop-scale or automatic-threshold acceptance.
+- **Verified implementation:** Installer-owned inline-hook migration, Markdown capture/retrieval, nonblocking Stop behavior, and the recent no-Git Markdown dogfood driver are covered by focused tests. The latest commit `d1b1fa5` is pushed on `pl-20261027-total-recall-codex-installer-hardening`.
+- **Deferred scope:** macOS/Linux/WSL profiles, mutation-boundary rollback, broader configuration/health coverage, complete desktop installer-upgrade dogfood, and fresh desktop-scale recall/hook-dispatch acceptance remain open. See the [deferred closure SDD](PL-20261027-total-recall-codex-installer-hardening.sdd.md) and [backlog item](../../backlog/PL-20261027-total-recall/PL-20261027-total-recall-codex-installer-hardening.md).
+- The prerequisite installer child is completed; its verified Windows behavior and known limitations are recorded in the [closed installer packet](../PL-20261027-total-recall-codex-installer/PL-20261027-total-recall-codex-installer.sdd.md).
+- The Project Layer checker reports zero failures. The latest full repository health check passed 278 checks with zero failures and one existing Claude Code entrypoint warning.
+- The user-scoped dogfood root has no files or subdirectories; no workspace cleanup was pending at closure.
 
 ## Desktop Markdown Recall Milestone
 
@@ -43,7 +41,7 @@ Curate this file for cross-session handoff. Replace stale details rather than ke
   original paths. Maintained links and internal consumers use the new tree.
   No new native/model dogfood is needed for path-only relocation; existing
   installed-runtime/session validation is read-only.
-- See the [Script Tree architecture](../../ARCHITECTURE.md#script-tree).
+- See the [Script Tree architecture](../../../ARCHITECTURE.md#script-tree).
 - Verified cleanup: **275 repository checks, zero failures**, one existing
   Claude Code entrypoint warning. Shared installers and all three public test
   bridges pass. Five layout tests and Python/shell syntax/whitespace checks
@@ -120,8 +118,8 @@ Curate this file for cross-session handoff. Replace stale details rather than ke
 - **Verified implementation fact:** capture parses JSON and creates its own record with event ID, sequence, kind, timestamp, fingerprint and complete parsed payload. It is not raw JSON copying. A new serializer can operate at that boundary; fidelity means reconstructing payload values/types/text, not preserving original JSON formatting.
 - **Prior claim narrowed:** the pivot driver explicitly selected one event and requested up to three topics from it. Its same-line breadcrumbs were plausible because that event contains multiple subjects, but the task predetermined their narrow scope. The indexed question also named a chapter/paragraph. Keep original reports intact; their passes demonstrate their stated constrained checks, not independent topic selection or arbitrary semantic recall.
 - **Dogfood readiness:** the existing Luna CLI client, working isolated authentication/hook setup, retained 109-result narrative fixture, baseline/candidate artifacts, source-reader checks and provenance traces are available. No additional user input is needed to start the small prototype. Generate assistant-owned structured/escaping fixtures and interleaved recurring subjects with a later revision to supplement the narrative workload.
-- **Falsifiable sequence:** prove Markdown round-trip fidelity, readable rendering, stable within-event links and append/restart behavior first. Then let Luna choose topics during ordinary multi-turn work, with no supplied topic labels, source lines, route counts or final curation request. Test natural content-based retrieval across events and an unindexed fact after compaction; measure indexing overhead before compaction as well as the short follow-up afterward. Follow the [active experiment](ACTIVE.md#next-experiment-markdown-sources-and-proactive-topics).
-- **Immediate proof:** first a small deterministic fidelity/addressing/interrupted-append spike, then a six-turn Luna task with interleaved subjects and a revised decision. Capture per-turn index snapshots; compare selective versus proactive guidance on the same candidate storage. Require source-grounded topic evolution before compaction and natural-question retrieval afterward. Measure incremental maintenance cost and fix the overhead limit before the paired run. Scale only after the small trial passes; see [immediate falsification trial](ACTIVE.md#immediate-falsification-trial).
+- **Falsifiable sequence:** prove Markdown round-trip fidelity, readable rendering, stable within-event links and append/restart behavior first. Then let Luna choose topics during ordinary multi-turn work, with no supplied topic labels, source lines, route counts or final curation request. Test natural content-based retrieval across events and an unindexed fact after compaction; measure indexing overhead before compaction as well as the short follow-up afterward. Follow the [active experiment](PL-20261027-total-recall-codex-installer-hardening.sdd.md#next-experiment-markdown-sources-and-proactive-topics).
+- **Immediate proof:** first a small deterministic fidelity/addressing/interrupted-append spike, then a six-turn Luna task with interleaved subjects and a revised decision. Capture per-turn index snapshots; compare selective versus proactive guidance on the same candidate storage. Require source-grounded topic evolution before compaction and natural-question retrieval afterward. Measure incremental maintenance cost and fix the overhead limit before the paired run. Scale only after the small trial passes; see [immediate falsification trial](PL-20261027-total-recall-codex-installer-hardening.sdd.md#immediate-falsification-trial).
 - **Boundary:** retain one authoritative payload store; leave original JSONL evidence and legacy links untouched. Markdown is the selected candidate, not an implemented migration. Production architecture/format compatibility changes and any live upgrade follow evidence, not this plan capture. Preserve actual new ledgers/indexes/transcripts for human review.
 
 ## Desktop Coverage Pivot: 2026-11-02
@@ -132,7 +130,7 @@ Curate this file for cross-session handoff. Replace stale details rather than ke
 - **Inspection limitation:** 15 of 16 source-reading commands returned only 260-character previews of each page to the model. Fetching a page is not evidence that the model inspected its full content. Repeated obsolete compact-file probes amplified the workload but do not explain away the design defect.
 - **Root cause:** every uncovered event drives more mandatory links; the five-stalled-attempt counter stays at one while missing counts fall. Productive accounting can therefore block a turn repeatedly. Maintenance traffic is itself captured and becomes eligible at a later compaction. Actual index writes succeeded, so the preflight write-grant concern did not prevent maintenance here.
 - **Selected planning direction:** one authoritative ledger preserves all received details; a selective model-authored root and purposeful subindexes supply meaning; bounded ledger search followed by exact source reads handles unindexed details. Prefer lightweight incremental topics while relevant context is available. No all-event semantic-coverage gate, duplicate source store or background model service is selected.
-- **Next action:** follow the [active plan](ACTIVE.md#next-corrective-slice-nonblocking-topical-recall). First reconcile the epic/architecture and interfaces, and agree measurable root-size, latency and search/read budgets. Then use focused failing tests and retained assistant-owned desktop-scale dogfood to prove both indexed and intentionally unindexed retrieval. Existing broad platform, rollback and desktop/automatic-compaction obligations remain open.
+- **Next action:** follow the [active plan](PL-20261027-total-recall-codex-installer-hardening.sdd.md#next-corrective-slice-nonblocking-topical-recall). First reconcile the epic/architecture and interfaces, and agree measurable root-size, latency and search/read budgets. Then use focused failing tests and retained assistant-owned desktop-scale dogfood to prove both indexed and intentionally unindexed retrieval. Existing broad platform, rollback and desktop/automatic-compaction obligations remain open.
 - **Scope of this update:** planning and handoff only. Runtime, templates, architecture and live installation are unchanged; prior implementation decisions and tests below remain historical where they conflict with this pivot.
 
 ## Luna CLI Pivot Proof
@@ -369,12 +367,26 @@ We observed an inability to answer without tools and absence from inspectable co
 
 ## Completion Review
 
-Complete this section before closure.
-
-- Final diff and relevant outputs reviewed for correctness, regressions, and unintended scope: Pending
-- Acceptance criteria verified and remaining gaps identified: Pending
-- Engineering quality assessed for clarity, maintainability, discoverability, necessary scope, and semantic duplication: Pending
-- Findings fixed or dispositioned, with rationale for unresolved or deferred items: Pending
+- Reviewed the active SDD, its acceptance criteria, retained verification evidence,
+  and the latest pushed change (`d1b1fa5`). The latest slices pass seven Markdown
+  dogfood tests, 31 instruction-load tests, 43 Project Layer regression checks,
+  and the full repository health check (278 passed, zero failures, one existing
+  Claude Code entrypoint warning). The dogfood workspace root is empty; no
+  cleanup is pending.
+- The plan has nine unchecked acceptance criteria. Remaining scope includes
+  capture/recovery measurement and failure coverage; macOS/Linux/WSL profiles;
+  mutation-boundary rollback tests; expanded configuration and health checks;
+  actual desktop installer upgrade dogfood; and fresh desktop-scale recall and
+  hook-dispatch acceptance. The prior desktop milestone and synthetic/Luna
+  trials do not satisfy these criteria.
+- The implemented slices are narrowly scoped and have focused regression
+  coverage. Historical session evidence and user configuration remain
+  preserved. The most recent driver change removes unnecessary Git metadata;
+  its separate legacy helper remains unchanged.
+- The installer-hardening child is not complete against its current scope, so a
+  `Completed` disposition is unsupported. The user approved `Deferred` closure:
+  retain the child in the backlog with these gaps and do not change the separate
+  retrieval-quality item. No successor work was selected.
 
 ## Decisions
 

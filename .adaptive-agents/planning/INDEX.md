@@ -2,7 +2,7 @@
 
 ## Current Work
 
-Active work: [PL-20261027-total-recall-codex-installer-hardening](active/ACTIVE.md), with handoff context in [its memory](active/PL-20261027-total-recall-codex-installer-hardening.memory.md). Most recent completed work: [PL-20261027-total-recall-session-graph-quality](closed/PL-20261027-total-recall-session-graph-quality/PL-20261027-total-recall-session-graph-quality.sdd.md). The [Total Recall epic](backlog/PL-20261027-total-recall.md) remains open.
+No work is active. The [Total Recall epic](backlog/PL-20261027-total-recall.md) remains open; [installer hardening](backlog/PL-20261027-total-recall/PL-20261027-total-recall-codex-installer-hardening.md) is deferred to Backlog, and [retrieval quality](backlog/PL-20261027-total-recall/PL-20261027-total-recall-retrieval-quality-and-context-efficiency.md) remains pending. Most recent completed work: [PL-20261027-total-recall-session-graph-quality](closed/PL-20261027-total-recall-session-graph-quality/PL-20261027-total-recall-session-graph-quality.sdd.md).
 
 ## Queues
 
