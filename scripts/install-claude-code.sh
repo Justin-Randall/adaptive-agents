@@ -58,6 +58,11 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+if [[ "$DRY_RUN" -eq 1 && "$CHECK_ONLY" -eq 1 ]]; then
+  echo "ERROR: --dry-run and --check cannot be combined." >&2
+  exit 1
+fi
+
 # ---------------------------------------------------------------------------
 # Utility functions
 # ---------------------------------------------------------------------------
@@ -111,7 +116,24 @@ main() {
       echo "FAIL: Claude Code CLAUDE.md does not import the canonical AGENTS.md." >&2
       return 1
     fi
-    if ! grep -Fq "$repo_root" "$settings_path"; then
+    if ! find_python; then
+      echo "FAIL: Python is required to validate Claude Code settings." >&2
+      return 1
+    fi
+    if ! "${PYTHON_CMD[@]}" - "$settings_path" "$repo_root" <<'PY'
+import json, sys
+from pathlib import Path
+settings = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+permissions = settings.get("permissions", {})
+def normalize(value):
+    value = str(value).replace("\\", "/")
+    if len(value) > 2 and value[0] == "/" and value[2] == "/":
+        value = value[1] + ":" + value[2:]
+    return value.rstrip("/").lower()
+grants = permissions.get("additionalDirectories", []) if isinstance(permissions, dict) else []
+raise SystemExit(0 if isinstance(grants, list) and normalize(sys.argv[2]) in {normalize(item) for item in grants} else 1)
+PY
+    then
       echo "FAIL: Claude Code settings do not grant repository access." >&2
       return 1
     fi

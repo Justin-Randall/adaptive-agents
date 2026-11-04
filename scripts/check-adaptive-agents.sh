@@ -818,6 +818,10 @@ check_script_tree_tests() {
     fail "VS Code installer regression tests failed"
     return 1
   fi
+  if ! bash scripts/tests/test-installer-check-modes.sh; then
+    fail "Installer check-mode tests failed"
+    return 1
+  fi
   pass "Script tree compatibility tests passed"
 }
 

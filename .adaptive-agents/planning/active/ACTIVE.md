@@ -60,6 +60,14 @@ Live dogfooding proved that the Copilot hook captures `SessionStart`, `UserPromp
 - Fixed the review items: transcript reads now use the bounded tail, the installer grants the canonical repository sandbox read/write access, all lifecycle hooks are validated, and tests cover a transcript larger than the scan window. Git Bash installer tests pass all 15 cases; response tests pass 4 cases and integration tests pass 5 cases.
 - Added read-only `--check` support to all tool-specific installers and aggregated delegation from `install.sh`; checks validate configuration only and explicitly warn where fresh-session or UI-managed trust cannot be proven.
 
+## Merge Review Follow-up
+
+- Antigravity support is being deprecated by user direction; exclude Antigravity from this follow-up's check-mode normalization and do not expand its validation.
+- Remaining quality work: reject `--dry-run --check` consistently; replace Claude/OpenCode substring checks with structured configuration validation; add direct non-mutating tests for installer and umbrella `--check` modes.
+- The Copilot/Total Recall core passed review without a blocking defect. These installer-quality items are the remaining pre-merge work.
+- Implemented the remaining check-mode fixes: consistent conflict rejection, structured Claude/OpenCode validation, and a focused installer check-mode test registered with the repository checker. Antigravity remains intentionally excluded.
+- Git Bash bridge diagnosis completed: the bridge was functional; the first test failure was a fixture layout error, followed by a real `/d/...` versus `D:/...` path-normalization issue. Both are fixed, and installer check-mode tests now pass end-to-end.
+
 ## Review Findings To Address
 
 - **P1 — transcript windowing:** `latest_assistant_response()` reads only the first 16 MiB, so a growing transcript can leave the newest response beyond the scan boundary and capture stale content.

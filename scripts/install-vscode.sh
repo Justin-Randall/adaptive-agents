@@ -60,6 +60,11 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+if [[ "$DRY_RUN" -eq 1 && "$CHECK_ONLY" -eq 1 ]]; then
+  echo "ERROR: --dry-run and --check cannot be combined." >&2
+  exit 1
+fi
+
 command_exists() {
   command -v "$1" >/dev/null 2>&1
 }

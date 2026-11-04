@@ -82,6 +82,11 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+if [[ "$DRY_RUN" -eq 1 && "$CHECK_ONLY" -eq 1 ]]; then
+  echo "ERROR: --dry-run and --check cannot be combined." >&2
+  exit 1
+fi
+
 # ---------------------------------------------------------------------------
 # Utility functions
 # ---------------------------------------------------------------------------
@@ -306,8 +311,29 @@ main() {
   config_path="$(detect_opencode_config_path)"
 
   if [[ "$CHECK_ONLY" -eq 1 ]]; then
-    if [[ ! -f "$config_path" ]] || ! grep -Fq "$REPO_ROOT_NORM" "$config_path"; then
+    if [[ ! -f "$config_path" ]]; then
       echo "FAIL: OpenCode configuration does not contain the Adaptive Agents integration." >&2
+      return 1
+    fi
+    if ! command_exists python3 || ! python3 - "$config_path" "$REPO_ROOT_NORM" <<'PY'
+import json, sys
+from pathlib import Path
+config = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+root = sys.argv[2]
+def normalize(value):
+    value = str(value).replace("\\", "/")
+    if len(value) > 2 and value[0] == "/" and value[2] == "/":
+        value = value[1] + ":" + value[2:]
+    return value.rstrip("/").lower()
+instructions = config.get("instructions", [])
+permission = config.get("permission", {})
+external = permission.get("external_directory", {}) if isinstance(permission, dict) else {}
+ok = any(normalize(item) == normalize(root + "/AGENTS.md") for item in instructions if isinstance(item, str))
+ok = ok and any(normalize(key) == normalize(root + "/**") and value == "allow" for key, value in external.items())
+raise SystemExit(0 if ok else 1)
+PY
+    then
+      echo "FAIL: OpenCode instructions or external-directory write grant is invalid." >&2
       return 1
     fi
     echo "PASS: OpenCode configuration contains the Adaptive Agents integration."
