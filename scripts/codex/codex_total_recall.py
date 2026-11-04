@@ -199,7 +199,7 @@ def hook_configuration(script_path: Path, python_executable: str | None = None) 
 HEADER = b"# Captured session evidence\n\n<!-- markdown-ledger-experiment: 1 -->\n\n"
 FRAME = re.compile(rb"<!-- recall-record bytes=(\d+) sha256=([a-f0-9]{64}) -->\n")
 PART_CHARACTERS = 1600
-BODY_FIELDS = {"prompt", "tool_response", "tool_output", "last_assistant_message", "command"}
+BODY_FIELDS = {"prompt", "tool_response", "tool_output", "last_assistant_message", "assistant_response", "command"}
 
 
 
@@ -342,8 +342,9 @@ def read_events(session: Path) -> list[dict[str, Any]]:
 
 
 class SessionStore:
-    def __init__(self, root: Path | None = None) -> None:
-        self.root = (root or Path.home() / ".adaptive-agents" / "sessions" / "codex").resolve()
+    def __init__(self, root: Path | None = None, *, provider: str = "codex") -> None:
+        self.provider = provider
+        self.root = (root or Path.home() / ".adaptive-agents" / "sessions" / provider).resolve()
         self.map_path = self.root / "session-map.json"
 
     def session_for(self, provider_session_id: str, data: dict[str, Any]) -> Path:
@@ -357,7 +358,7 @@ class SessionStore:
             record = sessions.get(provider_session_id)
             if record is None:
                 record = {"adaptive_session_id": str(uuid.uuid4()), "provider_session_id": provider_session_id,
-                          "provider": "codex", "created_at": now_utc()}
+                          "provider": self.provider, "created_at": now_utc()}
                 sessions[provider_session_id] = record
                 atomic_write(self.map_path, json.dumps(mapping, indent=2) + "\n")
             if not isinstance(record, dict) or not isinstance(record.get("adaptive_session_id"), str):

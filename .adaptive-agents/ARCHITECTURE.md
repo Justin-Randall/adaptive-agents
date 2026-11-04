@@ -22,7 +22,7 @@ The repository root owns reusable user-wide guidance. Raw observations begin in 
 
 ## Integration Boundary
 
-Tool integrations are adapters from each tool's native instruction-discovery, lifecycle, and access mechanisms to canonical routed guidance. They may install minimal pointers, hooks, settings, or commands required by the tool, but they must not copy the guidance corpus or create competing sources of truth. Deterministic lifecycle hooks should inject canonical file contents directly rather than instructing a model to load or execute mandatory startup behavior.
+Tool integrations are adapters from each tool's native instruction-discovery, lifecycle, and access mechanisms to canonical routed guidance. They may install minimal pointers, hooks, settings, or commands required by the tool, but they must not copy the guidance corpus or create competing sources of truth. Deterministic lifecycle hooks should inject canonical file contents directly rather than instructing a model to load or execute mandatory startup behavior. The VS Code/GitHub Copilot adapter uses the Copilot harness's version-1 camelCase hook contract and shares the Markdown Total Recall ledger model with Codex through a provider-specific session namespace.
 
 Installers must preserve unrelated user configuration, deduplicate managed values, support safe repeated execution, and verify behavior through fresh sessions or equivalent tool-native checks. A successful file write or installer exit is not sufficient proof that a tool loaded the guidance.
 

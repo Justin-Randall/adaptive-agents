@@ -322,10 +322,21 @@ from pathlib import Path
 
 hook_path = Path(sys.argv[1])
 payload = {
+    "version": 1,
     "hooks": {
-        "SessionStart": [
-            {"type": "command", "command": sys.argv[2], "timeout": 30}
-        ]
+        event: [{"type": "command", "command": sys.argv[2], "timeoutSec": timeout,
+                 "env": {"ADAPTIVE_COPILOT_EVENT": event}}]
+        for event, timeout in {
+            "sessionStart": 60,
+            "userPromptSubmitted": 10,
+            "postToolUse": 10,
+            "postToolUseFailure": 10,
+            "preCompact": 10,
+            "subagentStart": 10,
+            "subagentStop": 10,
+            "agentStop": 10,
+            "sessionEnd": 10,
+        }.items()
     }
 }
 hook_path.parent.mkdir(parents=True, exist_ok=True)
@@ -357,7 +368,7 @@ main() {
   local legacy_vscode_dir
   legacy_vscode_dir="$(to_vscode_path "$repo_root/vscode")"
   local hook_path="$HOME/.copilot/hooks/adaptive-agents.json"
-  local adapter_path="$repo_root/scripts/vscode-session-start.py"
+  local adapter_path="$repo_root/scripts/vscode/copilot_total_recall.py"
   local adapter_setting_path
   adapter_setting_path="$(to_vscode_path "$adapter_path")"
 

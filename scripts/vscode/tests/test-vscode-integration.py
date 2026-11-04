@@ -26,12 +26,13 @@ class VscodeIntegrationHealthTests(unittest.TestCase):
         self.write_json(
             self.hook,
             {
+                "version": 1,
                 "hooks": {
-                    "SessionStart": [
+                    "sessionStart": [
                         {
                             "type": "command",
-                            "command": f'py -3 "{self.repo}/scripts/vscode-session-start.py"',
-                            "timeout": 30,
+                            "command": f'py -3 "{self.repo}/scripts/vscode/copilot_total_recall.py"',
+                            "timeoutSec": 60,
                         }
                     ]
                 }
@@ -81,12 +82,13 @@ class VscodeIntegrationHealthTests(unittest.TestCase):
         self.write_json(
             self.hook,
             {
+                "version": 1,
                 "hooks": {
-                    "SessionStart": [
+                    "sessionStart": [
                         {
                             "type": "command",
-                            "command": 'py -3 "C:/old/scripts/vscode-session-start.py"',
-                            "timeout": 30,
+                            "command": 'py -3 "C:/old/scripts/vscode/copilot_total_recall.py"',
+                            "timeoutSec": 60,
                         }
                     ]
                 }

@@ -130,20 +130,22 @@ def validate_hook(hook, repo_root, problems):
         problems.append("Adaptive Agents hook file is missing")
         return
     expected_commands = {
-        f'py -3 "{repo_root}/scripts/vscode-session-start.py"',
-        f'python3 "{repo_root}/scripts/vscode-session-start.py"',
-        f'python "{repo_root}/scripts/vscode-session-start.py"',
+        f'py -3 "{repo_root}/scripts/vscode/copilot_total_recall.py"',
+        f'python3 "{repo_root}/scripts/vscode/copilot_total_recall.py"',
+        f'python "{repo_root}/scripts/vscode/copilot_total_recall.py"',
     }
     try:
+        if hook.get("version") != 1:
+            problems.append("Copilot hook version is not 1")
         hooks = hook["hooks"]
-        session_start = hooks["SessionStart"]
+        session_start = hooks["sessionStart"]
     except (KeyError, TypeError):
         problems.append("hook does not define SessionStart")
         return
-    if not isinstance(hooks, dict) or list(hooks) != ["SessionStart"]:
-        problems.append("hook contains unexpected events")
+    if not isinstance(hooks, dict) or "sessionStart" not in hooks:
+        problems.append("hook does not define the expected Copilot sessionStart event")
     if not isinstance(session_start, list) or len(session_start) != 1:
-        problems.append("hook must define exactly one SessionStart command")
+        problems.append("hook must define exactly one sessionStart command")
         return
     entry = session_start[0]
     if not isinstance(entry, dict) or entry.get("type") != "command":
@@ -151,8 +153,8 @@ def validate_hook(hook, repo_root, problems):
         return
     if entry.get("command") not in expected_commands:
         problems.append("SessionStart hook does not invoke the canonical Python adapter")
-    if entry.get("timeout") != 30:
-        problems.append("SessionStart hook timeout is not 30 seconds")
+    if entry.get("timeoutSec") != 60:
+        problems.append("sessionStart hook timeout is not 60 seconds")
 
 
 def main():

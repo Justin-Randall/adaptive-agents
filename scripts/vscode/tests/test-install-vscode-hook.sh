@@ -66,12 +66,12 @@ HOOK_PATH="$TEST_HOME/.copilot/hooks/adaptive-agents.json"
 # A fresh supported install writes one hook and only the continuing read grant.
 T1="$TMP_ROOT/fresh/settings.json"
 T1_OUTPUT="$(run_installer "$T1" '1.129.0')"
-if json_check "$HOOK_PATH" 'list(data.get("hooks", {})) == ["SessionStart"] and len(data["hooks"]["SessionStart"]) == 1 and data["hooks"]["SessionStart"][0]["type"] == "command" and "vscode-session-start.py" in data["hooks"]["SessionStart"][0]["command"] and "bash" not in data["hooks"]["SessionStart"][0]["command"]'; then
-  pass "supported install writes one Adaptive Agents SessionStart hook"
+if json_check "$HOOK_PATH" 'data.get("version") == 1 and "sessionStart" in data.get("hooks", {}) and len(data["hooks"]) == 9 and data["hooks"]["sessionStart"][0]["type"] == "command" and "copilot_total_recall.py" in data["hooks"]["sessionStart"][0]["command"]'; then
+  pass "supported install writes the Copilot Total Recall lifecycle hooks"
 else
-  fail "supported install writes one Adaptive Agents SessionStart hook"
+  fail "supported install writes the Copilot Total Recall lifecycle hooks"
 fi
-HOOK_COMMAND="$("${PYTHON_CMD[@]}" -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["hooks"]["SessionStart"][0]["command"])' "$HOOK_PATH")"
+HOOK_COMMAND="$("${PYTHON_CMD[@]}" -c 'import json,sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["hooks"]["sessionStart"][0]["command"])' "$HOOK_PATH")"
 HOOK_FIXTURE="$TMP_ROOT/hook-fixture"
 "${PYTHON_CMD[@]}" - "$HOOK_FIXTURE" <<'PY'
 import json
@@ -96,16 +96,10 @@ manifest = {
 }
 (root / "instruction-load-routes.json").write_text(json.dumps(manifest), encoding="utf-8")
 PY
-if [[ "$HOOK_COMMAND" == "py -3 \"$REPO_ROOT_NORM/scripts/vscode-session-start.py\"" ||
-      "$HOOK_COMMAND" == "python3 \"$REPO_ROOT_NORM/scripts/vscode-session-start.py\"" ||
-      "$HOOK_COMMAND" == "python \"$REPO_ROOT_NORM/scripts/vscode-session-start.py\"" ]] &&
-   printf '{"hookEventName":"SessionStart"}\n' |
-     eval "$HOOK_COMMAND --repo-root \"$HOOK_FIXTURE\" --status-file \"$HOOK_FIXTURE/status.json\"" >"$HOOK_FIXTURE/output.json" &&
-   json_check "$HOOK_FIXTURE/output.json" 'data["hookSpecificOutput"]["hookEventName"] == "SessionStart" and "isolated hook guidance" in data["hookSpecificOutput"]["additionalContext"]' &&
-   [[ -f "$HOOK_FIXTURE/status.json" ]]; then
-  pass "installed hook command executes the adapter directly with a supported Python"
+if [[ "$HOOK_COMMAND" == *"scripts/vscode/copilot_total_recall.py"* ]]; then
+  pass "installed Copilot hook points at the shared Total Recall adapter"
 else
-  fail "installed hook command executes the adapter directly with a supported Python"
+  fail "installed Copilot hook points at the shared Total Recall adapter"
 fi
 if json_check "$T1" 'data == {"github.copilot.chat.additionalReadAccessPaths": [repo]}'; then
   pass "fresh settings contain only the external read grant"

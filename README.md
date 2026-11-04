@@ -201,16 +201,16 @@ Useful options:
 What the installer does:
 
 - requires VS Code 1.129.0 or newer and Python 3.11 or newer
-- installs one Adaptive Agents-owned hook at `~/.copilot/hooks/adaptive-agents.json`
-- invokes the Python context adapter directly, without routing hook startup through Bash
-- injects manifest-routed canonical guidance before the first model response
-- runs `scripts/session-start.sh` through the hook and injects any non-empty probe output
+- installs one Adaptive Agents-owned Copilot-harness hook at `~/.copilot/hooks/adaptive-agents.json`
+- uses the current `version: 1` camelCase Copilot event contract, including `sessionStart`, `postToolUse`, and `preCompact`
+- captures received Copilot hook payloads in the Markdown Total Recall ledger and injects bounded source handles/context
+- injects manifest-routed canonical guidance at session start and runs `scripts/session-start.sh`
 - retains the repository root in `github.copilot.chat.additionalReadAccessPaths` for later routed reads
 - removes installer-owned generated-bootstrap registration and terminal approval rules from prior versions
 - preserves unrelated hooks, instruction settings, terminal rules, and read-access paths
 - creates a timestamped backup before editing settings
 
-The personal hook trusts the Python context adapter, `scripts/session-start.sh`, and every probe under `scripts/session-start/`, including probes added by future Adaptive Agents updates. On Windows, the adapter resolves Bash from the installed Git for Windows executable instead of using an ambiguous `bash` from `PATH`. Session-start probes may inspect state and propose actions, but upgrade mutation remains separately gated: the agent must wait for explicit user approval before following an `--- ON APPROVE` section.
+The personal hook trusts the Python Copilot adapter, `scripts/session-start.sh`, and every probe under `scripts/session-start/`, including probes added by future Adaptive Agents updates. On Windows, the adapter resolves Bash from the installed Git for Windows executable instead of using an ambiguous `bash` from `PATH`. Session-start probes may inspect state and propose actions, but upgrade mutation remains separately gated: the agent must wait for explicit user approval before following an `--- ON APPROVE` section.
 
 After successful hook execution, the adapter atomically writes `~/.cache/adaptive-agents/vscode-session-start-status.json`. The file records the UTC completion time, canonical repository, loaded-file count, and whether probes emitted dynamic output. The adapter removes the prior marker before each attempt, so a stale success cannot hide a failed startup. Inspect it after opening a fresh chat when validating lifecycle behavior.
 

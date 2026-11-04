@@ -1,6 +1,6 @@
 # PL-20260711: GitHub Copilot Agent Mode Support
 
-- Status: Backlog
+- Status: Active
 - Readiness: Ready
 - Created: 2026-07-11
 - Test approach: research — no tests
