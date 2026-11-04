@@ -24,6 +24,7 @@ Usage:
 
 Options:
   --dry-run              Show what would change without writing files.
+  --check                Validate the installed Claude Code integration without writing files.
   -h, --help             Show this help.
 
 Examples:
@@ -33,11 +34,16 @@ EOF
 }
 
 DRY_RUN=0
+CHECK_ONLY=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run)
       DRY_RUN=1
+      shift
+      ;;
+    --check)
+      CHECK_ONLY=1
       shift
       ;;
     -h|--help)
@@ -94,6 +100,25 @@ main() {
 
   local claude_dir="$HOME/.claude"
   local settings_path="$claude_dir/settings.json"
+  local claude_md_path="$claude_dir/CLAUDE.md"
+
+  if [[ "$CHECK_ONLY" -eq 1 ]]; then
+    if [[ ! -f "$claude_md_path" || ! -f "$settings_path" ]]; then
+      echo "FAIL: Claude Code integration is not installed." >&2
+      return 1
+    fi
+    if ! grep -Fq "@${repo_root}/AGENTS.md" "$claude_md_path"; then
+      echo "FAIL: Claude Code CLAUDE.md does not import the canonical AGENTS.md." >&2
+      return 1
+    fi
+    if ! grep -Fq "$repo_root" "$settings_path"; then
+      echo "FAIL: Claude Code settings do not grant repository access." >&2
+      return 1
+    fi
+    echo "PASS: Claude Code entrypoint and repository access are configured."
+    echo "WARN: A fresh Claude session is required to prove runtime loading."
+    return 0
+  fi
 
   echo "Adaptive Agents repository: $repo_root"
   echo "Claude Code config dir:     $claude_dir"
@@ -108,7 +133,6 @@ main() {
   # -----------------------------------------------------------------------
   # Create or update ~/.claude/CLAUDE.md
   # -----------------------------------------------------------------------
-  local claude_md_path="$claude_dir/CLAUDE.md"
 
   if [[ "$DRY_RUN" -eq 1 ]]; then
     echo "[dry-run] Would create/update: $claude_md_path"

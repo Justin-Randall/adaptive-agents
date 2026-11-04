@@ -81,6 +81,14 @@ if [[ -z "$PYTHON" ]]; then
 fi
 PYTHON_EXECUTABLE="$("$PYTHON" -c 'import sys; print(sys.executable)')"
 
+if [[ "$CHECK_ONLY" -eq 1 ]]; then
+  "$PYTHON" "$SCRIPT_DIR/codex/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" --session-root "$SESSION_ROOT" --check --global-instructions "$GLOBAL"
+  "$PYTHON" "$SCRIPT_DIR/codex/codex_hooks_config.py" --config "$HOOKS" --script "$RUNTIME_ROOT/launcher.py" --python "$PYTHON_EXECUTABLE" --toml-config "$CONFIG" --check
+  "$PYTHON" "$SCRIPT_DIR/codex/codex_total_recall_installer.py" --runtime-root "$RUNTIME_ROOT" --adapter-source "$SCRIPT_DIR/codex/codex_total_recall.py" --launcher-source "$SCRIPT_DIR/codex/codex_total_recall_launcher.py" --python-executable "$PYTHON_EXECUTABLE" --adaptive-agents-root "$REPO_ROOT" --check
+  echo "Codex Total Recall installation is healthy."
+  exit 0
+fi
+
 "$PYTHON" "$SCRIPT_DIR/codex/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" \
   --session-root "$SESSION_ROOT" --global-instructions "$GLOBAL"
 "$PYTHON" "$SCRIPT_DIR/codex/codex_hooks_config.py" --config "$HOOKS" \
@@ -89,20 +97,6 @@ RUNTIME_PLAN="$("$PYTHON" "$SCRIPT_DIR/codex/codex_total_recall_installer.py" --
   --adapter-source "$SCRIPT_DIR/codex/codex_total_recall.py" \
   --launcher-source "$SCRIPT_DIR/codex/codex_total_recall_launcher.py" \
   --python-executable "$PYTHON_EXECUTABLE" --adaptive-agents-root "$REPO_ROOT")"
-
-if [[ "$CHECK_ONLY" -eq 1 ]]; then
-  "$PYTHON" "$SCRIPT_DIR/codex/codex_config.py" --config "$CONFIG" --repo-root "$REPO_ROOT" \
-    --session-root "$SESSION_ROOT" --check --global-instructions "$GLOBAL"
-  "$PYTHON" "$SCRIPT_DIR/codex/codex_hooks_config.py" --config "$HOOKS" \
-    --script "$RUNTIME_ROOT/launcher.py" --python "$PYTHON_EXECUTABLE" \
-    --toml-config "$CONFIG" --check
-  "$PYTHON" "$SCRIPT_DIR/codex/codex_total_recall_installer.py" --runtime-root "$RUNTIME_ROOT" \
-    --adapter-source "$SCRIPT_DIR/codex/codex_total_recall.py" \
-    --launcher-source "$SCRIPT_DIR/codex/codex_total_recall_launcher.py" \
-    --python-executable "$PYTHON_EXECUTABLE" --adaptive-agents-root "$REPO_ROOT" --check
-  echo "Codex Total Recall installation is healthy."
-  exit 0
-fi
 
 if [[ "$DRY_RUN" -eq 1 ]]; then
   echo "[dry-run] Would write a redirect at $GLOBAL to $REPO_ROOT/AGENTS.md"

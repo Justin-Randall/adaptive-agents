@@ -39,6 +39,7 @@ Usage:
 
 Options:
   --dry-run              Show what would change without writing files.
+  --check                Validate the installed Antigravity entrypoint without writing files.
   -h, --help             Show this help.
 
 Examples:
@@ -48,11 +49,16 @@ EOF
 }
 
 DRY_RUN=0
+CHECK_ONLY=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run)
       DRY_RUN=1
+      shift
+      ;;
+    --check)
+      CHECK_ONLY=1
       shift
       ;;
     -h|--help)
@@ -153,6 +159,16 @@ EOF
 
   local gemini_dir="$HOME/.gemini"
   local context_file="$gemini_dir/GEMINI.md"
+
+  if [[ "$CHECK_ONLY" -eq 1 ]]; then
+    if [[ ! -f "$context_file" ]] || ! grep -Fq "$repo_root/AGENTS.md" "$context_file"; then
+      echo "FAIL: Antigravity GEMINI.md does not import the canonical AGENTS.md." >&2
+      return 1
+    fi
+    echo "PASS: Antigravity global entrypoint is configured."
+    echo "WARN: Antigravity's UI-managed project permission cannot be verified by this script."
+    return 0
+  fi
 
   echo "Adaptive Agents repository: $repo_root"
   echo

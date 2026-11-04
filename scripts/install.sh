@@ -12,6 +12,7 @@ set -euo pipefail
 #
 # Options:
 #   --dry-run     Show what would change without writing files.
+#   --check       Validate detected integrations without writing files.
 #   --tool TOOL   Install only for a specific tool (claude, codex, opencode, vscode).
 #   -h, --help    Show this help.
 #
@@ -27,6 +28,7 @@ Usage:
 
 Options:
   --dry-run     Show what would change without writing files.
+  --check       Validate detected integrations without writing files.
   --tool TOOL   Install only for a specific tool.
   -h, --help    Show this help.
 
@@ -35,12 +37,17 @@ EOF
 }
 
 DRY_RUN=0
+CHECK_ONLY=0
 TOOL_FILTER=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run)
       DRY_RUN=1
+      shift
+      ;;
+    --check)
+      CHECK_ONLY=1
       shift
       ;;
     --tool)
@@ -188,7 +195,11 @@ FAILED_INSTALLERS=()
 for installer in "${SUB_INSTALLERS[@]}"; do
   if [[ -f "$installer" ]]; then
     echo "Running: $installer"
-    if [[ "$DRY_RUN" -eq 1 ]]; then
+    if [[ "$CHECK_ONLY" -eq 1 ]]; then
+      if ! bash "$installer" --check; then
+        FAILED_INSTALLERS+=("$(basename "$installer")")
+      fi
+    elif [[ "$DRY_RUN" -eq 1 ]]; then
       if ! bash "$installer" --dry-run; then
         FAILED_INSTALLERS+=("$(basename "$installer")")
       fi

@@ -10,6 +10,7 @@ Usage:
 
 Options:
   --dry-run            Show what would change without writing files.
+  --check              Validate the installed VS Code integration without writing files.
   --settings PATH      Use an explicit VS Code settings.json path.
   --code-flavor NAME   VS Code flavor: code, insiders, codium. Default: code.
   -h, --help           Show this help.
@@ -17,6 +18,7 @@ EOF
 }
 
 DRY_RUN=0
+CHECK_ONLY=0
 EXPLICIT_SETTINGS_PATH=""
 CODE_FLAVOR="code"
 
@@ -24,6 +26,10 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run)
       DRY_RUN=1
+      shift
+      ;;
+    --check)
+      CHECK_ONLY=1
       shift
       ;;
     --settings)
@@ -400,6 +406,14 @@ main() {
   echo "VS Code flavor: $CODE_FLAVOR"
   echo "VS Code version: $VSCODE_VERSION"
   echo "VS Code settings: $settings_path"
+
+  if [[ "$CHECK_ONLY" -eq 1 ]]; then
+    local hook_path="$HOME/.copilot/hooks/adaptive-agents.json"
+    "${PYTHON_CMD[@]}" "$repo_root/scripts/check-vscode-integration.py" \
+      --settings "$settings_path" --hook "$hook_path" --repo-root "$(to_vscode_path "$repo_root")" \
+      --version-output "$VSCODE_VERSION"
+    return
+  fi
 
   write_hook "$hook_path" "$adapter_path" "$adapter_setting_path"
   if [[ "$DRY_RUN" -eq 1 ]]; then

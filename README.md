@@ -194,6 +194,7 @@ Useful options:
 
 ```bash
 ./scripts/install-vscode.sh --dry-run
+./scripts/install-vscode.sh --check
 ./scripts/install-vscode.sh --code-flavor insiders
 ./scripts/install-vscode.sh --settings "$APPDATA/Code/User/settings.json"
 ```
@@ -224,6 +225,12 @@ What it does not do:
 - update VS Code or apply Adaptive Agents upgrades automatically
 
 Note: the current checked-in installer is Bash (`scripts/install-vscode.sh`).
+
+All tool-specific installers support a read-only `--check` mode. It validates
+the installed entrypoint, managed permissions, and configuration where the
+tool exposes those settings; it cannot prove that a fresh authenticated agent
+session has executed the integration. The umbrella installer supports
+`./scripts/install.sh --check` and aggregates checks for detected tools.
 
 ### 2) Install OpenCode Integration
 

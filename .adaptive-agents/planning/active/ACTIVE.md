@@ -58,6 +58,7 @@ Live dogfooding proved that the Copilot hook captures `SessionStart`, `UserPromp
 - The host hook already points at the repository adapter, so the updated source is immediately used. A full installer rerun was blocked by the checked-in installer having CRLF line endings (`set: pipefail: invalid option name` under Bash); this is recorded as a follow-up installer portability issue.
 - Further analysis of user dogfood session `a2c1ed75-384d-421e-be6e-224cb2df3d87` found a valid 33-event ledger, nine paired `Stop`/`AssistantResponse` records, one `PreCompact` record, and successful literal retrieval of a detail found only in an assistant response. The index has no model-authored topics, so semantic-quality certification remains false; this is a navigation-quality gap, not a capture-integrity failure.
 - Fixed the review items: transcript reads now use the bounded tail, the installer grants the canonical repository sandbox read/write access, all lifecycle hooks are validated, and tests cover a transcript larger than the scan window. Git Bash installer tests pass all 15 cases; response tests pass 4 cases and integration tests pass 5 cases.
+- Added read-only `--check` support to all tool-specific installers and aggregated delegation from `install.sh`; checks validate configuration only and explicitly warn where fresh-session or UI-managed trust cannot be proven.
 
 ## Review Findings To Address
 

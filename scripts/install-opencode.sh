@@ -37,6 +37,7 @@ Usage:
 
 Options:
   --dry-run              Show what would change without writing files.
+  --check                Validate the installed OpenCode integration without writing files.
   --opencode-config PATH Use an explicit OpenCode config file path.
   -h, --help             Show this help.
 
@@ -48,12 +49,17 @@ EOF
 }
 
 DRY_RUN=0
+CHECK_ONLY=0
 EXPLICIT_CONFIG_PATH=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run)
       DRY_RUN=1
+      shift
+      ;;
+    --check)
+      CHECK_ONLY=1
       shift
       ;;
     --opencode-config)
@@ -298,6 +304,16 @@ main() {
 
   local config_path
   config_path="$(detect_opencode_config_path)"
+
+  if [[ "$CHECK_ONLY" -eq 1 ]]; then
+    if [[ ! -f "$config_path" ]] || ! grep -Fq "$REPO_ROOT_NORM" "$config_path"; then
+      echo "FAIL: OpenCode configuration does not contain the Adaptive Agents integration." >&2
+      return 1
+    fi
+    echo "PASS: OpenCode configuration contains the Adaptive Agents integration."
+    echo "WARN: A fresh OpenCode session is required to prove runtime loading."
+    return 0
+  fi
   local config_dir
   config_dir="$(dirname "$config_path")"
 
