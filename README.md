@@ -206,6 +206,7 @@ What the installer does:
 - captures received Copilot hook payloads in the Markdown Total Recall ledger and injects bounded source handles/context
 - injects manifest-routed canonical guidance at session start and runs `scripts/session-start.sh`
 - retains the repository root in `github.copilot.chat.additionalReadAccessPaths` for later routed reads
+- adds the repository root to VS Code's sandbox `chat.agent.sandbox.fileSystem.userConfiguredPaths.readwritePaths` for routed writes such as retrospectives and planning artifacts
 - removes installer-owned generated-bootstrap registration and terminal approval rules from prior versions
 - preserves unrelated hooks, instruction settings, terminal rules, and read-access paths
 - creates a timestamped backup before editing settings

@@ -57,3 +57,13 @@ Live dogfooding proved that the Copilot hook captures `SessionStart`, `UserPromp
 - Added three focused response-capture tests; response tests and the five existing VS Code integration tests pass. Python compilation and `git diff --check` pass.
 - The host hook already points at the repository adapter, so the updated source is immediately used. A full installer rerun was blocked by the checked-in installer having CRLF line endings (`set: pipefail: invalid option name` under Bash); this is recorded as a follow-up installer portability issue.
 - Further analysis of user dogfood session `a2c1ed75-384d-421e-be6e-224cb2df3d87` found a valid 33-event ledger, nine paired `Stop`/`AssistantResponse` records, one `PreCompact` record, and successful literal retrieval of a detail found only in an assistant response. The index has no model-authored topics, so semantic-quality certification remains false; this is a navigation-quality gap, not a capture-integrity failure.
+- Fixed the review items: transcript reads now use the bounded tail, the installer grants the canonical repository sandbox read/write access, all lifecycle hooks are validated, and tests cover a transcript larger than the scan window. Git Bash installer tests pass all 15 cases; response tests pass 4 cases and integration tests pass 5 cases.
+
+## Review Findings To Address
+
+- **P1 — transcript windowing:** `latest_assistant_response()` reads only the first 16 MiB, so a growing transcript can leave the newest response beyond the scan boundary and capture stale content.
+- **P1 — write trust gap:** the VS Code installer configures `github.copilot.chat.additionalReadAccessPaths` but no persistent write/trusted-directory grant for routed global Adaptive Agents writes.
+- **P2 — boundary coverage:** tests do not cover transcripts larger than the scan limit, partial final JSONL lines, or a locked transcript while the final response is being flushed.
+- **P2 — validator depth:** integration health validation deeply checks `sessionStart` but does not validate the shape, command, and timeout of all nine installed lifecycle hooks.
+
+These findings were recorded after baseline commit `1d96430` on branch `PL-20260711-copilot-agent-mode`; fixes and follow-up verification remain in scope.

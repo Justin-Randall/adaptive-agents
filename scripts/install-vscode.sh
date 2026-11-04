@@ -280,6 +280,26 @@ if repo_root not in additional_paths:
     additional_paths.append(repo_root)
 settings["github.copilot.chat.additionalReadAccessPaths"] = additional_paths
 
+configured_paths = settings.get("chat.agent.sandbox.fileSystem.userConfiguredPaths", {})
+if not isinstance(configured_paths, dict):
+    print("ERROR: Existing chat.agent.sandbox.fileSystem.userConfiguredPaths is not an object.", file=sys.stderr)
+    raise SystemExit(1)
+readwrite_paths = configured_paths.get("readwritePaths", [])
+if not isinstance(readwrite_paths, list):
+    print("ERROR: Existing readwritePaths is not an array.", file=sys.stderr)
+    raise SystemExit(1)
+denied_paths = configured_paths.get("deniedPaths", [])
+if not isinstance(denied_paths, list):
+    print("ERROR: Existing deniedPaths is not an array.", file=sys.stderr)
+    raise SystemExit(1)
+if repo_root in denied_paths:
+    print("ERROR: The Adaptive Agents repository is explicitly denied by VS Code sandbox settings.", file=sys.stderr)
+    raise SystemExit(1)
+if repo_root not in readwrite_paths:
+    readwrite_paths.append(repo_root)
+configured_paths["readwritePaths"] = readwrite_paths
+settings["chat.agent.sandbox.fileSystem.userConfiguredPaths"] = configured_paths
+
 approval_value = {"approve": True, "matchCommandLine": True}
 terminal_approvals = settings.get("chat.tools.terminal.autoApprove")
 if terminal_approvals is not None:

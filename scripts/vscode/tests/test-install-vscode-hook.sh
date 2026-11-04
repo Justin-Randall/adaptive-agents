@@ -101,10 +101,10 @@ if [[ "$HOOK_COMMAND" == *"scripts/vscode/copilot_total_recall.py"* ]]; then
 else
   fail "installed Copilot hook points at the shared Total Recall adapter"
 fi
-if json_check "$T1" 'data == {"github.copilot.chat.additionalReadAccessPaths": [repo]}'; then
-  pass "fresh settings contain only the external read grant"
+if json_check "$T1" 'data["github.copilot.chat.additionalReadAccessPaths"] == [repo] and data["chat.agent.sandbox.fileSystem.userConfiguredPaths"]["readwritePaths"] == [repo]'; then
+  pass "fresh settings contain the external read grant and canonical write grant"
 else
-  fail "fresh settings contain only the external read grant"
+  fail "fresh settings contain the external read grant and canonical write grant"
 fi
 if [[ "$T1_OUTPUT" == *"deterministic SessionStart hook"* && "$T1_OUTPUT" != *"terminal.autoApprove"* ]]; then
   pass "completion output reports hook-native setup without terminal approval"
@@ -155,6 +155,11 @@ if json_check "$T2" '"github.copilot.chat.additionalReadAccessFolders" not in da
   pass "migration retains the canonical read grant and removes obsolete key"
 else
   fail "migration retains the canonical read grant and removes obsolete key"
+fi
+if json_check "$T2" 'data["chat.agent.sandbox.fileSystem.userConfiguredPaths"]["readwritePaths"] == [repo]'; then
+  pass "migration adds the canonical repository to sandbox read/write paths"
+else
+  fail "migration adds the canonical repository to sandbox read/write paths"
 fi
 
 # Rerunning is byte-stable for both managed files.
@@ -210,8 +215,10 @@ fi
 # A copied installation removes only a recognized generated legacy bootstrap.
 COPIED_REPO="$TMP_ROOT/copied-repo"
 mkdir -p "$COPIED_REPO/scripts/vscode" "$COPIED_REPO/vscode"
+mkdir -p "$COPIED_REPO/scripts/codex"
 cp "$INSTALLER" "$COPIED_REPO/scripts/install-vscode.sh"
-cp "$REPO_ROOT/scripts/vscode-session-start.py" "$COPIED_REPO/scripts/"
+cp "$REPO_ROOT/scripts/vscode/copilot_total_recall.py" "$COPIED_REPO/scripts/vscode/"
+cp "$REPO_ROOT/scripts/codex/codex_total_recall.py" "$COPIED_REPO/scripts/codex/"
 cp "$REPO_ROOT/scripts/vscode/__init__.py" "$COPIED_REPO/scripts/vscode/"
 cp "$REPO_ROOT/scripts/vscode/session_start.py" "$COPIED_REPO/scripts/vscode/"
 cp "$REPO_ROOT/scripts/check-instruction-load-budget.py" "$COPIED_REPO/scripts/"

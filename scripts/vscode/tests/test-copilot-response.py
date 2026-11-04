@@ -40,6 +40,17 @@ class CopilotResponseTests(unittest.TestCase):
     def test_missing_or_malformed_transcript_is_explicitly_ignored(self):
         self.assertIsNone(adapter.latest_assistant_response("missing.jsonl"))
 
+    def test_reads_latest_response_from_tail_of_large_transcript(self):
+        with tempfile.TemporaryDirectory() as temp:
+            transcript = Path(temp) / "events.jsonl"
+            transcript.write_bytes(
+                b"x" * (adapter.TRANSCRIPT_MAX_BYTES + 1024)
+                + b"\n"
+                + json.dumps({"type": "assistant.message", "data": {"content": "latest tail answer"}}).encode()
+                + b"\n"
+            )
+            self.assertEqual("latest tail answer", adapter.latest_assistant_response(str(transcript)))
+
 
 if __name__ == "__main__":
     unittest.main()

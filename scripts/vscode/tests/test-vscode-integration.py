@@ -13,6 +13,16 @@ CHECKER = REPO_ROOT / "scripts" / "check-vscode-integration.py"
 
 
 class VscodeIntegrationHealthTests(unittest.TestCase):
+    def valid_hooks(self, command):
+        return {
+            event: [{"type": "command", "command": command, "timeoutSec": timeout}]
+            for event, timeout in {
+                "sessionStart": 60, "userPromptSubmitted": 10, "postToolUse": 10,
+                "postToolUseFailure": 10, "preCompact": 10, "subagentStart": 10,
+                "subagentStop": 10, "agentStop": 10, "sessionEnd": 10,
+            }.items()
+        }
+
     def setUp(self):
         self.temporary_directory = tempfile.TemporaryDirectory(dir=REPO_ROOT)
         self.root = Path(self.temporary_directory.name)
@@ -21,21 +31,13 @@ class VscodeIntegrationHealthTests(unittest.TestCase):
         self.repo = "C:/Users/test/adaptive-agents"
         self.write_json(
             self.settings,
-            {"github.copilot.chat.additionalReadAccessPaths": [self.repo]},
+            {"github.copilot.chat.additionalReadAccessPaths": [self.repo], "chat.agent.sandbox.fileSystem.userConfiguredPaths": {"readwritePaths": [self.repo]}},
         )
         self.write_json(
             self.hook,
             {
                 "version": 1,
-                "hooks": {
-                    "sessionStart": [
-                        {
-                            "type": "command",
-                            "command": f'py -3 "{self.repo}/scripts/vscode/copilot_total_recall.py"',
-                            "timeoutSec": 60,
-                        }
-                    ]
-                }
+                "hooks": self.valid_hooks(f'py -3 "{self.repo}/scripts/vscode/copilot_total_recall.py"')
             },
         )
 
@@ -83,15 +85,7 @@ class VscodeIntegrationHealthTests(unittest.TestCase):
             self.hook,
             {
                 "version": 1,
-                "hooks": {
-                    "sessionStart": [
-                        {
-                            "type": "command",
-                            "command": 'py -3 "C:/old/scripts/vscode/copilot_total_recall.py"',
-                            "timeoutSec": 60,
-                        }
-                    ]
-                }
+                "hooks": self.valid_hooks('py -3 "C:/old/scripts/vscode/copilot_total_recall.py"')
             },
         )
         result = self.run_checker()
@@ -109,6 +103,7 @@ class VscodeIntegrationHealthTests(unittest.TestCase):
             self.settings,
             {
                 "github.copilot.chat.additionalReadAccessPaths": [self.repo],
+                "chat.agent.sandbox.fileSystem.userConfiguredPaths": {"readwritePaths": [self.repo]},
                 "chat.instructionsFilesLocations": {f"{self.repo}/vscode": True},
                 "chat.tools.terminal.autoApprove": {
                     f'/^bash\\ "{self.repo}/scripts/session\\-start\\.sh"$/': {

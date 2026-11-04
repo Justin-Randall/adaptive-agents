@@ -39,13 +39,14 @@ def latest_assistant_response(transcript_path: str | None) -> str | None:
     if not path.is_file():
         return None
     latest: str | None = None
-    consumed = 0
     try:
         with path.open("rb") as stream:
+            stream.seek(0, os.SEEK_END)
+            end = stream.tell()
+            stream.seek(max(0, end - TRANSCRIPT_MAX_BYTES))
+            if stream.tell() > 0:
+                stream.readline()
             for raw in stream:
-                consumed += len(raw)
-                if consumed > TRANSCRIPT_MAX_BYTES:
-                    break
                 try:
                     record = json.loads(raw.decode("utf-8"))
                 except (UnicodeDecodeError, json.JSONDecodeError):

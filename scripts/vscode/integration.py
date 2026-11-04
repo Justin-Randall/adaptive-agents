@@ -108,6 +108,14 @@ def validate_settings(settings, repo_root, problems):
     if "github.copilot.chat.additionalReadAccessFolders" in settings:
         problems.append("obsolete github.copilot.chat.additionalReadAccessFolders remains")
 
+    configured_paths = settings.get("chat.agent.sandbox.fileSystem.userConfiguredPaths", {})
+    if not isinstance(configured_paths, dict):
+        problems.append("chat.agent.sandbox.fileSystem.userConfiguredPaths is not an object")
+    else:
+        readwrite_paths = configured_paths.get("readwritePaths", [])
+        if not isinstance(readwrite_paths, list) or repo_root not in readwrite_paths:
+            problems.append("sandbox readwritePaths does not include the repo root")
+
     locations = settings.get("chat.instructionsFilesLocations")
     if isinstance(locations, dict) and f"{repo_root}/vscode" in locations:
         problems.append("legacy instructions registration remains")
@@ -134,6 +142,11 @@ def validate_hook(hook, repo_root, problems):
         f'python3 "{repo_root}/scripts/vscode/copilot_total_recall.py"',
         f'python "{repo_root}/scripts/vscode/copilot_total_recall.py"',
     }
+    expected_hooks = {
+        "sessionStart": 60, "userPromptSubmitted": 10, "postToolUse": 10,
+        "postToolUseFailure": 10, "preCompact": 10, "subagentStart": 10,
+        "subagentStop": 10, "agentStop": 10, "sessionEnd": 10,
+    }
     try:
         if hook.get("version") != 1:
             problems.append("Copilot hook version is not 1")
@@ -142,19 +155,21 @@ def validate_hook(hook, repo_root, problems):
     except (KeyError, TypeError):
         problems.append("hook does not define SessionStart")
         return
-    if not isinstance(hooks, dict) or "sessionStart" not in hooks:
+    if not isinstance(hooks, dict) or set(hooks) != set(expected_hooks):
         problems.append("hook does not define the expected Copilot sessionStart event")
-    if not isinstance(session_start, list) or len(session_start) != 1:
-        problems.append("hook must define exactly one sessionStart command")
-        return
-    entry = session_start[0]
-    if not isinstance(entry, dict) or entry.get("type") != "command":
-        problems.append("SessionStart hook is not a command")
-        return
-    if entry.get("command") not in expected_commands:
-        problems.append("SessionStart hook does not invoke the canonical Python adapter")
-    if entry.get("timeoutSec") != 60:
-        problems.append("sessionStart hook timeout is not 60 seconds")
+    for event, timeout in expected_hooks.items():
+        entries = hooks.get(event)
+        if not isinstance(entries, list) or len(entries) != 1:
+            problems.append(f"{event} must define exactly one command")
+            continue
+        entry = entries[0]
+        if not isinstance(entry, dict) or entry.get("type") != "command":
+            problems.append(f"{event} hook is not a command")
+            continue
+        if entry.get("command") not in expected_commands:
+            problems.append(f"{event} hook does not invoke the canonical Python adapter")
+        if entry.get("timeoutSec") != timeout:
+            problems.append(f"{event} hook timeout is not {timeout} seconds")
 
 
 def main():
