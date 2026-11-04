@@ -1,7 +1,9 @@
-# Active Plan: GitHub Copilot Agent Mode Support
+# PL-20260711: GitHub Copilot Agent Mode Support
 
 - Work Unit: PL-20260711-copilot-agent-mode
+- Branch: `PL-20260711-copilot-agent-mode`
 - Source backlog: [PL-20260711: GitHub Copilot Agent Mode Support](../backlog/PL-20260711-copilot-agent-mode.md)
+- Memory: [PL-20260711-copilot-agent-mode.memory.md](PL-20260711-copilot-agent-mode.memory.md)
 - Status: Active
 
 ## Objective
@@ -32,7 +34,7 @@ Live dogfooding proved that the Copilot hook captures `SessionStart`, `UserPromp
 
 ## Applicable Guidance
 
-- [Adaptive Agents instructions](../../instructions/global.instructions.md): verify claims with tests and source evidence; prefer small reversible changes.
+- `instructions/global.instructions.md` (user-wide guidance): verify claims with tests and source evidence; prefer small reversible changes.
 - [Project architecture](../../ARCHITECTURE.md): keep one authoritative append-only ledger and treat indexes as navigation.
 - [Manage planning skill](../../skills/manage-planning/SKILL.md): keep acceptance evidence and handoff memory current; closure requires approval.
 
@@ -49,6 +51,11 @@ Live dogfooding proved that the Copilot hook captures `SessionStart`, `UserPromp
 - Use bounded incremental reads and a stable source fingerprint to avoid duplicating responses.
 
 ## Progress
+
+- [x] Activate the Copilot Agent Mode work unit and synchronize planning metadata.
+- [x] Capture live Copilot/Total Recall evidence and identify the assistant-response gap.
+- [x] Implement response capture, write access, installer checks, and focused validation.
+- [ ] Complete final merge review and closure approval.
 
 - Activated from backlog with user approval on 2026-11-04.
 - Confirmed live prompt capture and ledger retrieval in authenticated VS Code.
