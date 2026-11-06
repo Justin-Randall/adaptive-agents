@@ -80,7 +80,7 @@ long-session and cross-platform acceptance remain open. JSONL findings below
 are historical, not current migration, coverage or repair requirements.
 
 The local milestone checkpoint is followed by a verified, user-approved
-[scripts-tree cleanup](../active/ACTIVE.md#script-tree-cleanup), keeping installed
+[scripts-tree cleanup](PL-20261027-total-recall.md#script-tree-cleanup), keeping installed
 and public entrypoints stable while grouping application implementations and
 tests. This maintenance does not expand recall acceptance or close the child.
 

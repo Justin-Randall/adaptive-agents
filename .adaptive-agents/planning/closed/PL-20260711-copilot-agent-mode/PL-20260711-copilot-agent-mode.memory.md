@@ -9,3 +9,9 @@
 - Merge review found no blocking Copilot capture defect. Antigravity support is being deprecated and is intentionally excluded from check-mode follow-up.
 - Planned fixes for remaining installers: make `--dry-run` and `--check` mutually exclusive, validate Claude/OpenCode configuration structurally rather than with path substring searches, and add direct read-only tests for tool-specific and umbrella checks.
 - Check-mode implementation is complete for the non-deprecated installers; tests normalize MSYS and Windows drive path forms and pass in Git Bash.
+
+## Completion Review
+
+- Verified `main` and `origin/main` contain the merged implementation through `87035ef` (`chore(planning): satisfy active plan validation`), with a clean worktree before closure.
+- Acceptance evidence and implementation work were complete; the active-plan marker was stale.
+- Closed as `Completed` on 2026-11-05. Remaining retrieval/index-maintenance improvements are separate backlog scope.

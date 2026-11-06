@@ -559,6 +559,15 @@ def handle_hook(data: dict[str, Any], store: SessionStore | None = None,
         if len(context.encode()) > MAX_ADDITIONAL_CONTEXT_BYTES:
             raise ValueError("experiment source context exceeds its configured limit")
         return {"hookSpecificOutput": {"hookEventName": kind, "additionalContext": context}}
+    if kind == "SessionEnd":
+        context = (f"Recall root: {(session / 'INDEX.md').as_posix()}. Before this session ends, perform a final "
+                   "navigation pass over only the meaningful subjects introduced in this session. If a reusable "
+                   "subject, decision, constraint, or evidence relationship emerged, edit INDEX.md now with one "
+                   "concise source-backed route; this write completes the turn. If no reusable subject emerged, "
+                   "make no update. Do not index routine activity or link uncaptured sources.")
+        if len(context.encode()) > MAX_ADDITIONAL_CONTEXT_BYTES:
+            raise ValueError("experiment maintenance context exceeds its configured limit")
+        return {"hookSpecificOutput": {"hookEventName": kind, "additionalContext": context}}
     if kind not in {"SessionStart", "UserPromptSubmit"}:
         return None
     context = (f"Recall root: {(session / 'INDEX.md').as_posix()}. Current captured source: ledger.md#{event}. "
@@ -571,6 +580,8 @@ def handle_hook(data: dict[str, Any], store: SessionStore | None = None,
                     "make a small useful topic update while its evidence is available. Reuse existing subjects "
                     "and connect relevant sources, explaining revisions without deleting earlier evidence. "
                     "Only link captured sources; defer future final-reply links until a natural later turn. "
+                    "Before the final answer, inspect for a reusable subject, decision, constraint, or evidence link. "
+                    "If one emerged, edit INDEX.md immediately; this write completes the turn. Otherwise make no update. "
                     "Do not index routine activity or turn this into a separate maintenance conversation.")
     else:
         context += ("Keep selective topical routes when useful; when historical details are needed, consult "

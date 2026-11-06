@@ -38,10 +38,22 @@ class TotalRecallTests(unittest.TestCase):
             output = recall.handle_hook(self.payload(kind), self.store)
             context = output["hookSpecificOutput"]["additionalContext"]
             self.assertIn("meaningful subject", context)
+            self.assertIn("Before the final answer", context)
+            self.assertIn("edit INDEX.md immediately", context)
+            self.assertIn("Otherwise make no update", context)
             self.assertLessEqual(len(context.encode()), 1200)
             self.assertNotIn("repair batch", context)
             self.assertNotIn("frozen snapshot", context)
         self.assertIsNone(recall.handle_hook(self.payload("Stop", last_assistant_message="Done"), self.store))
+
+    def test_session_end_delivers_a_bounded_maintenance_handoff(self) -> None:
+        output = recall.handle_hook(self.payload("SessionEnd"), self.store)
+        self.assertIsNotNone(output)
+        context = output["hookSpecificOutput"]["additionalContext"]
+        self.assertIn("final navigation pass", context)
+        self.assertIn("edit INDEX.md", context)
+        self.assertIn("no reusable subject", context)
+        self.assertLessEqual(len(context.encode()), 1200)
 
     def test_compaction_preserves_source_prefix_and_model_graph(self) -> None:
         session, event, _ = self.store.capture(self.payload("PostToolUse", tool_response="Exact evidence"))

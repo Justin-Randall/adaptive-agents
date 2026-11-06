@@ -61,6 +61,12 @@ as they emerge or change. Reuse subjects, add informative source bullets, and
 introduce purposeful subindexes only when the subject warrants them. Preserve
 earlier evidence and explain revisions rather than overwriting history.
 
+Use an explicit completion action: before sending the final answer, inspect
+whether a reusable subject, decision, constraint or evidence relationship
+emerged. If so, edit this `INDEX.md` immediately—this write is part of
+completing the turn—by updating an existing topic or adding one concise,
+source-backed route. If no reusable subject emerged, make no update.
+
 Keep this root under 8 KiB. Include useful clues to what the ledger contains,
 not every fact or an inventory of commands. There is no mandatory per-turn
 update, per-event coverage requirement, Stop gate or post-compaction audit.
