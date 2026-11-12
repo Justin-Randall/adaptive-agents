@@ -96,7 +96,7 @@ from pathlib import Path
 hooks = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 command = hooks["hooks"]["SessionStart"][0]["hooks"][0]["command"]
 normalize = lambda value: value.replace("\\", "/").casefold()
-assert normalize(sys.argv[2]) in normalize(command), command
+assert normalize(str(Path(sys.argv[2]).resolve())) in normalize(command), command
 active = json.loads((Path(sys.argv[3]) / "active.json").read_text(encoding="utf-8"))
 adapter = Path(sys.argv[3]) / active["version_directory"] / "codex_total_recall.py"
 assert adapter.is_file(), adapter
@@ -207,7 +207,7 @@ user_groups = [
 managed_groups = [
     group
     for group in groups
-    if normalize(sys.argv[2]) in normalize(group["hooks"][0]["command"])
+    if normalize(str(Path(sys.argv[2]).resolve())) in normalize(group["hooks"][0]["command"])
 ]
 assert len(user_groups) == 1, groups
 assert len(managed_groups) == 1, groups
