@@ -2,7 +2,7 @@
 
 ## Current Work
 
-No plan is currently active; see [No Active Plan](active/ACTIVE.md).
+Ready for closure review: [Multi-Agent Roles and Delegation](active/ACTIVE.md), with [work-unit memory](active/PL-20261112-multi-agent-roles-and-delegation.memory.md).
 
 The [PL-20261105 Total Recall INDEX.md Maintenance](closed/PL-20261105-total-recall-index-maintenance/PL-20261105-total-recall-index-maintenance.sdd.md) work unit is closed. The [Total Recall epic](backlog/PL-20261027-total-recall.md) and broader [retrieval quality](backlog/PL-20261027-total-recall/PL-20261027-total-recall-retrieval-quality-and-context-efficiency.md) item remain separate. Most recent completed work: [PL-20261105 Total Recall INDEX.md Maintenance](closed/PL-20261105-total-recall-index-maintenance/PL-20261105-total-recall-index-maintenance.sdd.md).
 

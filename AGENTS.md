@@ -65,6 +65,8 @@ Before doing non-trivial work:
 8. Project-local instructions override Adaptive Agents guidance when they are more specific.
 9. Do not treat raw retrospectives as durable rules until they have been promoted.
 
+For active work involving delegation, discover reusable roles through [agents/INDEX.md](agents/INDEX.md) and any project-specific roles routed by the Project Layer. Follow host and user delegation constraints.
+
 ## Operating Principles
 
 * Prefer test-driven development for production code changes.

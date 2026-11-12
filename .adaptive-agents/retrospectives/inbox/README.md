@@ -18,4 +18,5 @@ Do not copy a project retrospective into user-wide Adaptive Agents. Escalation r
 
 ## Captured Notes
 
+- [Upgrade preservation fixture boundary](2026-11-12-upgrade-preservation-fixture.md) — Captured: a preservation fixture missed customization inside the section being replaced.
 - [Fabricated timestamp IDs](2026-07-10-fabricated-timestamp-ids.md) — Promoted: agent fabricated a UTC timestamp instead of running `date -u`. Added as rule 8 to `instructions/global.instructions.md`.

@@ -72,12 +72,30 @@ else
   fail "Canonical template baseline should pass"
 fi
 
-if grep -Fq -- '"templateVersion": "0.9.2"' "$baseline/project-layer.json" \
+if grep -Fq -- '"templateVersion": "0.10.0"' "$baseline/project-layer.json" \
   && grep -Fq -- "## User-Facing Validation" "$baseline/planning/active/ACTIVE.md" \
   && ! grep -Fq -- "## Browser Dogfood" "$baseline/planning/active/ACTIVE.md"; then
   pass
 else
-  fail "Bootstrap should use generic user-facing validation in template version 0.9.2"
+  fail "Bootstrap should use generic user-facing validation in template version 0.10.0"
+fi
+
+if grep -Fq -- '[Project agents](agents/INDEX.md)' "$baseline/INDEX.md" \
+  && [[ -f "$baseline/agents/INDEX.md" ]] \
+  && grep -Fq -- 'project-owned roles and refinements' "$baseline/agents/INDEX.md"; then
+  pass
+else
+  fail "Bootstrap should route to the project-owned agent roles index"
+fi
+
+if grep -Fxq -- '## Supervision and Delegation' "$baseline/planning/active/ACTIVE.md" \
+  && grep -Fxq -- '## Done Conditions and Execution Loop' "$baseline/planning/active/ACTIVE.md" \
+  && grep -Fq -- 'delegate suitable bounded work' "$baseline/planning/active/ACTIVE.md" \
+  && grep -Fq -- 'repeat assignment, implementation, validation, review, correction' "$baseline/planning/active/ACTIVE.md" \
+  && grep -Fq -- 'single-agent fallback' "$baseline/skills/manage-planning/SKILL.md"; then
+  pass
+else
+  fail "Bootstrap should include supervision, execution-loop and fallback guidance"
 fi
 
 if grep -Fq -- "Status: Backlog" "$baseline/planning/backlog/backlog-item-template.md" \
@@ -158,6 +176,203 @@ if grep -Fq -- "Upgrade available: yes" <<<"$upgrade_report" \
 else
   fail "Upgrade inspection should flag the 0.7.1 progress guidance change for review"
   printf '%s\n' "$upgrade_report"
+fi
+
+old_roles_layer="$(new_fixture old-roles-layer)"
+python -c "import json,sys; p=sys.argv[1]; d=json.load(open(p,encoding='utf-8')); d['templateVersion']='0.9.2'; json.dump(d,open(p,'w',encoding='utf-8'),indent='\t'); open(p,'a').write('\n')" \
+  "$old_roles_layer/project-layer.json"
+rm "$old_roles_layer/agents/INDEX.md"
+sed -i '\|\[Project agents\](agents/INDEX.md)|d' "$old_roles_layer/INDEX.md"
+python - "$old_roles_layer/skills/manage-planning/SKILL.md" <<'PY'
+import re, sys
+from pathlib import Path
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+text = re.sub(r"^For active implementation,.*\n", "", text, flags=re.MULTILINE)
+text = "\n".join(
+    '5. Create `ACTIVE.md` with `- Work Unit: <work-unit-id>` and create `<work-unit-id>.memory.md`. '
+    'Link the memory from `ACTIVE.md` and `planning/INDEX.md`.'
+    if line.startswith("5.") and "template" in line.lower() and "ACTIVE.md" in line else line
+    for line in text.split("\n")
+)
+text = text.replace("## Start Work\n", "## Start Work\n\nProject-specific start-work review is required.\n", 1)
+path.write_text(text, encoding="utf-8", newline="\n")
+PY
+sed -i '/^## Supervision and Delegation$/,/^## Test Plan$/ { /^## Test Plan$/!d; }' \
+  "$old_roles_layer/planning/active/ACTIVE.md"
+printf '\nProject-specific active work must be preserved.\n' >> "$old_roles_layer/planning/active/ACTIVE.md"
+printf '\nProject-specific memory must be preserved.\n' >> "$old_roles_layer/planning/active/$expected_work_unit.memory.md"
+printf '\nProject-specific instructions must be preserved.\n' >> "$old_roles_layer/instructions/project.instructions.md"
+printf '\nProject-specific planning guidance must be preserved.\n' >> "$old_roles_layer/skills/manage-planning/SKILL.md"
+printf 'Project-owned notes must be preserved.\n' > "$old_roles_layer/project-notes.txt"
+
+snapshot_layer() {
+  (cd "$1" && find . -type d -print | sort && find . -type f -print | sort | while IFS= read -r file; do cksum "$file"; done)
+}
+
+before_inspection="$(snapshot_layer "$old_roles_layer")"
+old_roles_report="$(bash "$REPO_ROOT/scripts/inspect-project-layer-upgrade.sh" --target "$(dirname "$old_roles_layer")")"
+after_inspection="$(snapshot_layer "$old_roles_layer")"
+repeat_roles_report="$(bash "$REPO_ROOT/scripts/inspect-project-layer-upgrade.sh" --target "$(dirname "$old_roles_layer")")"
+after_repeat_inspection="$(snapshot_layer "$old_roles_layer")"
+missing_roles_section="$(sed -n '/^Missing canonical paths:/,/^Content requiring review:/p' <<<"$old_roles_report")"
+changed_roles_section="$(sed -n '/^Content requiring review:/,/^Project-only paths:/p' <<<"$old_roles_report")"
+if grep -Fxq -- 'Installed template version: 0.9.2' <<<"$old_roles_report" \
+  && grep -Fxq -- 'Canonical template version: 0.10.0' <<<"$old_roles_report" \
+  && grep -Fxq -- 'Upgrade available: yes' <<<"$old_roles_report" \
+  && grep -Fxq -- '- agents/INDEX.md' <<<"$missing_roles_section" \
+  && grep -Fxq -- '- INDEX.md' <<<"$changed_roles_section" \
+  && grep -Fxq -- '- planning/active/ACTIVE.md' <<<"$changed_roles_section" \
+  && grep -Fxq -- '- skills/manage-planning/SKILL.md' <<<"$changed_roles_section" \
+  && grep -Fxq -- '- project-notes.txt' <<<"$old_roles_report"; then
+  pass
+else
+  fail "Upgrade inspection should classify missing roles and changed planning for the old layer"
+  printf '%s\n' "$old_roles_report"
+fi
+if [[ "$before_inspection" == "$after_inspection" && "$before_inspection" == "$after_repeat_inspection" \
+  && "$old_roles_report" == "$repeat_roles_report" ]]; then
+  pass
+else
+  fail "Repeated upgrade inspection should preserve the entire old layer and return the same report"
+fi
+
+# This is a simulated approval of the exact fixture patch below, not an upgrade
+# command: real project-owned layers require the documented review and approval.
+apply_approved_roles_upgrade() {
+  python - "$1" "$REPO_ROOT/templates/project-layer/.adaptive-agents" <<'PY'
+import re, sys
+from pathlib import Path
+
+layer, template = map(Path, sys.argv[1:])
+def write_if_changed(path, text):
+    if not path.exists() or path.read_text(encoding="utf-8") != text:
+        path.write_text(text, encoding="utf-8", newline="\n")
+
+role = layer / "agents/INDEX.md"
+role.parent.mkdir(parents=True, exist_ok=True)
+write_if_changed(role, (template / "agents/INDEX.md").read_text(encoding="utf-8"))
+index = layer / "INDEX.md"
+text = index.read_text(encoding="utf-8")
+route = next(line for line in (template / "INDEX.md").read_text(encoding="utf-8").splitlines()
+             if "[Project agents](agents/INDEX.md)" in line)
+if route not in text:
+    text = text.replace("- Read [Planning]", route + "\n- Read [Planning]", 1)
+write_if_changed(index, text)
+
+skill = layer / "skills/manage-planning/SKILL.md"
+text = skill.read_text(encoding="utf-8")
+canonical = (template / "skills/manage-planning/SKILL.md").read_text(encoding="utf-8")
+# Insert the reviewed additions without replacing project-owned Start Work content.
+canonical_step = next(line for line in canonical.splitlines() if line.startswith("5. "))
+template_guidance = canonical_step[3:].split('Create `ACTIVE.md` with', 1)[0].strip()
+supervision = next(line for line in canonical.splitlines() if line.startswith("For active implementation,"))
+if template_guidance not in text:
+    anchor = '5. Create `ACTIVE.md` with'
+    if text.count(anchor) != 1:
+        raise ValueError("expected the old Start Work step exactly once")
+    text = text.replace(anchor, template_guidance + "\n\n" + anchor, 1)
+if supervision not in text:
+    anchor = "## Link Semantics\n"
+    if text.count(anchor) != 1:
+        raise ValueError("expected the Link Semantics heading exactly once")
+    text = text.replace(anchor, supervision + "\n\n" + anchor, 1)
+write_if_changed(skill, text)
+metadata = layer / "project-layer.json"
+text = metadata.read_text(encoding="utf-8")
+text, count = re.subn(r'("templateVersion"\s*:\s*")0\.(?:9\.2|10\.0)(")', r'\g<1>0.10.0\2', text)
+if count != 1:
+    raise ValueError("unexpected fixture template version")
+write_if_changed(metadata, text)
+PY
+}
+
+preserved_before="$(cksum "$old_roles_layer/instructions/project.instructions.md" \
+  "$old_roles_layer/planning/active/ACTIVE.md" "$old_roles_layer/planning/active/$expected_work_unit.memory.md")"
+apply_approved_roles_upgrade "$old_roles_layer"
+preserved_after="$(cksum "$old_roles_layer/instructions/project.instructions.md" \
+  "$old_roles_layer/planning/active/ACTIVE.md" "$old_roles_layer/planning/active/$expected_work_unit.memory.md")"
+if [[ "$preserved_before" == "$preserved_after" ]] \
+  && grep -Fq -- 'Project-specific planning guidance must be preserved.' "$old_roles_layer/skills/manage-planning/SKILL.md" \
+  && sed -n '/^## Start Work$/,/^## Link Semantics$/p' "$old_roles_layer/skills/manage-planning/SKILL.md" \
+    | grep -Fxq -- 'Project-specific start-work review is required.' \
+  && grep -Fq -- '[Project agents](agents/INDEX.md)' "$old_roles_layer/INDEX.md" \
+  && [[ -f "$old_roles_layer/agents/INDEX.md" ]] \
+  && grep -Fq -- 'single-agent fallback' "$old_roles_layer/skills/manage-planning/SKILL.md" \
+  && grep -Fq -- '"templateVersion": "0.10.0"' "$old_roles_layer/project-layer.json" \
+  && bash "$old_roles_layer/scripts/check-project-layer.sh" >/dev/null; then
+  pass
+else
+  fail "Approved upgrade should merge roles and planning while preserving and validating project work"
+fi
+after_upgrade="$(snapshot_layer "$old_roles_layer")"
+apply_approved_roles_upgrade "$old_roles_layer"
+if [[ "$after_upgrade" == "$(snapshot_layer "$old_roles_layer")" ]]; then
+  pass
+else
+  fail "Repeating the approved upgrade should leave the upgraded layer unchanged"
+fi
+
+# Simulate approved closure and a subsequent direct activation, using the
+# canonical templates that the upgraded planning guidance must direct agents to consult.
+if python - "$old_roles_layer/skills/manage-planning/SKILL.md" <<'PY'
+import re, sys
+from pathlib import Path
+text = Path(sys.argv[1]).read_text(encoding="utf-8")
+start = text.split("## Start Work", 1)[1].split("## Link Semantics", 1)[0]
+sentences = re.split(r"(?<=[.!?])\s+|\n", start)
+if not any("templates/project-layer/.adaptive-agents/planning/active/ACTIVE.md" in s
+           and "canonical" in s.lower() and "template" in s.lower()
+           and re.search(r"\b(use|consult|read|reference|follow|load)\b", s, re.I)
+           for s in sentences):
+    sys.exit(1)
+PY
+then
+  pass
+else
+  fail "Upgraded planning guidance should direct new plans to the canonical ACTIVE.md template"
+fi
+python - "$old_roles_layer" "$REPO_ROOT/templates/project-layer/.adaptive-agents" "$expected_work_unit" <<'PY'
+import sys
+from pathlib import Path
+layer, template = map(Path, sys.argv[1:3])
+old_id = sys.argv[3]
+new_id, new_plan, new_title = "PL-20260711-future-work", "PL-20260711", "Future work"
+active = layer / "planning/active"
+packet = layer / "planning/closed" / old_id
+packet.mkdir()
+(active / "ACTIVE.md").replace(packet / f"{old_id}.sdd.md")
+(active / f"{old_id}.memory.md").replace(packet / f"{old_id}.memory.md")
+closed_index = layer / "planning/closed/INDEX.md"
+with closed_index.open("a", encoding="utf-8", newline="\n") as f:
+    f.write(f"| PL-20260710 | [Previous work]({old_id}/{old_id}.sdd.md) | Completed | Preserved. |\n")
+replacements = {"{{ACTIVE_PLAN_ID}}": new_plan, "{{ACTIVE_PLAN_TITLE}}": new_title,
+                "{{ACTIVE_WORK_ID}}": new_id}
+for source, dest in [(template / "planning/active/ACTIVE.md", active / "ACTIVE.md"),
+                     (template / "planning/active/{{ACTIVE_WORK_ID}}.memory.md", active / f"{new_id}.memory.md")]:
+    text = source.read_text(encoding="utf-8")
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    dest.write_text(text, encoding="utf-8", newline="\n")
+index = layer / "planning/INDEX.md"
+text = index.read_text(encoding="utf-8").replace("PL-20260710: Validate project layer", f"{new_plan}: {new_title}").replace(old_id, new_id)
+index.write_text(text, encoding="utf-8", newline="\n")
+PY
+if grep -Fxq -- '## Supervision and Delegation' "$old_roles_layer/planning/active/ACTIVE.md" \
+  && grep -Fxq -- '## Done Conditions and Execution Loop' "$old_roles_layer/planning/active/ACTIVE.md" \
+  && grep -Fq -- 'Project-specific active work must be preserved.' "$old_roles_layer/planning/closed/$expected_work_unit/$expected_work_unit.sdd.md" \
+  && grep -Fq -- 'Project-specific memory must be preserved.' "$old_roles_layer/planning/closed/$expected_work_unit/$expected_work_unit.memory.md" \
+  && bash "$old_roles_layer/scripts/check-project-layer.sh" >/dev/null; then
+  pass
+else
+  fail "Future activation should use the current template and retain the closed plan and memory"
+fi
+after_activation="$(snapshot_layer "$old_roles_layer")"
+apply_approved_roles_upgrade "$old_roles_layer"
+if [[ "$after_activation" == "$(snapshot_layer "$old_roles_layer")" ]]; then
+  pass
+else
+  fail "Repeating the approved upgrade after future activation should preserve all work"
 fi
 
 orphan="$(new_fixture orphan)"
