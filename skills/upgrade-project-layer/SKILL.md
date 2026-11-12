@@ -72,6 +72,10 @@ Never recopy the canonical template over an existing Project Layer or treat proj
 
 The Project Layer validator is version-gated for template-specific requirements: a requirement introduced in a template version (for example, the `## Test Plan` section required at `0.5.2`) activates only for layers whose `project-layer.json` `templateVersion` is at or above that version. The active-plan `## Progress` checklist is a universal structural invariant for every non-empty `ACTIVE.md`, regardless of template version; only the exact `# No Active Plan` empty state is exempt. Older layers with an active plan missing that section require plan-local migration before validation can pass. A missing or unparseable `templateVersion` is treated as older for version-gated requirements.
 
+### Agent roles and active planning (0.10.0)
+
+Use the normal inspect, propose, approve, and apply flow. Propose adding the project `agents/INDEX.md` and its route in the project index, and carefully merge the supervisor and done-condition guidance into the project-owned `skills/manage-planning/SKILL.md`, including its instruction to consult the canonical active-plan template when writing future plans. Do not overwrite an existing active plan. Preserve active work, local customizations, and closed records. After approval, validate the resulting layer and update the template version only when the approved structural changes are present. Repeat inspection to identify intentional remaining differences; do not recopy the template.
+
 ### Planning template updates (0.9.2)
 
 The 0.9.2 release adds both a completion-review record and epic child-status tracking to planning templates and guidance. Include all applicable files in one focused upgrade patch:

@@ -18,6 +18,8 @@ The repository root owns reusable user-wide guidance. Raw observations begin in 
 
 `.adaptive-agents/` is this repository's dogfood Project Layer. It owns project-specific instructions, planning, memory, retrospectives, skills, and playbooks. Its guidance may be more specific than user-wide guidance, but it must not silently become a user-wide rule.
 
+Reusable agent roles are user-wide guidance; a Project Layer may route project-owned role refinements. Supervisors select relevant roles and hand off scoped context while remaining accountable. Host capabilities and higher-priority instructions determine whether subagents can be used.
+
 `templates/project-layer/` is the canonical source for newly bootstrapped Project Layers. The dogfood layer and existing installed layers are project-owned instances, not generated mirrors. Template upgrades require an explicit comparison and approval-gated merge.
 
 ## Integration Boundary

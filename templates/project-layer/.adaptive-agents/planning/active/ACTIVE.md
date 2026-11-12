@@ -46,6 +46,18 @@ Reference the project rules that govern execution of this plan. List each with a
 
 - `path/to/rule` — one-line description of what it requires.
 
+## Supervision and Delegation
+
+Before work begins, ensure the installed Adaptive Agents entrypoint, its index, and applicable project guidance are in context. Discover the supervisor and relevant reusable and project roles. Loading an existing installation is not authorization to bootstrap a Project Layer.
+
+When the host and user instructions permit, delegate suitable bounded work to subagents. Record role, scope, ownership, dependencies, relevant guidance, expected evidence, and handoff for each assignment; parallelize independent work when useful. The supervisor integrates results and remains accountable. If delegation is unavailable or prohibited, record the fallback and perform the relevant roles directly.
+
+## Done Conditions and Execution Loop
+
+Define observable plan-specific outcomes and evidence for each gate before execution, including applicable implementation, tests, coverage, dogfood, and review. The supervisor must repeat assignment, implementation, validation, review, correction, and affected reruns until all applicable conditions are met with evidence. Subagent completion, partial checks, and progress reports are not completion; do not stop while useful authorized work remains.
+
+Stop early only for a genuine blocker, required user decision or approval, or higher-priority constraint. Exhaust safe in-scope alternatives first, then record the outstanding work, evidence, and specific action required. Follow the separate closure approval process after work is complete.
+
 ## Test Plan
 
 Define the tests that prove this plan's specs, written before implementation per the `instructions/testing.instructions.md` test contract:

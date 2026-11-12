@@ -10,36 +10,36 @@
     {
       "files": [
         {
-          "characterEstimate": 1679,
-          "characters": 6713,
-          "estimatedTokens": 1679,
-          "normalizedBytes": 6717,
+          "characterEstimate": 1731,
+          "characters": 6924,
+          "estimatedTokens": 1731,
+          "normalizedBytes": 6928,
           "path": "AGENTS.md",
-          "sha256": "238c5c6944e28be58c434b594a8f77d1bc6ac5056cd5d03ab7f8900e6b553c8b",
-          "wordEstimate": 1398,
-          "words": 932
+          "sha256": "40a1cd0d23b7ef4ed3264b412a62f0c99fb60e9442d35e4c7abaefb17f20bc43",
+          "wordEstimate": 1436,
+          "words": 957
         },
         {
-          "characterEstimate": 2793,
-          "characters": 11169,
-          "estimatedTokens": 2793,
-          "normalizedBytes": 11169,
+          "characterEstimate": 2814,
+          "characters": 11256,
+          "estimatedTokens": 2814,
+          "normalizedBytes": 11256,
           "path": "INDEX.md",
-          "sha256": "b8f8b541f419cfda8af4d0e2beb63d1773d375dced5f49bc41561fe03160fad8",
-          "wordEstimate": 1484,
-          "words": 989
+          "sha256": "b7a44b520fe6bcd1e60cca88ff5efc55a2345d8218cd2de02f5b3350c5795dab",
+          "wordEstimate": 1497,
+          "words": 998
         }
       ],
       "maxEstimatedTokens": 32768,
       "maxGrowthEstimatedTokens": null,
       "name": "startup",
       "totals": {
-        "characterEstimate": 4472,
-        "characters": 17882,
-        "estimatedTokens": 4472,
-        "normalizedBytes": 17886,
-        "wordEstimate": 2882,
-        "words": 1921
+        "characterEstimate": 4545,
+        "characters": 18180,
+        "estimatedTokens": 4545,
+        "normalizedBytes": 18184,
+        "wordEstimate": 2933,
+        "words": 1955
       }
     }
   ],
